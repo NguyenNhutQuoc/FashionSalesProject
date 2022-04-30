@@ -121,9 +121,7 @@ const productController = {
                     const oldCategory = await Categories.findById(product.get('category'))
                     const category = await Categories.findById(req.body.category)
                     if (category) {
-                        const result = await Products.findByIdAndUpdate(req.params.id, req.body, {
-                            new: true
-                        })
+                        const result = await Products.findByIdAndUpdate(req.params.id, req.body)
                         await oldCategory.updateOne({
                             $pull: {
                                 products: product.get('_id')
@@ -170,8 +168,17 @@ const productController = {
                     })
                 }
                 else {
-                    const result = await Products.findByIdAndDelete(req.params.id)
-                    res.status(200).json(result)
+                    const category = await Categories.findById(product.get('category'))
+                    await category.updateOne({
+                        $pull: {
+                            products: product.get('_id')
+                        }
+                    })
+                    await product.remove()
+                    res.status(200).json({
+                        status: 200,
+                        message: 'Product deleted'
+                    })
                 }
             }
         } catch (e) {
