@@ -171,16 +171,16 @@ const usersSchema = new mongoose.Schema(
             required: true
         },
         'is-admin': {
-            type: Boolean,
-            default: true
+            type: Number,
+            default: 0
         },
         'is-customer': {
-            type: Boolean,
-            default: false,
+            type: Number,
+            default: 0,
         },
         'is-provider': {
-            type: Boolean,
-            default: false
+            type: Number,
+            default: 0
         },
         password: {
             type: String,

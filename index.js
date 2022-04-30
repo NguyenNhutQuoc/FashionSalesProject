@@ -7,7 +7,7 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 // Config routes
 const productRouter = require('./routes/product')
-// const userRouter = require('./routes/user')
+const userRouter = require('./routes/user')
 // const billRouter = require('./routes/bill')
 // const billDetailRouter = require('./routes/billDetail')
 // const colorRouter = require('./routes/color')
@@ -32,7 +32,7 @@ app.use(morgan("common"))
 
 app.use('/api/product', productRouter)
 
-// app.use('/api/user', userRouter)
+app.use('/api/user', userRouter)
 //
 // app.use('/api/bill', billRouter)
 //

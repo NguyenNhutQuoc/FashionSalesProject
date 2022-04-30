@@ -1,0 +1,139 @@
+const {
+    Categories,
+    Products,
+    Colors,
+    Sizes,
+    Coupons,
+    Users,
+    Bills,
+    BillDetails,
+    Comments
+} = require('../model/model');
+
+const userController = {
+    findAll: async (req, res) => {
+        try {
+            const users = await Users.find()
+            res.status(200).json(users)
+        } catch (err) {
+            res.status(500).json({ staus: 500, message: err.message })
+        }
+    },
+    findBy: async (req, res) => {
+        try {
+            const user_name = await Users.find({
+                name: req.query.search
+            })
+
+            const user_phone = await Users.find({
+                phone: req.query.search
+            })
+
+            const user_email = await Users.find({
+                email: req.query.search
+            })
+
+            const user_address = await Users.find({
+                address: req.query.search
+            })
+
+            const user_bank_account = await Users.find({
+                "number-bank-account": req.query.search
+            })
+
+            const user_position =
+                req.query.search === "admin" ? await Users.find({
+                    "is-admin": 1
+                }) : req.query.search === "user" ? await Users.find({
+                    "is-customer": 1
+                }) : await Users.find({
+                    "is-provider": 1
+                })
+
+            if (user_name.length > 0
+                || user_phone.length > 0 || user_email.length > 0
+                || user_address.length > 0 || user_bank_account.length > 0
+                || user_position.length > 0) {
+                res.status(200).json(
+                    user_name.length > 0 ? user_name :
+                            user_phone.length > 0 ? user_phone :
+                                user_email.length > 0 ? user_email :
+                                    user_address.length > 0 ? user_address :
+                                        user_bank_account.length > 0 ? user_bank_account :
+                                            user_position.length > 0 ? user_position : []
+                )
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: "Not found"
+                })
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    },
+    create: async (req, res) => {
+        try {
+            const user = new Users(req.body)
+            const result = await user.save()
+            res.status(201).json(result)
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    },
+    update: async (req, res) => {
+        try {
+            const user = await Users.findById(req.params.id)
+            if (!user) {
+                res.status(404).json({
+                    status: 404,
+                    message: "Not found"
+                })
+            } else {
+                const result = await Users.findByIdAndUpdate(req.params.id, req.body, {
+                    new: true
+                })
+                res.status(200).json(result)
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    },
+    delete: async (req, res) => {
+        try {
+            const user = await Users.findById(req.params.id)
+            if (!user) {
+                res.status(404).json({
+                    status: 404,
+                    message: "Not found"
+                })
+            } else {
+                if (user.get('comments').length > 0 || user.get('bills').length > 0) {
+                    res.status(400).json({
+                        status: 400,
+                        message: "User has comments or bills"
+                    })
+                } else {
+                    const result = await Users.findByIdAndDelete(req.params.id)
+                    res.status(200).json(result)
+                }
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    }
+}
+
+module.exports = userController
