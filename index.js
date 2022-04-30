@@ -6,7 +6,6 @@ const morgan = require('morgan')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 // Config routes
-const categoryRouter = require('./routes/category')
 const productRouter = require('./routes/product')
 // const userRouter = require('./routes/user')
 // const billRouter = require('./routes/bill')
@@ -30,8 +29,6 @@ app.use(bodyParser.json(
 app.use(cors())
 app.use(morgan("common"))
 
-// Config URL
-app.use('/api/category', categoryRouter)
 
 app.use('/api/product', productRouter)
 
