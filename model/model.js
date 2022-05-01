@@ -284,7 +284,7 @@ const billsSchema = new mongoose.Schema(
         },
         status: {
             type: Number,
-            required: true
+            default: 1
         },
         user: {
             type: mongoose.Schema.Types.ObjectId,
@@ -294,7 +294,15 @@ const billsSchema = new mongoose.Schema(
         coupon: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Coupons',
-            required: true
+        },
+        "bill-details":
+        {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'BillDetails'
+                }
+            ]
         }
     }
 )
