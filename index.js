@@ -15,7 +15,7 @@ const billDetailRouter = require('./routes/billDetail')
     // const sizeRouter = require('./routes/sizes')
 const commentsRouter = require('./routes/comment')
     // const couponRouter = require('./routes/coupon')
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 dotenv.config()
 
 mongoose.connect(process.env.MONGODB_URL, () => {
