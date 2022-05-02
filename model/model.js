@@ -111,7 +111,7 @@ const colorsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  imageSub: {
+  "image-sub": {
     type: [String],
     required: true,
   },
@@ -303,7 +303,6 @@ const billDetailsSchema = new mongoose.Schema({
   },
   discount: {
     type: Number,
-    required: true,
   },
   product: {
     type: mongoose.Schema.Types.ObjectId,
@@ -337,56 +336,4 @@ module.exports = {
   Bills,
   BillDetails,
   Comments,
-};
-
-const productController = {
-  findAll: async (req, res) => {
-    try {
-      const products = Products.find();
-      res.status(200).json(products);
-    } catch (error) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: error.message,
-      });
-    }
-  },
-  findById: async (req, res) => {
-    try {
-      const product = await Products.findById(req.params.id);
-      if (product) {
-        res.status(200).json(product);
-      } else {
-        res.status(404).json({
-          status: 404,
-          errorMessage: "Product not found",
-        });
-      }
-    } catch (error) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: error.message,
-      });
-    }
-  },
-  findBySlug: async (req, res) => {
-    try {
-      const product = await Products.findOne({
-        slug: req.params.slug,
-      });
-      if (product) {
-        res.status(200).json(product);
-      } else {
-        res.status(404).json({
-          status: 404,
-          errorMessage: "Product not found",
-        });
-      }
-    } catch (err) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: err.message,
-      });
-    }
-  },
 };

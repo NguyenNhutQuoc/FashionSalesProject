@@ -22,6 +22,8 @@ mongoose.connect(process.env.MONGODB_URL, () => {
   console.log("Connected to MongoDB");
 });
 
+console.log(process.env.MONGODB_URL);
+
 app.use(
   bodyParser.json({
     limit: "50mb",
@@ -38,13 +40,13 @@ app.use("/api/user", userRouter);
 
 app.use("/api/bill", billRouter);
 
-// app.use("/api/bill-detail", billDetailRouter);
+app.use("/api/bill-detail", billDetailRouter);
 //
 // app.use('/api/color', colorRouter)
 //
 // app.use('/api/size', sizeRouter)
 
-// app.use("/api/comment", commentsRouter);
+app.use("/api/comment", commentsRouter);
 //
 // app.use('/api/coupon', couponRouter)
 
