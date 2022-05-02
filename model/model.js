@@ -294,3 +294,25 @@ const billDetailsSchema = new mongoose.Schema({
         required: true
     }
 })
+
+let Categories = mongoose.model('Categories', categoriesSchema)
+let Products = mongoose.model('Products', productsSchema)
+let Colors = mongoose.model('Colors', colorsSchema)
+let Sizes = mongoose.model('Sizes', sizesSchema)
+let Coupons = mongoose.model('Coupons', couponsSchema)
+let Users = mongoose.model('Users', usersSchema)
+let Bills = mongoose.model('Bills', billsSchema)
+let BillDetails = mongoose.model('BillDetails', billDetailsSchema)
+let Comments = mongoose.model('Comments', commentsSchema)
+
+module.exports = {
+    Categories,
+    Products,
+    Colors,
+    Sizes,
+    Coupons,
+    Users,
+    Bills,
+    BillDetails,
+    Comments
+}
