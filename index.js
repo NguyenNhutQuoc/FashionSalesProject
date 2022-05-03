@@ -18,11 +18,11 @@ const commentsRouter = require('./routes/comment')
 const PORT = process.env.PORT || 3000
 dotenv.config()
 
-mongoose.connect(process.env.MONGODB_URI, () => {
+mongoose.connect(process.env.MONGODB_URL, () => {
     console.log('Connected to MongoDB')
 })
 
-console.log(process.env.MONGODB_URI)
+console.log(process.env.MONGODB_URL)
 
 app.use(bodyParser.json({
     limit: '50mb'
