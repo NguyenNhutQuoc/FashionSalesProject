@@ -17,7 +17,7 @@ const billDetailRouter = require('./routes/billDetail')
     // const sizeRouter = require('./routes/sizes')
 const commentsRouter = require('./routes/comment')
     // const couponRouter = require('./routes/coupon')
-mongoose.connect(process.env.MONGODB_URL, (err) => {
+await mongoose.connect(process.env.MONGODB_URL, (err) => {
     if (err) {
         console.log("Can't connect to database")
     } else {
