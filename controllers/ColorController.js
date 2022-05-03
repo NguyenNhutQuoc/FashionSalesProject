@@ -54,8 +54,8 @@ const colorController = {
       if (product) {
         const color = new Colors(req.body);
         const result = await color.save();
-        await product.updateOne({ $push: result._id });
-        res.status(200).json(result);
+        await product.updateOne({ $push: { colors: result._id } });
+        res.status(201).json(result);
       } else {
         res.status(404).json({
           status: 404,
@@ -107,10 +107,10 @@ const colorController = {
       const color = await Colors.findById(req.params.id);
       if (color) {
         if (color.get("product").length > 0) {
+          res.status(400).json({
+            errorMessage: "Color has product!",
+          });
         }
-        res.status(400).json({
-          errorMessage: "Color has product!",
-        });
       } else {
         const product = await Products.findById(color.get("product"));
         await product.updateOne({ $pull: color.get("_id") });

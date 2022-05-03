@@ -48,12 +48,11 @@ const sizeController = {
 
   create: async (req, res) => {
     try {
-      const product = await Products.findById(req.body.product);
+      const product = Products.findById(req.body.product);
       if (product) {
         const size = new Sizes(req.body);
         const result = await size.save();
-        await product.updateOne({ $push: result._id });
-        res.status(200).json(result);
+        await product.updateOne({ $push: { sizes: result._id } });
       } else {
         res.status(404).json({
           status: 404,

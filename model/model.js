@@ -105,13 +105,12 @@ const colorsSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
   },
   image: {
     type: String,
     required: true,
   },
-  "image-sub": {
+  imageSub: {
     type: [String],
     required: true,
   },
@@ -126,7 +125,6 @@ const sizesSchema = new mongoose.Schema({
   size: {
     type: String,
     required: true,
-    unique: true,
   },
   product: {
     type: mongoose.Schema.Types.ObjectId,

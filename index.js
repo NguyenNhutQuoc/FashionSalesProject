@@ -11,8 +11,8 @@ const productRouter = require("./routes/product");
 const userRouter = require("./routes/user");
 const billRouter = require("./routes/bill");
 const billDetailRouter = require("./routes/billDetail");
-// const colorRouter = require('./routes/color')
-// const sizeRouter = require('./routes/sizes')
+const colorRouter = require("./routes/color");
+const sizeRouter = require("./routes/sizes");
 const commentsRouter = require("./routes/comment");
 // const couponRouter = require('./routes/coupon')
 const PORT = process.env.PORT || 3000;
@@ -41,10 +41,10 @@ app.use("/api/user", userRouter);
 app.use("/api/bill", billRouter);
 
 app.use("/api/bill-detail", billDetailRouter);
-//
-// app.use('/api/color', colorRouter)
-//
-// app.use('/api/size', sizeRouter)
+
+app.use("/api/color", colorRouter);
+
+app.use("/api/size", sizeRouter);
 
 app.use("/api/comment", commentsRouter);
 //
