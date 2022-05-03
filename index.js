@@ -25,8 +25,6 @@ mongoose.connect(process.env.MONGODB_URL, (err) => {
     }
 })
 
-console.log(process.env.MONGODB_URL)
-
 app.use(bodyParser.json({
     limit: '50mb'
 }))
