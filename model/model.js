@@ -65,16 +65,10 @@ const productsSchema = new mongoose.Schema({
         ref: 'Categories',
         required: true
     },
-    colors: {
+    properties: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Colors'
-        }]
-    },
-    sizes: {
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Sizes'
+            ref: 'Properties',
         }]
     },
     comments: {
@@ -105,11 +99,12 @@ const colorsSchema = new mongoose.Schema({
         type: [String],
         required: true
     },
-    product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Products',
-        required: true
-    },
+    properties: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Properties',
+        }]
+    }
 })
 
 const sizesSchema = new mongoose.Schema({
@@ -118,10 +113,11 @@ const sizesSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Products',
-        required: true
+    properties: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Properties',
+        }]
     }
 })
 
@@ -295,6 +291,21 @@ const billDetailsSchema = new mongoose.Schema({
     }
 })
 
+const propertiesSchema = new mongoose.Schema({
+    product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Products',
+    },
+    size: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Sizes',
+    },
+    color: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Colors',
+    }
+})
+
 let Categories = mongoose.model('Categories', categoriesSchema)
 let Products = mongoose.model('Products', productsSchema)
 let Colors = mongoose.model('Colors', colorsSchema)
@@ -304,7 +315,7 @@ let Users = mongoose.model('Users', usersSchema)
 let Bills = mongoose.model('Bills', billsSchema)
 let BillDetails = mongoose.model('BillDetails', billDetailsSchema)
 let Comments = mongoose.model('Comments', commentsSchema)
-
+let Properties = mongoose.model('Properties', propertiesSchema)
 module.exports = {
     Categories,
     Products,
@@ -314,5 +325,6 @@ module.exports = {
     Users,
     Bills,
     BillDetails,
-    Comments
+    Comments,
+    Properties
 }
