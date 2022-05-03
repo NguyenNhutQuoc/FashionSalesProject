@@ -104,7 +104,7 @@ const colorsSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Properties',
         }]
-    }
+    },
 })
 
 const sizesSchema = new mongoose.Schema({
@@ -118,7 +118,7 @@ const sizesSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Properties',
         }]
-    }
+    },
 })
 
 const usersSchema = new mongoose.Schema({

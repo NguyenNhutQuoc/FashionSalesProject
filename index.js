@@ -31,26 +31,24 @@ app.use(bodyParser.json({
 app.use(cors())
 app.use(morgan("common"))
 
-app.use('/api/category', categoryRouter)
+app.use("/api/category", categoryRouter);
 
-app.use('/api/product', productRouter)
+app.use("/api/product", productRouter);
 
-app.use('/api/user', userRouter)
+app.use("/api/user", userRouter);
 
-app.use('/api/bill', billRouter)
+app.use("/api/bill", billRouter);
 
-app.use('/api/bill-detail', billDetailRouter)
-    //
-    // app.use('/api/color', colorRouter)
-    //
-    // app.use('/api/size', sizeRouter)
+app.use("/api/bill-detail", billDetailRouter);
 
-app.use('/api/comment', commentsRouter)
-    //
-    // app.use('/api/coupon', couponRouter)
+app.use("/api/color", colorRouter);
 
-app.listen(
-    PORT, () => {
-        console.log(`Server is running on port ${PORT}`)
-    }
-)
+app.use("/api/size", sizeRouter);
+
+app.use("/api/comment", commentsRouter);
+//
+// app.use('/api/coupon', couponRouter)
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});

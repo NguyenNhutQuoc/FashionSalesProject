@@ -1,7 +1,6 @@
 {
   "name": "fashion-sales-project-node",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -23,5 +22,15 @@
     "morgan": "^1.10.0",
     "nodemon": "^2.0.16",
     "slug": "^5.3.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NguyenNhutQuoc/FashionSalesProject.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NguyenNhutQuoc/FashionSalesProject/issues"
+  },
+  "homepage": "https://github.com/NguyenNhutQuoc/FashionSalesProject#readme",
+  "description": ""
 }
