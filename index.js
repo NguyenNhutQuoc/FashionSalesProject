@@ -1,10 +1,12 @@
 const express = require('express')
-const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const PORT = process.env.PORT || 3000
+dotenv.config()
+const app = express()
     // Config routes
 const categoryRouter = require('./routes/category')
 const productRouter = require('./routes/product')
@@ -15,11 +17,12 @@ const billDetailRouter = require('./routes/billDetail')
     // const sizeRouter = require('./routes/sizes')
 const commentsRouter = require('./routes/comment')
     // const couponRouter = require('./routes/coupon')
-const PORT = process.env.PORT || 3000
-dotenv.config()
-
-mongoose.connect(process.env.MONGODB_URL, () => {
-    console.log('Connected to MongoDB')
+mongoose.connect(process.env.MONGODB_URL, (err) => {
+    if (err) {
+        console.log("Can't connect to database")
+    } else {
+        console.log('Connected to mongodb')
+    }
 })
 
 console.log(process.env.MONGODB_URL)
