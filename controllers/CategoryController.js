@@ -1,5 +1,13 @@
 const {
-    Categories, ...others, Products
+    Categories,
+    Products,
+    Colors,
+    Sizes,
+    Coupons,
+    Users,
+    Bills,
+    BillDetails,
+    Comments
 } = require("../model/model")
 
 const categoryController = {
