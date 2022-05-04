@@ -336,6 +336,31 @@ const BillController = {
                 errorMessage: e.message
             })
         }
+    },
+    findAllBillDetailsByIdBill: async (req, res) => {
+        try {
+            const bill = await Bills.findById(req.params.id)
+            if (bill) {
+                const billDetails = bill.get("bill-details")
+                if (billDetails.length > 0) {
+                    res.status(200).json(billDetails)
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        errorMessage: "Not Found bill-details"
+                    })
+                }
+            } else
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Not Found bill"
+                })
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            })
+        }
     }
 }
 

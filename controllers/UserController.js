@@ -9,6 +9,7 @@ const {
     BillDetails,
     Comments
 } = require('../model/model');
+const mongoose = require("mongoose");
 
 const userController = {
     findAll: async (req, res) => {
@@ -157,7 +158,9 @@ const userController = {
     },
     findAllBillsByIdUser: async (req, res) => {
         try {
-            const user = await Users.findById(req.params.id)
+            const user = await Users.findOne({
+                _id: new mongoose.Types.ObjectId(req.params.id)
+            })
             if (user) {
                 const bills = user.get('bills')
                 if (bills.length > 0) {
