@@ -102,7 +102,7 @@ const categoryController = {
     },
     findAllProductsBySlugCategory: async (req, res) => {
         try {
-            const category = await Categories.findById(req.params.slug)
+            const category = await Categories.findOne({ slug: req.params.slug })
             if (category) {
                 const products = category.get("products")
                 if (products.length > 0) {
