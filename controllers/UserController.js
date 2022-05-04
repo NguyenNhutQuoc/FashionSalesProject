@@ -133,6 +133,48 @@ const userController = {
                 errorMessage: err.message
             })
         }
+    },
+    findAllCommentsByIdUser: async (req, res) => {
+        try {
+            const user = await Users.findById(req.params.id)
+            if (user) {
+                const comments = user.get('comments')
+                if (comments.length > 0) {
+                    res.status(200).json(comments)
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        message: "Not found"
+                    })
+                }
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    },
+    findAllBillsByIdUser: async (req, res) => {
+        try {
+            const user = await Users.findById(req.params.id)
+            if (user) {
+                const bills = user.get('bills')
+                if (bills.length > 0) {
+                    res.status(200).json(bills)
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        message: "Not found"
+                    })
+                }
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
     }
 }
 

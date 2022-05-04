@@ -7,7 +7,7 @@ const {
   Users,
   Bills,
   BillDetails,
-  Comments,
+  Comments, Properties,
 } = require("../model/model");
 
 const productController = {
@@ -218,6 +218,78 @@ const productController = {
       });
     }
   },
-};
+  findAllCommentsBySlugProduct: async (req, res) => {
+    try {
+      const product = await Products.findOne({ slug: req.params.slug})
+      if (product) {
+        const comments = product.get("comments");
+        if (comments.length > 0) {
+          res.status(200).json(comments);
+        } else {
+          res.status(404).json({
+            status: 404,
+            errorMessage: "Comments not found",
+          });
+        }
+      } else {
+        res.status(404).json({
+          status: 404,
+          errorMessage: "Product not found",
+        });
+      }
+    } catch (e) {
+      res.status(500).json({
+        status: 500,
+        errorMessage: e.message,
+      });
+    }
+  },
+  findAllPropertiesBySlugProduct: async (req, res) => {
+    try {
+      const product = await Products.findOne({
+        slug: req.params.slug,
+      })
+      if (product) {
+        const properties = product.get('properties')
+        if (properties.length > 0) {
+          res.status(200).json(properties)
+        } else {
+          res.status(404).json({
+            status: 404,
+            errorMessage: "Properties not found with this slug product",
+          })
+        }
+      }
+    } catch (err) {
+      res.status(500).json({
+        status: 500,
+        errorMessage: err.message,
+      })
+    }
+  },
+  findAllBillDetail: async(req, res) => {
+    try {
+      const product = await Products.findOne({
+        slug: req.params.slug,
+      })
+      if (product) {
+        const billDetails = product.get('bill-details')
+        if (billDetails.length > 0) {
+          res.status(200).json(billDetails)
+        } else {
+          res.status(404).json({
+            status: 404,
+            errorMessage: "Bill details not found with this slug product",
+          })
+        }
+      }
+    } catch (err) {
+      res.status(500).json({
+        status: 500,
+        errorMessage: err.message,
+      })
+    }
+  }
+}
 
 module.exports = productController;

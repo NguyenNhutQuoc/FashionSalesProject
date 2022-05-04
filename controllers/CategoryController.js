@@ -1,5 +1,5 @@
 const {
-    Categories, ...others
+    Categories, ...others, Products
 } = require("../model/model")
 
 const categoryController = {
@@ -89,6 +89,29 @@ const categoryController = {
             res.status(500).json({
                 status: "500",
                 errorMessage: err.message || "Some error occurred while deleting the Category."
+            })
+        }
+    },
+    findAllProductsBySlugCategory: async (req, res) => {
+        try {
+            const category = await Categories.findById(req.params.slug)
+            if (category) {
+                const products = category.get("products")
+                if (products.length > 0) {
+                    res.status(200).json(products)
+                } else {
+                    res.status(404).json({
+                        errorMessage: "Not found any product with this category"
+                    })
+                }
+            } else
+                res.status(404).json({
+                    errorMessage: "Not found category"
+                })
+        } catch (e) {
+            res.status(500).json({
+                status: "500",
+                errorMessage: e.message || "Some error occurred while retrieving products."
             })
         }
     }
