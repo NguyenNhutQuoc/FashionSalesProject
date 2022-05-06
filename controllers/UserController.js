@@ -1,13 +1,5 @@
 const {
-    Categories,
-    Products,
-    Colors,
-    Sizes,
-    Coupons,
-    Users,
-    Bills,
-    BillDetails,
-    Comments
+    Users
 } = require('../model/model');
 const mongoose = require("mongoose");
 
@@ -17,7 +9,7 @@ const userController = {
             const users = await Users.find()
             res.status(200).json(users)
         } catch (err) {
-            res.status(500).json({ staus: 500, message: err.message })
+            res.status(500).json({ status: 500, message: err.message })
         }
     },
     findBy: async (req, res) => {

@@ -1,13 +1,7 @@
 const {
-    Categories,
-    Products,
-    Colors,
-    Sizes,
     Coupons,
     Users,
-    Bills,
-    BillDetails,
-    Comments
+    Bills
 } = require('../model/model');
 
 const isNumber = require('is-number')

@@ -1,20 +1,12 @@
 const {
-    Categories,
-    Products,
-    Colors,
-    Sizes,
-    Coupons,
-    Users,
-    Bills,
-    BillDetails,
-    Comments
+    CategoriesSchema,
 } = require("../model/model")
 
 const categoryController = {
 
     findAll: async (req, res) => {
         try {
-            const categories = await Categories.find()
+            const categories = await CategoriesSchema.find()
             res.status(200).json(categories)
         } catch (err) {
             res.status(500).json({
@@ -25,10 +17,10 @@ const categoryController = {
     },
     findBy: async (req, res) => {
         try {
-            const category_name = await Categories.findOne({
+            const category_name = await CategoriesSchema.findOne({
                 name: req.query.search
             })
-            const category_slug = await Categories.findOne({
+            const category_slug = await CategoriesSchema.findOne({
                 slug: req.query.search
             })
             console.log(category_name)
@@ -51,9 +43,8 @@ const categoryController = {
 
     create: async (req, res) => {
         try {
-            const category = new Categories(req.body)
-            const result = await category.save()
-            res.status(201).json(result)
+            const category = await CategoriesSchema.create(req.body)
+            res.status(201).json(category)
 
         } catch (err) {
             res.status(500).json({
@@ -64,7 +55,7 @@ const categoryController = {
     },
     update: async (req, res) => {
         try {
-            const category = await Categories.findByIdAndUpdate(req.params.id, req.body)
+            const category = await CategoriesSchema.findByIdAndUpdate(req.params.id, req.body)
             if (category)
                 res.status(200).json(category)
             else
@@ -80,7 +71,7 @@ const categoryController = {
     },
     delete: async (req, res) => {
         try {
-            const category = await Categories.findById(req.params.id)
+            const category = await CategoriesSchema.findById(req.params.id)
             if (category) {
                 if (category.get("products").length > 0) {
                     res.status(400).json({
@@ -102,7 +93,7 @@ const categoryController = {
     },
     findAllProductsBySlugCategory: async (req, res) => {
         try {
-            const category = await Categories.findOne({ slug: req.params.slug })
+            const category = await CategoriesSchema.findOne({ slug: req.params.slug })
             if (category) {
                 const products = category.get("products")
                 if (products.length > 0) {

@@ -16,6 +16,8 @@ const billDetailRouter = require('./routes/billDetail')
 const colorRouter = require('./routes/color')
 const sizeRouter = require('./routes/sizes')
 const commentsRouter = require('./routes/comment')
+const billDetailsRouter = require('./routes/billDetail')
+const productDetailsSchema = require('./routes/productDetail')
     // const couponRouter = require('./routes/coupon')
 mongoose.connect(process.env.MONGDB_URL, (err) => {
     if (err) {
@@ -47,6 +49,7 @@ app.use("/api/size", sizeRouter);
 
 app.use("/api/comment", commentsRouter);
 //
+app.use("/api/product-detail", productDetailsSchema);
 // app.use('/api/coupon', couponRouter)
 
 app.listen(PORT, () => {

@@ -9,4 +9,5 @@ router.post('/', billController.create);
 router.put('/:id', billController.update);
 router.delete('/:id', billController.delete);
 router.get('/:id/bill-detail', billController.findAllBillDetailsByIdBill)
+
 module.exports = router

@@ -1,13 +1,6 @@
 const {
-    Categories,
-    Products,
-    Colors,
-    Sizes,
-    Coupons,
-    Users,
-    Bills,
-    BillDetails,
-    Comments
+    ProductDetails,
+    Bills, BillDetails, Products,
 } = require('../model/model');
 const isNumber = require('is-number')
 const billDetailController = {
@@ -24,11 +17,13 @@ const billDetailController = {
     },
     findBy: async(req, res) => {
         try {
+
             const product = await Products.findOne({
                 name: req.query.s
             })
+
             const billDetailByProduct = await BillDetails.find({
-                product: product ? product._id : null
+                'product-detail': product ? product.get("_id") : null
             })
             if (billDetailByProduct.length > 0) {
                 res.status(200).json(billDetailByProduct)
@@ -65,9 +60,9 @@ const billDetailController = {
     },
     create: async(req, res) => {
         try {
-            if (req.body.bill && req.body.product && req.body.quantity && req.body.price && isNumber(req.body.quantity) && isNumber(req.body.price)) {
+            if (req.body.bill && req.body['product-detail'] && req.body.quantity && req.body.price && isNumber(req.body.quantity) && isNumber(req.body.price)) {
                 const bill = await Bills.findById(req.body.bill)
-                const product = await Products.findById(req.body.product)
+                const product = await ProductDetails.findById(req.body['product-detail'])
                 if (bill && product && req.body.quantity > 0 && req.body.price > 0) {
                     const billDetail = new BillDetails(req.body)
                     await billDetail.save()
@@ -106,10 +101,10 @@ const billDetailController = {
             const billDetail = await BillDetails.findById(req.params.id)
             if (billDetail) {
                 const bill = await Bills.findById(req.body.bill)
-                const product = await Products.findById(req.body.product)
+                const product = await ProductDetails.findById(req.body['product-detail'])
                 if (bill && product) {
                     const oldBill = await Bills.findById(billDetail.get('bill'))
-                    const oldProduct = await Products.findById(billDetail.get('product'))
+                    const oldProduct = await ProductDetails.findById(billDetail.get('product-detail'))
                     await billDetail.updateOne(req.body)
                     await oldBill.updateOne({
                         $pull: {
@@ -135,7 +130,7 @@ const billDetailController = {
                         "Update success"
                     )
                 } else if (product) {
-                    const oldProduct = await Products.findById(billDetail.get('product'))
+                    const oldProduct = await ProductDetails.findById(billDetail.get('product-detail'))
                     await billDetail.updateOne(req.body)
                     await oldProduct.updateOne({
                         $pull: {
@@ -190,7 +185,7 @@ const billDetailController = {
             const billDetail = await BillDetails.findById(req.params.id)
             if (billDetail) {
                 const bill = await Bills.findById(billDetail.get('bill'))
-                const product = await Products.findById(billDetail.get('product'))
+                const product = await ProductDetails.findById(billDetail.get('product-detail'))
                 await bill.updateOne({
                     $pull: {
                         "bill-details": billDetail.get('_id')
