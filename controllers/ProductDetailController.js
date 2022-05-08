@@ -26,6 +26,7 @@ const ProductDetailController ={
                             color: colorCheck,
                         })
                         if (!size_id) {
+                            console.log("Hello")
                             await SizesSchema.create({
                                 size: sizeCheck,
                                 'product-details': []

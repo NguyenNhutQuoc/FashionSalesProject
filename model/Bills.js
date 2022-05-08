@@ -6,8 +6,7 @@ const billsSchema = new mongoose.Schema({
         required: true
     },
     'shipped-date': {
-        type: Date,
-        required: true
+        type: Date
     },
     status: {
         type: Number,
@@ -27,6 +26,9 @@ const billsSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'BillDetails'
         }]
+    },
+    'type': {
+        type: String,
     }
 })
 
