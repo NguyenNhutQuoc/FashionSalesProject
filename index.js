@@ -33,23 +33,23 @@ app.use(bodyParser.json({
 app.use(cors())
 app.use(morgan("common"))
 
-app.use("/api/category", categoryRouter);
+app.use("/api/categories", categoryRouter);
 
-app.use("/api/product", productRouter);
+app.use("/api/products", productRouter);
 
-app.use("/api/user", userRouter);
+app.use("/api/users", userRouter);
 
-app.use("/api/bill", billRouter);
+app.use("/api/bills", billRouter);
 
-app.use("/api/bill-detail", billDetailRouter);
+app.use("/api/bill-details", billDetailRouter);
 
-app.use("/api/color", colorRouter);
+app.use("/api/colors", colorRouter);
 
-app.use("/api/size", sizeRouter);
+app.use("/api/sizes", sizeRouter);
 
-app.use("/api/comment", commentsRouter);
+app.use("/api/comments", commentsRouter);
 //
-app.use("/api/product-detail", productDetailsSchema);
+app.use("/api/product-details", productDetailsSchema);
 // app.use('/api/coupon', couponRouter)
 
 app.listen(PORT, () => {
