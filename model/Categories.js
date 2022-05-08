@@ -8,7 +8,8 @@ const categoriesSchema = new mongoose.Schema({
         unique: true
     },
     image: {
-        type: String
+        type: String,
+        default: ""
     },
     slug: {
         type: String,

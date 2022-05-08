@@ -64,7 +64,6 @@ const billDetailController = {
                 const bill = await Bills.findById(req.body.bill)
                 const product = await ProductDetails.findById(req.body['product-detail'])
                 if (bill && product && req.body.quantity > 0 && req.body.price > 0) {
-
                     const billDetail = await BillDetails.create(
                         {
                             bill: req.body.bill,
@@ -280,6 +279,8 @@ const billDetailController = {
                 } else if (bill) {
                     const oldBill = await Bills.findById(billDetail.get('bill'))
                     const product = await ProductDetails.findById(billDetail.get('product-detail'))
+                    const quantity = product.get('quantity')
+                    console.log(quantity)
                     await oldBill.updateOne({
                         $pull: {
                             "bill-details": billDetail.get('_id')
@@ -296,7 +297,7 @@ const billDetailController = {
                                 "bill-details": billDetail.get('_id')
                             },
                             $set: {
-                                "quantity": product.get('quantity') - billDetail.get('quantity')
+                                "quantity": quantity - billDetail.get('quantity')
                             }
                         })
                     } else if (oldBill.get('type') === 'X') {
@@ -307,7 +308,7 @@ const billDetailController = {
                                 "bill-details": billDetail.get('_id')
                             },
                             $set: {
-                                "quantity": product.get('quantity') + billDetail.get('quantity')
+                                quantity: quantity + billDetail.get('quantity')
                             }
                         })
                         console.log(product.get('quantity'))
@@ -319,7 +320,7 @@ const billDetailController = {
                                     "bill-details": billDetail.get('_id')
                                 },
                                 $set: {
-                                    "quantity": product.get('quantity') + req.body.quantity
+                                    quantity: quantity + req.body.quantity
                                 }
                             })
                         } else {
@@ -328,7 +329,7 @@ const billDetailController = {
                                     "bill-details": billDetail.get('_id')
                                 },
                                 $set: {
-                                    "quantity": product.get('quantity') + billDetail.get('quantity')
+                                    quantity: quantity + billDetail.get('quantity')
                                 }
                             })
                             console.log(product.get('quantity'))
@@ -340,7 +341,7 @@ const billDetailController = {
                                     "bill-details": billDetail.get('_id')
                                 },
                                 $set: {
-                                    "quantity": product.get('quantity') - req.body.quantity
+                                    quantity: quantity - req.body.quantity
                                 }
                             })
                         } else {
@@ -349,7 +350,7 @@ const billDetailController = {
                                     "bill-details": billDetail.get('_id')
                                 },
                                 $set: {
-                                    "quantity": product.get('quantity') - billDetail.get('quantity')
+                                    quantity: quantity - billDetail.get('quantity')
                                 }
                             })
                         }
@@ -362,6 +363,7 @@ const billDetailController = {
                     const product = await ProductDetails.findOne({
                         _id: billDetail.get('product-detail')
                     })
+                    const quantity = product.get('quantity')
                     const bill = await Bills.findOne({
                         _id: billDetail.get('bill')
                     })
@@ -369,7 +371,7 @@ const billDetailController = {
                         if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
                             await product.updateOne({
                                 $set: {
-                                    "quantity": product.get('quantity') + (req.body.quantity - billDetail.get('quantity'))
+                                    "quantity": quantity + (req.body.quantity - billDetail.get('quantity'))
                                 }
                             })
                         }
@@ -377,7 +379,7 @@ const billDetailController = {
                         if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
                             await product.updateOne({
                                 $set: {
-                                    "quantity": product.get('quantity') - (req.body.quantity - billDetail.get('quantity'))
+                                    "quantity": quantity - (req.body.quantity - billDetail.get('quantity'))
                                 }
                             })
                         }

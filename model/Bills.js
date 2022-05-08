@@ -27,7 +27,7 @@ const billsSchema = new mongoose.Schema({
             ref: 'BillDetails'
         }]
     },
-    'type': {
+    type: {
         type: String,
     }
 })
