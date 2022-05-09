@@ -1,3 +1,39 @@
+<<<<<<< HEAD
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const morgan = require("morgan");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const PORT = process.env.PORT || 3000;
+dotenv.config();
+const app = express();
+// Config routes
+const categoryRouter = require("./routes/category");
+const productRouter = require("./routes/product");
+const userRouter = require("./routes/user");
+const billRouter = require("./routes/bill");
+const billDetailRouter = require("./routes/billDetail");
+const colorRouter = require("./routes/color");
+const sizeRouter = require("./routes/sizes");
+const commentsRouter = require("./routes/comment");
+// const couponRouter = require('./routes/coupon')
+mongoose.connect(process.env.MONGODB_URL, (err) => {
+  if (err) {
+    console.log("Can't connect to database");
+  } else {
+    console.log("Connected to mongodb");
+  }
+});
+console.log(process.env.MONGODB_URL, "mongodb");
+app.use(
+  bodyParser.json({
+    limit: "50mb",
+  })
+);
+app.use(cors());
+app.use(morgan("common"));
+=======
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -32,6 +68,7 @@ app.use(bodyParser.json({
 }))
 app.use(cors())
 app.use(morgan("common"))
+>>>>>>> 497941f556699d0c801b5d489ea450d65ee17d32
 
 app.use("/api/categories", categoryRouter);
 
@@ -53,5 +90,5 @@ app.use("/api/product-details", productDetailsSchema);
 // app.use('/api/coupon', couponRouter)
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
