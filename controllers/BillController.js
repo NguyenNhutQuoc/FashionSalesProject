@@ -1,13 +1,7 @@
 const {
-    Categories,
-    Products,
-    Colors,
-    Sizes,
     Coupons,
     Users,
-    Bills,
-    BillDetails,
-    Comments
+    Bills
 } = require('../model/model');
 
 const isNumber = require('is-number')
@@ -110,7 +104,6 @@ const BillController = {
         try {
             const user = await Users.findById(req.body.user)
             const coupon = await Users.findById(req.body.coupon)
-
             if (user && coupon && user.get("is-customer") === 1) {
                 await user.updateOne(
                     {
@@ -129,22 +122,45 @@ const BillController = {
                 const bill = new Bills(req.body)
                 const result = await bill.save()
                 res.status(201).json(result)
-            } else if (user && user.get("is-customer") === 1) {
-                const bill = new Bills(req.body)
-                const result = await bill.save()
-                await user.updateOne(
-                    {
-                        $push: {
-                            bills: bill.get("_id")
+            } else if (user && (user.get("is-customer") === 1 || user.get("is-provider") === 1)) {
+                if (user.get("is-customer") === 1) {
+                    const bill = new Bills(req.body)
+                    const result = await bill.save()
+                    await result.updateOne({
+                        $set: {
+                            'type': 'X'
                         }
-                    }
-                )
-                res.status(201).json(result)
+                    })
+                    await user.updateOne(
+                        {
+                            $push: {
+                                bills: bill.get("_id")
+                            }
+                        }
+                    )
+                    res.status(201).json(result)
+                } else {
+                    const bill = new Bills(req.body)
+                    const result = await bill.save()
+                    await result.updateOne({
+                        $set: {
+                            'type': 'N'
+                        }
+                    })
+                    await user.updateOne(
+                        {
+                            $push: {
+                                bills: bill.get("_id")
+                            }
+                        }
+                    )
+                    res.status(201).json(result)
+                }
             }
             else {
                 res.status(400).json({
                     status: 400,
-                    errorMessage: "We can't find this user or you are not allowed to buy this product. Please contact with admin"
+                    errorMessage: "We can't find this user or this provider or you are not allowed to buy this product. Please contact with admin"
                 })
             }
         } catch (error) {
@@ -197,8 +213,18 @@ const BillController = {
                                     }
                                 }
                             )
+                        } else {
+                            res.status(400).json({
+                                status: 400,
+                                errorMessage: "We can't find this user or this provider or you are not allowed to buy this product. Please contact with admin"
+                            })
                         }
                         await bill.updateOne(req.body)
+                        await bill.updateOne({
+                            $set: {
+                                type: "X"
+                            }
+                        })
                         res.status(200).json({
                             status: 200,
                             message: "Bill updated successfully"
@@ -211,32 +237,66 @@ const BillController = {
                     }
                 } else if (req.body.user) {
                     const user = await Users.findById(req.body.user)
-                    if (user && user.get("is-customer") === 1) {
-                        const oldUser = await Users.findById(bill.get("user"))
-                        await oldUser.updateOne(
-                            {
-                                $pull: {
-                                    bills: bill.get("_id")
+                    if (user && (user.get("is-customer") === 1 || user.get("is-provider") === 1)) {
+                        if (user.get("is-customer") === 1) {
+                            const oldUser = await Users.findById(bill.get("user"))
+                            await oldUser.updateOne(
+                                {
+                                    $pull: {
+                                        bills: bill.get("_id")
+                                    }
                                 }
-                            }
-                        )
-                        const newUser = await Users.findById(req.body.user)
-                        await newUser.updateOne(
-                            {
-                                $push: {
-                                    bills: bill.get("_id")
+                            )
+                            const newUser = await Users.findById(req.body.user)
+                            await newUser.updateOne(
+                                {
+                                    $push: {
+                                        bills: bill.get("_id")
+                                    }
                                 }
-                            }
-                        )
-                        await bill.updateOne(req.body)
-                        res.status(200).json({
-                            status: 200,
-                            message: "Bill updated successfully"
-                        })
+                            )
+                            await bill.updateOne(req.body)
+                            await bill.updateOne({
+                                $set: {
+                                    type: "X"
+                                }
+                            })
+                            res.status(200).json({
+                                status: 200,
+                                message: "Bill updated successfully"
+                            })
+                        } else {
+                            const oldUser = await Users.findById(bill.get("user"))
+                            await oldUser.updateOne(
+                                {
+                                    $pull: {
+                                        bills: bill.get("_id")
+                                    }
+                                }
+                            )
+                            const newUser = await Users.findById(req.body.user)
+                            await newUser.updateOne(
+                                {
+                                    $push: {
+                                        bills: bill.get("_id")
+                                    }
+                                }
+                            )
+                            await bill.updateOne(req.body)
+                            await bill.updateOne({
+                                $set: {
+                                    type: "N"
+                                }
+                            })
+                            res.status(200).json({
+                                status: 200,
+                                message: "Bill updated successfully"
+                            })
+                        }
                     } else {
                         res.status(404).json({
                             status: 404,
-                            errorMessage: "Not Found user or this user is not a customer"
+                            errorMessage: "Not Found user or provider or this user is not a customer"
                         })
                     }
                 } else if (req.body.coupon) {
@@ -330,6 +390,31 @@ const BillController = {
                     errorMessage: "Not Found Bill to delete."
                 })
             }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            })
+        }
+    },
+    findAllBillDetailsByIdBill: async (req, res) => {
+        try {
+            const bill = await Bills.findById(req.params.id)
+            if (bill) {
+                const billDetails = bill.get("bill-details")
+                if (billDetails.length > 0) {
+                    res.status(200).json(billDetails)
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        errorMessage: "Not Found bill-details"
+                    })
+                }
+            } else
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Not Found bill"
+                })
         } catch (e) {
             res.status(500).json({
                 status: 500,

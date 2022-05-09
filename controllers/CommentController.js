@@ -1,9 +1,5 @@
 const {
-    Categories,
     Products,
-    Colors,
-    Sizes,
-    Coupons,
     Users,
     Bills,
     BillDetails,

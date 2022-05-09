@@ -1,14 +1,7 @@
 const {
-    Categories,
-    Products,
-    Colors,
-    Sizes,
-    Coupons,
-    Users,
-    Bills,
-    BillDetails,
-    Comments
+    Users
 } = require('../model/model');
+const mongoose = require("mongoose");
 
 const userController = {
     findAll: async (req, res) => {
@@ -16,7 +9,7 @@ const userController = {
             const users = await Users.find()
             res.status(200).json(users)
         } catch (err) {
-            res.status(500).json({ staus: 500, message: err.message })
+            res.status(500).json({ status: 500, message: err.message })
         }
     },
     findBy: async (req, res) => {
@@ -125,6 +118,50 @@ const userController = {
                 } else {
                     const result = await Users.findByIdAndDelete(req.params.id)
                     res.status(200).json(result)
+                }
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    },
+    findAllCommentsByIdUser: async (req, res) => {
+        try {
+            const user = await Users.findById(req.params.id)
+            if (user) {
+                const comments = user.get('comments')
+                if (comments.length > 0) {
+                    res.status(200).json(comments)
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        message: "Not found"
+                    })
+                }
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    },
+    findAllBillsByIdUser: async (req, res) => {
+        try {
+            const user = await Users.findOne({
+                _id: new mongoose.Types.ObjectId(req.params.id)
+            })
+            if (user) {
+                const bills = user.get('bills')
+                if (bills.length > 0) {
+                    res.status(200).json(bills)
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        message: "Not found"
+                    })
                 }
             }
         } catch (err) {

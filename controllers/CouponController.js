@@ -8,7 +8,7 @@ const {
   Bills,
   BillDetails,
   Comments,
-} = require("../model/model");
+} = require("../model/Coupons");
 
 const couponController = {
   findAll: async (req, res) => {
