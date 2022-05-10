@@ -8,7 +8,7 @@ const {
   Bills,
   BillDetails,
   Comments,
-} = require("../model/Coupons");
+} = require("../model/model");
 
 const couponController = {
   findAll: async (req, res) => {
@@ -20,6 +20,25 @@ const couponController = {
         status: 500,
         errorMessage: e.message,
       });
+    }
+  },
+
+  findById: async (req, res) => {
+    try {
+      const coupon = await Coupons.findById(req.params.id);
+      if (coupon) {
+        res.status(200).json(coupon);
+      } else {
+        res.status(404).json({
+          status: 404,
+          errorMessage: "Coupon not found",
+        })
+      }
+    } catch (e) {
+      res.status(500).json({
+        status: 500,
+        errorMessage: e.message,
+      })
     }
   },
 
@@ -126,7 +145,7 @@ const couponController = {
     } catch (err) {
       res.status(500).json({
         status: 500,
-        errorMessage: e.message,
+        errorMessage: err.message,
       });
     }
   },

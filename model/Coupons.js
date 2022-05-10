@@ -12,19 +12,19 @@ const couponsSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    'date-start': {
+    dateStart: {
         type: Date,
         required: true
     },
-    'date-end': {
+    dateEnd: {
         type: Date,
         required: true
     },
-    'minimum-amount': {
+    minimumAmount: {
         type: Number,
         required: true
     },
-    'is-active': {
+    isActive: {
         type: Boolean,
         default: true
     },

@@ -20,6 +20,26 @@ const BillController = {
 
     },
 
+    findById: async (req, res) => {
+        try {
+
+            const bill = await Bills.findById(req.params.id)
+            if (bill) {
+                res.status(200).json(bill)
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: 'Bill not found'
+                })
+            }
+        } catch (error) {
+            res.json({
+                status: 500,
+                errorMessage: error.message
+            })
+        }
+    },
+
     findByDate: async (req, res) => {
         try {
             const bill_date = await Bills.find({
@@ -104,7 +124,7 @@ const BillController = {
         try {
             const user = await Users.findById(req.body.user)
             const coupon = await Users.findById(req.body.coupon)
-            if (user && coupon && user.get("is-customer") === 1) {
+            if (user && coupon && user.get("isCustomer") === 1) {
                 await user.updateOne(
                     {
                         $push: {
@@ -122,8 +142,8 @@ const BillController = {
                 const bill = new Bills(req.body)
                 const result = await bill.save()
                 res.status(201).json(result)
-            } else if (user && (user.get("is-customer") === 1 || user.get("is-provider") === 1)) {
-                if (user.get("is-customer") === 1) {
+            } else if (user && (user.get("isCustomer") === 1 || user.get("isProvider") === 1)) {
+                if (user.get("isCustomer") === 1) {
                     const bill = new Bills(req.body)
                     const result = await bill.save()
                     await result.updateOne({
@@ -179,7 +199,7 @@ const BillController = {
                 if (req.body.coupon && req.body.user) {
                     const user = await Users.findById(req.body.user)
                     const coupon = await Coupons.findById(req.body.coupon)
-                    if (user && coupon  && user.get("is-customer") === 1) {
+                    if (user && coupon  && user.get("isCustomer") === 1) {
                         if (coupon) {
                             const oldCoupon = await Coupons.findById(bill.get("coupon"))
                             await oldCoupon.updateOne({
@@ -237,8 +257,8 @@ const BillController = {
                     }
                 } else if (req.body.user) {
                     const user = await Users.findById(req.body.user)
-                    if (user && (user.get("is-customer") === 1 || user.get("is-provider") === 1)) {
-                        if (user.get("is-customer") === 1) {
+                    if (user && (user.get("isCustomer") === 1 || user.get("isProvider") === 1)) {
+                        if (user.get("isCustomer") === 1) {
                             const oldUser = await Users.findById(bill.get("user"))
                             await oldUser.updateOne(
                                 {
@@ -352,7 +372,7 @@ const BillController = {
         try {
             const bill = await Bills.findById(req.params.id)
             if (bill) {
-                if (bill.get("bill-details").length > 0) {
+                if (bill.get("billDetails").length > 0) {
                     res.status(400).json({
                         status: 400,
                         errorMessage: "Can't delete this bill because it has bill-details"
@@ -401,7 +421,7 @@ const BillController = {
         try {
             const bill = await Bills.findById(req.params.id)
             if (bill) {
-                const billDetails = bill.get("bill-details")
+                const billDetails = bill.get("billDetails")
                 if (billDetails.length > 0) {
                     res.status(200).json(billDetails)
                 } else {

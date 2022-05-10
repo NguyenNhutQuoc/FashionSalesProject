@@ -7,12 +7,13 @@ const billDetailsSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: true
+        default: 0,
     },
     discount: {
         type: Number,
+        default: 0,
     },
-    'product-detail': {
+    productDetail: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductDetails',
         required: true

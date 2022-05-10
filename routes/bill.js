@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const billController = require('../controllers/BillController');
 
+router.get('/:id', billController.findById);
 router.get('/', billController.findAll);
 router.get('/search', billController.findBy);
 router.get('/date', billController.findByDate);

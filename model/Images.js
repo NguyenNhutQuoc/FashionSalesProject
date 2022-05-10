@@ -5,16 +5,14 @@ const ImageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    'image-sub': [
-        {
-            type: String,
-            required: true
-        }
-    ],
-    'product-detail': {
+    'imagesSub': [{
+        type: [String],
+        required: true
+    }],
+    'productDetail': {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductDetails',
-        required: true
+
     }
 })
 

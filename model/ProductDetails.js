@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 
 const productDetailsSchema = new mongoose.Schema({
-    price: {
-        type: Number,
-        required: true
-    },
     quantity: {
         type: Number,
         required: true
@@ -32,7 +28,7 @@ const productDetailsSchema = new mongoose.Schema({
             ref: 'ImagesSchema'
         }
         ],
-    'bill-details': {
+    billDetails: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'BillDetails'

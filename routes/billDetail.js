@@ -8,5 +8,5 @@ router.get('/search', billDetailController.findBy)
 router.post('/', billDetailController.create)
 router.put('/:id', billDetailController.update)
 router.delete('/:id', billDetailController.delete)
-
+router.delete('/', billDetailController.deleteMany)
 module.exports = router

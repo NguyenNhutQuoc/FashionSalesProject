@@ -16,36 +16,29 @@ const usersSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    'date-of-birth': {
-        type: Date,
-        required: true
-    },
     address: {
         type: String,
         required: true
     },
-    'number-bank-account': {
+    numberBankAccount: {
         type: String,
         required: true
     },
-    'is-admin': {
+    isAdmin: {
         type: Number,
         default: 0
     },
-    'is-customer': {
+    isCustomer: {
         type: Number,
         default: 0,
     },
-    'is-provider': {
+    isProvider: {
         type: Number,
         default: 0
     },
     password: {
         type: String,
         required: true
-    },
-    image: {
-        type: String,
     },
     comments: {
         type: [{
@@ -58,7 +51,14 @@ const usersSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Bills'
         }]
+    },
+    avatar: {
+        type: String,
+        default: ""
     }
-})
+},
+    {
+        timestamps: true
+    })
 
 module.exports = mongoose.model('Users', usersSchema);

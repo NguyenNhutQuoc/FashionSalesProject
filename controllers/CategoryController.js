@@ -15,6 +15,24 @@ const categoryController = {
             })
         }
     },
+    findById: async (req, res) => {
+        try {
+            const category = await CategoriesSchema.findById(req.params.id)
+            if (category) {
+                res.status(200).json(category)
+            } else {
+                res.status(404).json({
+                    status: "404",
+                    errorMessage: "Category not found with id " + req.params.id
+                })
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: "500",
+                errorMessage: err.message || "Some error occurred while retrieving category."
+            })
+        }
+    },
     findBy: async (req, res) => {
         try {
             const category_name = await CategoriesSchema.findOne({

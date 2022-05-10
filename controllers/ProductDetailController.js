@@ -1,20 +1,58 @@
 const {
-    ProductDetails, Products, SizesSchema, Colors
+    ProductDetails,
+    Products,
+    SizesSchema,
+    Colors
 } = require('../model/model');
 const isNumber = require('is-number')
-const ProductDetailController ={
-    create: async (req, res) => {
-        try{
+const ImagesSchema = require("../model/Images");
+const ProductDetailController = {
+    findAll: async(req, res) => {
+        try {
+            const productDetails = await ProductDetails.find()
+            res.status(200).json(
+                productDetails
+            )
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            })
+        }
+    },
+    findById: async(req, res) => {
+        try {
+            const productDetail = await ProductDetails.findById(req.params.id)
+            if (productDetail) {
+                res.status(200).json(
+                    productDetail
+                )
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Product not found"
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            })
+        }
+    },
+    create: async(req, res) => {
+        try {
             const {
                 quantity,
-                price,
                 status,
                 product,
                 size,
-                color
+                color,
+                image,
+                imagesSub
             } = req.body
-            if (quantity && price && status && product && size && color) {
-                if (isNumber(quantity) && isNumber(price) && isNumber(status)) {
+            if (quantity && status && product && size && color) {
+                if (isNumber(quantity) && isNumber(status)) {
                     const product_id = await Products.findById(product)
                     if (product_id) {
                         const sizeCheck = size.toLowerCase()
@@ -26,45 +64,54 @@ const ProductDetailController ={
                             color: colorCheck,
                         })
                         if (!size_id) {
-                            console.log("Hello")
                             await SizesSchema.create({
                                 size: sizeCheck,
-                                'product-details': []
+                                productDetails: []
                             })
                         }
                         if (!color_id) {
-                            await SizesSchema.create({
+                            await Colors.create({
                                 color: colorCheck,
-                                'product-details': []
+                                productDetails: []
                             })
                         }
                         const size_id_ = await SizesSchema.findOne({
                             size: sizeCheck
                         })
-                        const color_id_ = await SizesSchema.findOne({
+                        const color_id_ = await Colors.findOne({
                             color: colorCheck,
+                        })
+                        await ImagesSchema.create({
+                            image: image,
+                            'imagesSub': imagesSub
+                        })
+                        const image_id = await ImagesSchema.findOne({
+                            image: image
                         })
                         const productDetail = await ProductDetails.create({
                             quantity,
-                            price,
                             status,
                             product: product_id.get('_id'),
                             size: size_id_.get('_id'),
-                            color: color_id_.get('_id')
+                            color: color_id_.get('_id'),
+                            images: image_id.get('_id')
+                        })
+                        await ImagesSchema.updateOne({
+                            'productDetail': productDetail.get('_id')
                         })
                         await Products.updateOne({
                             $push: {
-                                'product-details': productDetail.get('_id')
+                                productDetails: productDetail.get('_id')
                             }
                         })
                         await SizesSchema.updateOne({
                             $push: {
-                                'product-details': productDetail.get('_id')
+                                productDetails: productDetail.get('_id')
                             }
                         })
                         await Colors.updateOne({
                             $push: {
-                                'product-details': productDetail.get('_id')
+                                productDetails: productDetail.get('_id')
                             }
                         })
                         res.status(200).json({
@@ -91,16 +138,11 @@ const ProductDetailController ={
             })
         }
     },
-    update: async (req, res) => {
+    update: async(req, res) => {
         try {
             const productDetail = await ProductDetails.findById(req.params.id)
             if (productDetail) {
-                if (req.body.price || req.body.quantity || req.body.status) {
-                    if (req.body.price && !isNumber(req.body.price)) {
-                        res.status(404).json({
-                            errorMessage: 'Price must be number'
-                        })
-                    }
+                if (req.body.quantity || req.body.status) {
                     if (req.body.quantity && !isNumber(req.body.quantity)) {
                         res.status(404).json({
                             errorMessage: 'Quantity must be number'
@@ -122,12 +164,12 @@ const ProductDetailController ={
                         const newProduct = await Products.findById(req.body.product)
                         oldProduct.updateOne({
                             $pull: {
-                                'product-details': productDetail.get('_id')
+                                productDetails: productDetail.get('_id')
                             }
                         })
                         newProduct.updateOne({
                             $push: {
-                                'product-details': productDetail.get('_id')
+                                productDetails: productDetail.get('_id')
                             }
                         })
                     } else {
@@ -140,24 +182,24 @@ const ProductDetailController ={
                     const oldColor = await Colors.findById(productDetail.get('color'))
                     oldColor.updateOne({
                         $pull: {
-                            'product-details': productDetail.get('_id')
+                            productDetails: productDetail.get('_id')
                         }
                     })
                     await Colors.create({
                         color: req.body.color,
-                        'product-details': productDetail.get('_id')
+                        productDetails: productDetail.get('_id')
                     })
                 }
                 if (req.body.size) {
                     const oldSize = await SizesSchema.findById(productDetail.get('size'))
                     oldSize.updateOne({
                         $pull: {
-                            'product-details': productDetail.get('_id')
+                            productDetails: productDetail.get('_id')
                         }
                     })
                     await SizesSchema.create({
                         size: req.body.size,
-                        'product-details': productDetail.get('_id')
+                        productDetails: productDetail.get('_id')
                     })
                 }
                 await productDetail.updateOne({
@@ -179,26 +221,29 @@ const ProductDetailController ={
             })
         }
     },
-    delete: async (req, res) => {
+    delete: async(req, res) => {
         try {
             const productDetail = await ProductDetails.findById(req.params.id)
             if (productDetail) {
                 const product = await Products.findById(productDetail.get('product'))
                 const color = await Colors.findById(productDetail.get('color'))
                 const size = await SizesSchema.findById(productDetail.get('size'))
+                console.log(product)
+                console.log(color)
+                console.log(size)
                 product.updateOne({
                     $pull: {
-                        'product-details': productDetail.get('_id')
+                        productDetails: productDetail.get('_id')
                     }
                 })
                 color.updateOne({
                     $pull: {
-                        'product-details': productDetail.get('_id')
+                        productDetails: productDetail.get('_id')
                     }
                 })
                 size.updateOne({
                     $pull: {
-                        'product-details': productDetail.get('_id')
+                        productDetails: productDetail.get('_id')
                     }
                 })
                 await productDetail.remove()
@@ -206,9 +251,9 @@ const ProductDetailController ={
                     message: 'Delete success'
                 })
             } else
-            res.status(404).json({
-                errorMessage: 'Product detail not found'
-            })
+                res.status(404).json({
+                    errorMessage: 'Product detail not found'
+                })
         } catch (err) {
             res.status(500).json({
                 errorMessage: err.message

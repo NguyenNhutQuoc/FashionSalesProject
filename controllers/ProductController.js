@@ -1,268 +1,265 @@
 const {
-  CategoriesSchema,
+    CategoriesSchema,
     Products
 } = require("../model/model");
 
+const isNumber = require("is-number");
 const productController = {
-  findAll: async (req, res) => {
-    try {
-      const products = await Products.find().populate('product-details');
-      res.status(200).json(products);
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: e.message,
-      });
-    }
-  },
-  findByName: async (req, res) => {
-    try {
-      const {
-        name
-      } = req.params;
-      const products = await Products.find({
-        name: {
-          $regex: name,
-          $options: "i"
+    findAll: async(req, res) => {
+        try {
+            const products = await Products.find()
+                .populate("category").populate("productDetails")
+                .populate('productDetails.color')
+                .populate('productDetails.size')
+                .populate('productDetails.images').exec()
+            res.status(200).json(products)
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            });
         }
-      });
-      res.status(200).json(products);
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: e.message,
-      });
-    }
-  },
-  findBy: async (req, res) => {
-    try {
-      const {
-        material_option,
-          origin_option,
-          category_option
-      } = req.query;
-      const category = await CategoriesSchema.findOne({
-        name: category_option
-      })
-      if ((!material_option && !category_option) || (!material_option && !origin_option) || (!origin_option && !category_option)) {
-        const products = (!material_option && !category_option) ? await Products.find({
-          origin: origin_option,
-        }) : (!material_option && origin_option) ? await Products.find({
-          category: category.get("_id"),
-        }) : await Products.find({
-          material: material_option
-        })
-        res.status(200).json(products);
-      }
-      else {
-        const products = !material_option ? await Products.find({
-          category: category.get("_id"),
-          origin: origin_option
-        }) : !origin_option ? await Products.find({
-          category: category.get("_id"),
-          material: material_option
-        }) : !category_option ? await Products.find({
-          material: material_option,
-          origin: origin_option
-        }) : await Products.find({
-          material: material_option,
-          origin: origin_option,
-          category: category.get("_id")
-        })
-        res.status(200).json(products);
-      }
+    },
+    findById: async(req, res) => {
+        try {
+            const product = await Products.findById(req.params.id)
+            if (product) {
+                res.status(200).json(product)
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Product not found",
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            })
+        }
+    },
+    findByName: async(req, res) => {
+        try {
+            const {
+                name
+            } = req.params;
+            const products = await Products.find({
+                name: {
+                    $regex: name,
+                    $options: "i"
+                }
+            });
+            res.status(200).json(products);
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            });
+        }
+    },
+    findBy: async(req, res) => {
+        try {
+            const {
+                material_option,
+                origin_option,
+                category_option
+            } = req.query;
+            const category = await CategoriesSchema.findOne({
+                name: category_option
+            })
+            if ((!material_option && !category_option) || (!material_option && !origin_option) || (!origin_option && !category_option)) {
+                const products = (!material_option && !category_option) ? await Products.find({
+                    origin: origin_option,
+                }) : (!material_option && origin_option) ? await Products.find({
+                    category: category.get("_id"),
+                }) : await Products.find({
+                    material: material_option
+                })
+                res.status(200).json(products);
+            } else {
+                const products = !material_option ? await Products.find({
+                    category: category.get("_id"),
+                    origin: origin_option
+                }) : !origin_option ? await Products.find({
+                    category: category.get("_id"),
+                    material: material_option
+                }) : !category_option ? await Products.find({
+                    material: material_option,
+                    origin: origin_option
+                }) : await Products.find({
+                    material: material_option,
+                    origin: origin_option,
+                    category: category.get("_id")
+                })
+                res.status(200).json(products);
+            }
 
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: e.message,
-      });
-    }
-  },
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            });
+        }
+    },
 
-  create: async (req, res) => {
-    try {
-      const category = CategoriesSchema.findById(req.body.category);
-      if (category) {
-        const product = new Products(req.body);
-        const result = await product.save();
-        await category.updateOne({
-          $push: {
-            products: result._id,
-          },
-        });
-        res.status(201).json(result);
-      } else {
-        res.status(404).json({
-          status: 404,
-          errorMessage: "Category not found",
-        });
-      }
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: e.message,
-      });
-    }
-  },
-  update: async (req, res) => {
-    try {
-      const product = await Products.findById(req.params.id);
-      if (product) {
-        if (req.body.category) {
-          const oldCategory = await CategoriesSchema.findById(
-            product.get("category")
-          );
-          console.log(oldCategory)
-          const category = await CategoriesSchema.findById(req.body.category);
-          console.log(category)
-          if (category) {
-            const result = await Products.findByIdAndUpdate(
-              req.params.id,
-              req.body
-            );
-            await oldCategory.updateOne({
-              $pull: {
-                products: product.get("_id"),
-              },
+    create: async(req, res) => {
+        try {
+            const category = await CategoriesSchema.findById(req.body.category)
+            if (req.body.price && isNumber(req.body.price) && req.body.price > 0 && category) {
+                const product = await Products.create(req.body);
+                await category.updateOne({
+                    $push: {
+                        products: product.get("_id"),
+                    },
+                });
+                res.status(201).json(product);
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Category not found or price is not a number or price is 0",
+                });
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
             });
-            await category.updateOne({
-              $push: {
-                products: product.get("_id"),
-              },
+        }
+    },
+    update: async(req, res) => {
+        try {
+            const product = await Products.findById(req.params.id);
+            if (product) {
+                if (req.body.category) {
+                    const oldCategory = await CategoriesSchema.findById(
+                        product.get("category")
+                    );
+                    console.log(oldCategory)
+                    const category = await CategoriesSchema.findById(req.body.category);
+                    console.log(category)
+                    if (category) {
+                        const result = await Products.findByIdAndUpdate(
+                            req.params.id,
+                            req.body
+                        );
+                        await oldCategory.updateOne({
+                            $pull: {
+                                products: product.get("_id"),
+                            },
+                        });
+                        await category.updateOne({
+                            $push: {
+                                products: product.get("_id"),
+                            },
+                        });
+                        res.status(200).json(result);
+                    } else {
+                        res.status(404).json({
+                            status: 404,
+                            errorMessage: "Category not found",
+                        });
+                    }
+                } else {
+                    const result = await Products.findByIdAndUpdate(
+                        req.params.id,
+                        req.body
+                    );
+                    res.status(200).json(result);
+                }
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Product not found",
+                });
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
             });
-            res.status(200).json(result);
-          } else {
-            res.status(404).json({
-              status: 404,
-              errorMessage: "Category not found",
+        }
+    },
+    delete: async(req, res) => {
+        try {
+            const product = await Products.findById(req.params.id);
+            if (product) {
+                if (
+                    product.get("comments") > 0
+                ) {
+                    res.status(400).json({
+                        status: 400,
+                        errorMessage: "Product has comments. You can't delete it",
+                    });
+                } else {
+                    const category = await CategoriesSchema.findById(product.get("category"));
+                    await category.updateOne({
+                        $pull: {
+                            products: product.get("_id"),
+                        },
+                    });
+                    await product.remove();
+                    res.status(200).json({
+                        status: 200,
+                        message: "Product deleted",
+                    });
+                }
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
             });
-          }
-        } else {
-          const result = await Products.findByIdAndUpdate(
-            req.params.id,
-            req.body
-          );
-          res.status(200).json(result);
         }
-      } else {
-        res.status(404).json({
-          status: 404,
-          errorMessage: "Product not found",
-        });
-      }
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: e.message,
-      });
-    }
-  },
-  delete: async (req, res) => {
-    try {
-      const product = await Products.findById(req.params.id);
-      if (product) {
-        if (
-          product.get("comments") > 0
-        ) {
-          res.status(400).json({
-            status: 400,
-            errorMessage:
-              "Product has comments. You can't delete it",
-          });
-        } else {
-          const category = await CategoriesSchema.findById(product.get("category"));
-          await category.updateOne({
-            $pull: {
-              products: product.get("_id"),
-            },
-          });
-          await product.remove();
-          res.status(200).json({
-            status: 200,
-            message: "Product deleted",
-          });
+    },
+    findAllCommentsBySlugProduct: async(req, res) => {
+        try {
+            const product = await Products.findOne({ slug: req.params.slug })
+            if (product) {
+                const comments = product.get("comments");
+                if (comments.length > 0) {
+                    res.status(200).json(comments);
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        errorMessage: "Comments not found",
+                    });
+                }
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Product not found",
+                });
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            });
         }
-      }
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: e.message,
-      });
-    }
-  },
-  findAllCommentsBySlugProduct: async (req, res) => {
-    try {
-      const product = await Products.findOne({ slug: req.params.slug})
-      if (product) {
-        const comments = product.get("comments");
-        if (comments.length > 0) {
-          res.status(200).json(comments);
-        } else {
-          res.status(404).json({
-            status: 404,
-            errorMessage: "Comments not found",
-          });
+    },
+    findAllPropertiesBySlugProduct: async(req, res) => {
+        try {
+            const product = await Products.findOne({
+                slug: req.params.slug,
+            })
+            if (product) {
+                const properties = product.get('properties')
+                if (properties.length > 0) {
+                    res.status(200).json(properties)
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        errorMessage: "Properties not found with this slug product",
+                    })
+                }
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message,
+            })
         }
-      } else {
-        res.status(404).json({
-          status: 404,
-          errorMessage: "Product not found",
-        });
-      }
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: e.message,
-      });
-    }
-  },
-  findAllPropertiesBySlugProduct: async (req, res) => {
-    try {
-      const product = await Products.findOne({
-        slug: req.params.slug,
-      })
-      if (product) {
-        const properties = product.get('properties')
-        if (properties.length > 0) {
-          res.status(200).json(properties)
-        } else {
-          res.status(404).json({
-            status: 404,
-            errorMessage: "Properties not found with this slug product",
-          })
-        }
-      }
-    } catch (err) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: err.message,
-      })
-    }
-  },
-  findAllBillDetail: async(req, res) => {
-    try {
-      const product = await Products.findOne({
-        slug: req.params.slug,
-      })
-      if (product) {
-        const billDetails = product.get('bill-details')
-        if (billDetails.length > 0) {
-          res.status(200).json(billDetails)
-        } else {
-          res.status(404).json({
-            status: 404,
-            errorMessage: "Bill details not found with this slug product",
-          })
-        }
-      }
-    } catch (err) {
-      res.status(500).json({
-        status: 500,
-        errorMessage: err.message,
-      })
-    }
-  }
+    },
 }
 
 module.exports = productController;

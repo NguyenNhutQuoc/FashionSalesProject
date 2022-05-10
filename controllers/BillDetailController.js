@@ -1,6 +1,9 @@
 const {
     ProductDetails,
-    Bills, BillDetails, Products,
+    Bills,
+    BillDetails,
+    Products,
+    Coupons,
 } = require('../model/model');
 const isNumber = require('is-number')
 const billDetailController = {
@@ -23,7 +26,7 @@ const billDetailController = {
             })
 
             const billDetailByProduct = await BillDetails.find({
-                'product-detail': product ? product.get("_id") : null
+                productDetail: product ? product.get("_id") : null
             })
             if (billDetailByProduct.length > 0) {
                 res.status(200).json(billDetailByProduct)
@@ -60,36 +63,55 @@ const billDetailController = {
     },
     create: async(req, res) => {
         try {
-            if (req.body.bill && req.body['product-detail'] && req.body.quantity && req.body.price && isNumber(req.body.quantity) && isNumber(req.body.price)) {
+            if (req.body.bill && req.body.productDetail && req.body.quantity && isNumber(req.body.quantity)) {
                 const bill = await Bills.findById(req.body.bill)
-                const product = await ProductDetails.findById(req.body['product-detail'])
-                if (bill && product && req.body.quantity > 0 && req.body.price > 0) {
-                    const billDetail = await BillDetails.create(
-                        {
-                            bill: req.body.bill,
-                            'product-detail': req.body['product-detail'],
-                            quantity: req.body.quantity,
-                            price: req.body.price,
-                            status:2
-                        }
-                    )
+                const product = await ProductDetails.findById(req.body.productDetail)
+                if (bill && product && req.body.quantity > 0) {
+                    console.log("Hello")
+                    const billDetail = await BillDetails.create({
+                        bill: req.body.bill,
+                        productDetail: req.body.productDetail,
+                        quantity: req.body.quantity,
+                        status: 2
+                    })
+                    const quantity = billDetail.get('quantity')
+                    console.log(quantity)
+                    const product_ = await Products.findById(product.get('product'))
+                    const price = product_.get('price')
+                    console.log(price)
+                    const total = quantity * price
                     if (bill.get('type') === 'X') {
-
+                        if (bill.get('coupon')) {
+                            const coupon = await Coupons.findById(bill.get('coupon'))
+                            const percent = coupon.get('percent')
+                            const discount = total * percent / 100
+                            const finalPrice = total - discount
+                            await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
+                                $set: {
+                                    price: finalPrice
+                                }
+                            })
+                        } else {
+                            await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
+                                $set: {
+                                    price: total
+                                }
+                            })
+                        }
                         if ((product.get('quantity') < req.body.quantity) && isNumber(product.get('quantity')) && isNumber(req.body.quantity)) {
                             res.status(404).json({
                                 status: 404,
                                 errorMessage: 'Quantity is not enough'
                             })
-                        }
-                        else {
+                        } else {
                             await bill.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 }
                             })
                             await product.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 },
                             })
                             await product.updateOne({
@@ -98,15 +120,18 @@ const billDetailController = {
                                 }
                             })
                         }
-                    }  else {
+                    } else {
+                        await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
+                            price: total
+                        })
                         await bill.updateOne({
                             $push: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             }
                         })
                         await product.updateOne({
                             $push: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             },
                         })
                         await product.updateOne({
@@ -140,24 +165,24 @@ const billDetailController = {
             const billDetail = await BillDetails.findById(req.params.id)
             if (billDetail) {
                 const bill = await Bills.findById(req.body.bill)
-                const product = await ProductDetails.findById(req.body['product-detail'])
+                const product = await ProductDetails.findById(req.body.productDetail)
                 if (bill && product) {
                     const oldBill = await Bills.findById(billDetail.get('bill'))
-                    const oldProduct = await ProductDetails.findById(billDetail.get('product-detail'))
+                    const oldProduct = await ProductDetails.findById(billDetail.get('productDetail'))
                     await oldBill.updateOne({
                         $pull: {
-                            "bill-details": billDetail.get('_id')
+                            billDetails: billDetail.get('_id')
                         }
                     })
                     await bill.updateOne({
                         $push: {
-                            "bill-details": billDetail.get('_id')
+                            billDetails: billDetail.get('_id')
                         }
                     })
                     if (oldBill.get('type') === 'N') {
                         await oldProduct.updateOne({
                             $pull: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             },
                             $inc: {
                                 "quantity": -billDetail.get('quantity')
@@ -167,7 +192,7 @@ const billDetailController = {
                     if (oldBill.get('type') === 'X') {
                         await oldProduct.updateOne({
                             $pull: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             },
                             $inc: {
                                 "quantity": billDetail.get('quantity')
@@ -181,7 +206,7 @@ const billDetailController = {
                                     "quantity": req.body.quantity
                                 },
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 }
                             })
                         } else {
@@ -190,7 +215,7 @@ const billDetailController = {
                                     "quantity": billDetail.get('quantity')
                                 },
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 }
                             })
                         }
@@ -202,7 +227,7 @@ const billDetailController = {
                                     "quantity": -req.body.quantity
                                 },
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 }
                             })
                         } else {
@@ -211,7 +236,7 @@ const billDetailController = {
                                     "quantity": -billDetail.get('quantity')
                                 },
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 }
                             })
                         }
@@ -221,12 +246,12 @@ const billDetailController = {
                         "Update success"
                     )
                 } else if (product) {
-                    const oldProduct = await ProductDetails.findById(billDetail.get('product-detail'))
+                    const oldProduct = await ProductDetails.findById(billDetail.get('productDetail'))
                     const oldBill = await Bills.findById(billDetail.get('bill'))
                     if (oldBill.get('type') === 'N') {
                         await oldProduct.updateOne({
                             $pull: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             },
                             $inc: {
                                 "quantity": -billDetail.get('quantity')
@@ -238,13 +263,13 @@ const billDetailController = {
                                     "quantity": req.body.quantity
                                 },
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 }
                             })
-                        }else {
+                        } else {
                             await product.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 },
                                 $inc: {
                                     "quantity": billDetail.get('quantity')
@@ -254,7 +279,7 @@ const billDetailController = {
                     } else if (oldBill.get('type') === 'X') {
                         await oldProduct.updateOne({
                             $pull: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             },
                             $inc: {
                                 "quantity": billDetail.get('quantity')
@@ -266,13 +291,13 @@ const billDetailController = {
                                     "quantity": -req.body.quantity
                                 },
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 }
                             })
                         } else {
                             await product.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 },
                                 $inc: {
                                     "quantity": -billDetail.get('quantity')
@@ -287,21 +312,21 @@ const billDetailController = {
                     )
                 } else if (bill) {
                     const oldBill = await Bills.findById(billDetail.get('bill'))
-                    const product = await ProductDetails.findById(billDetail.get('product-detail'))
+                    const product = await ProductDetails.findById(billDetail.get('productDetail'))
                     await oldBill.updateOne({
                         $pull: {
-                            "bill-details": billDetail.get('_id')
+                            billDetails: billDetail.get('_id')
                         }
                     })
                     await bill.updateOne({
                         $push: {
-                            "bill-details": billDetail.get('_id')
+                            billDetails: billDetail.get('_id')
                         }
                     })
                     if (oldBill.get('type') === 'N') {
                         await product.updateOne({
                             $pull: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             },
                             $inc: {
                                 "quantity": -billDetail.get('quantity')
@@ -312,7 +337,7 @@ const billDetailController = {
                         console.log(product.get('quantity'))
                         await product.updateOne({
                             $pull: {
-                                "bill-details": billDetail.get('_id')
+                                billDetails: billDetail.get('_id')
                             },
                             $inc: {
                                 quantity: billDetail.get('quantity')
@@ -324,7 +349,7 @@ const billDetailController = {
                         if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
                             await product.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 },
                                 $inc: {
                                     quantity: req.body.quantity
@@ -333,7 +358,7 @@ const billDetailController = {
                         } else {
                             await product.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 },
                                 $inc: {
                                     quantity: billDetail.get('quantity')
@@ -345,7 +370,7 @@ const billDetailController = {
                         if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
                             await product.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 },
                                 $inc: {
                                     quantity: -req.body.quantity
@@ -354,7 +379,7 @@ const billDetailController = {
                         } else {
                             await product.updateOne({
                                 $push: {
-                                    "bill-details": billDetail.get('_id')
+                                    billDetails: billDetail.get('_id')
                                 },
                                 $inc: {
                                     quantity: -billDetail.get('quantity')
@@ -368,7 +393,7 @@ const billDetailController = {
                     )
                 } else {
                     const product = await ProductDetails.findOne({
-                        _id: billDetail.get('product-detail')
+                        _id: billDetail.get('productDetail')
                     })
                     const bill = await Bills.findOne({
                         _id: billDetail.get('bill')
@@ -413,15 +438,15 @@ const billDetailController = {
             const billDetail = await BillDetails.findById(req.params.id)
             if (billDetail) {
                 const bill = await Bills.findById(billDetail.get('bill'))
-                const product = await ProductDetails.findById(billDetail.get('product-detail'))
+                const product = await ProductDetails.findById(billDetail.get('productDetail'))
                 await bill.updateOne({
                     $pull: {
-                        "bill-details": billDetail.get('_id')
+                        billDetails: billDetail.get('_id')
                     }
                 })
                 await product.updateOne({
                     $pull: {
-                        "bill-details": billDetail.get('_id')
+                        billDetails: billDetail.get('_id')
                     }
                 })
                 await billDetail.remove()
@@ -438,6 +463,44 @@ const billDetailController = {
             res.status(500).json({
                 status: 500,
                 errorMessage: error.message
+            })
+        }
+    },
+    deleteMany: async(req, res) => {
+        try {
+            const billDetail = await BillDetails.find({
+                _id: {
+                    $in: req.body
+                }
+            })
+            if (billDetail.length > 0) {
+                for (let element in billDetail) {
+                    const bill = await Bills.findById(billDetail[element].get('bill'))
+                    const product = await ProductDetails.findById(billDetail[element].get('productDetail'))
+                    await bill.updateOne({
+                        $pull: {
+                            billDetails: billDetail[element].get('_id')
+                        }
+                    })
+                    await product.updateOne({
+                        $pull: {
+                            billDetails: billDetail[element].get('_id')
+                        }
+                    })
+                }
+                await BillDetails.deleteMany({
+                    _id: {
+                        $in: req.body
+                    }
+                })
+                res.status(200).json(
+                    "Delete success"
+                )
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
             })
         }
     }

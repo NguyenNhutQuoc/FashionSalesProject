@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const billsSchema = new mongoose.Schema({
-    'date': {
+    date: {
         type: Date,
         required: true
     },
-    'shipped-date': {
+    shippedDate: {
         type: Date
     },
     status: {
@@ -21,7 +21,7 @@ const billsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Coupons',
     },
-    "bill-details": {
+    billDetails: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'BillDetails'

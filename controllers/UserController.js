@@ -4,7 +4,7 @@ const {
 const mongoose = require("mongoose");
 
 const userController = {
-    findAll: async (req, res) => {
+    findAll: async(req, res) => {
         try {
             const users = await Users.find()
             res.status(200).json(users)
@@ -12,7 +12,47 @@ const userController = {
             res.status(500).json({ status: 500, message: err.message })
         }
     },
-    findBy: async (req, res) => {
+    findCustomers: async(req, res) => {
+        try {
+            const users = await Users.find({
+                isCustomer: 1
+            })
+            if (users.length > 0) {
+                res.status(200).json(users)
+            } else {
+                res.status(404).json({ status: 404, errorMessage: 'No customers found' })
+            }
+        } catch (err) {
+            res.status(500).json({ status: 500, errorMessage: err.message })
+        }
+    },
+    findProviders: async(req, res) => {
+        try {
+            const users = await Users.find({
+                isProvider: 1
+            })
+            if (users.length > 0) {
+                res.status(200).json(users)
+            } else {
+                res.status(404).json({ status: 404, errorMessage: 'No providers found' })
+            }
+        } catch (e) {
+            res.status(500).json({ status: 500, errorMessage: e.message })
+        }
+    },
+    findById: async(req, res) => {
+        try {
+            const user = await Users.findById(req.params.id)
+            if (user) {
+                res.status(200).json(user)
+            } else {
+                res.status(404).json({ status: 404, errorMessage: "User not found" })
+            }
+        } catch (err) {
+            res.status(500).json({ status: 500, errorMessage: err.message })
+        }
+    },
+    findBy: async(req, res) => {
         try {
             const user_name = await Users.find({
                 name: req.query.search
@@ -31,29 +71,29 @@ const userController = {
             })
 
             const user_bank_account = await Users.find({
-                "number-bank-account": req.query.search
+                numberBankAccount: req.query.search
             })
 
             const user_position =
                 req.query.search === "admin" ? await Users.find({
-                    "is-admin": 1
+                    isAdmin: 1
                 }) : req.query.search === "user" ? await Users.find({
-                    "is-customer": 1
+                    isCustomer: 1
                 }) : await Users.find({
-                    "is-provider": 1
+                    isProvider: 1
                 })
 
-            if (user_name.length > 0
-                || user_phone.length > 0 || user_email.length > 0
-                || user_address.length > 0 || user_bank_account.length > 0
-                || user_position.length > 0) {
+            if (user_name.length > 0 ||
+                user_phone.length > 0 || user_email.length > 0 ||
+                user_address.length > 0 || user_bank_account.length > 0 ||
+                user_position.length > 0) {
                 res.status(200).json(
                     user_name.length > 0 ? user_name :
-                            user_phone.length > 0 ? user_phone :
-                                user_email.length > 0 ? user_email :
-                                    user_address.length > 0 ? user_address :
-                                        user_bank_account.length > 0 ? user_bank_account :
-                                            user_position.length > 0 ? user_position : []
+                    user_phone.length > 0 ? user_phone :
+                    user_email.length > 0 ? user_email :
+                    user_address.length > 0 ? user_address :
+                    user_bank_account.length > 0 ? user_bank_account :
+                    user_position.length > 0 ? user_position : []
                 )
             } else {
                 res.status(404).json({
@@ -68,7 +108,7 @@ const userController = {
             })
         }
     },
-    create: async (req, res) => {
+    create: async(req, res) => {
         try {
             const user = new Users(req.body)
             const result = await user.save()
@@ -80,7 +120,7 @@ const userController = {
             })
         }
     },
-    update: async (req, res) => {
+    update: async(req, res) => {
         try {
             const user = await Users.findById(req.params.id)
             if (!user) {
@@ -101,7 +141,7 @@ const userController = {
             })
         }
     },
-    delete: async (req, res) => {
+    delete: async(req, res) => {
         try {
             const user = await Users.findById(req.params.id)
             if (!user) {
@@ -127,7 +167,7 @@ const userController = {
             })
         }
     },
-    findAllCommentsByIdUser: async (req, res) => {
+    findAllCommentsByIdUser: async(req, res) => {
         try {
             const user = await Users.findById(req.params.id)
             if (user) {
@@ -148,7 +188,7 @@ const userController = {
             })
         }
     },
-    findAllBillsByIdUser: async (req, res) => {
+    findAllBillsByIdUser: async(req, res) => {
         try {
             const user = await Users.findOne({
                 _id: new mongoose.Types.ObjectId(req.params.id)

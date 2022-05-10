@@ -15,7 +15,24 @@ const colorController = {
       });
     }
   },
-
+  findById: async (req, res) => {
+    try {
+      const color = await Colors.findById(req.params.id)
+      if (color) {
+        res.status(200).json(color);
+      } else {
+        res.status(404).json({
+          status: 404,
+          errorMessage: "Color not found",
+        })
+      }
+    } catch (e) {
+      res.status(500).json({
+        status: 500,
+        errorMessage: e.message,
+      })
+    }
+  },
   findBy: async (req, res) => {
     try {
       const name = await Colors.find({ name: req.query.search });
@@ -72,7 +89,7 @@ const colorController = {
         if (product) {
           const updateColor = await Colors.findById(req.params.id);
           await updateColor.updateOne({ $set: req.body });
-          await presenProduct.updateOne({ $pull: { product: color._id } });
+          await product.updateOne({ $pull: { product: color._id } });
           res.status(200).json({
             message: "Update successfully!",
           });

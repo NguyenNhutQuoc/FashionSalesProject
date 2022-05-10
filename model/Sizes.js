@@ -7,7 +7,7 @@ const sizesSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    'product-details': {
+    productDetails: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'ProductDetails'

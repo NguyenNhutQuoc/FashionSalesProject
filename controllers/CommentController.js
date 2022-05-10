@@ -3,7 +3,7 @@ const {
     Users,
     Bills,
     BillDetails,
-    Comments
+    CommentsSchema
 } = require('../model/model');
 
 const isNumber = require('is-number')
@@ -11,7 +11,7 @@ const commentController = {
 
     findAll: async(req, res) => {
         try {
-            const comments = await Comments.find()
+            const comments = await CommentsSchema.find()
             res.status(200).json(comments)
         } catch (err) {
             res.status(500).json({
@@ -21,21 +21,40 @@ const commentController = {
         }
     },
 
+    findById: async(req, res) => {
+        try {
+            const comment = await CommentsSchema.findById(req.params.id)
+            if (comment) {
+                res.status(200).json(comment)
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: 'Comment not found'
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            })
+        }
+    },
+
     findBy: async(req, res) => {
         try {
-            const commentByStarNumber = await Comments.find({
+            const commentByStarNumber = await CommentsSchema.find({
                 star: isNumber(req.query.s) ? req.query.s : -1
             })
             const user = await Users.findOne({
                 name: req.query.u
             })
-            const commentByUser = await Comments.find({
+            const commentByUser = await CommentsSchema.find({
                 user: user ? user.get('_id') : null
             })
             const product = await Products.findOne({
                 name: req.query.p
             })
-            const commentByProduct = await Comments.find({
+            const commentByProduct = await CommentsSchema.find({
                 product: product ? product.get('_id') : null
             })
 
@@ -64,7 +83,7 @@ const commentController = {
                 const user = await Users.findById(req.body.user)
                 const product = await Products.findById(req.body.product)
                 if (user && product && req.body.star >= 0) {
-                    if (user.get("is-customer") === 1) {
+                    if (user.get("isCustomer") === 1) {
                         const bill = await Bills.findOne({
                             user: user.get('_id'),
                             status: 2
@@ -75,16 +94,16 @@ const commentController = {
                                 product: product.get('_id')
                             })
                             if (billDetail) {
-                                const comment = new Comments(req.body)
-                                await comment.save()
+                                const comment = new CommentsSchema(req.body)
+                                const result = await comment.save()
                                 await user.updateOne({
                                     $push: {
-                                        comments: comment.get('_id')
+                                        comments: result.get('_id')
                                     }
                                 })
                                 await product.updateOne({
                                     $push: {
-                                        comments: comment.get('_id')
+                                        comments: result.get('_id')
                                     }
                                 })
                                 res.status(201).json(comment)
@@ -127,12 +146,12 @@ const commentController = {
     },
     update: async(req, res) => {
         try {
-            const comment = await Comments.findById(req.params.id)
+            const comment = await CommentsSchema.findById(req.params.id)
             if (comment) {
                 if (req.body.user && req.body.product) {
                     const user = await Users.findById(req.body.user)
                     const product = await Products.findById(req.body.product)
-                    if (user && product && user.get("is-customer") === 1) {
+                    if (user && product && user.get("isCustomer") === 1) {
                         const bill = await Bills.findOne({
                             user: user.get('_id'),
                         })
@@ -338,7 +357,7 @@ const commentController = {
     },
     delete: async(req, res) => {
         try {
-            const comment = await Comments.findById(req.params.id)
+            const comment = await CommentsSchema.findById(req.params.id)
             if (comment) {
                 const user = await Users.findById(comment.get('user'))
                 const product = await Products.findById(comment.get('product'))
