@@ -5,24 +5,23 @@ mongoose.plugin(slug)
 const usersSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        default: '',
     },
     phone: {
         type: String,
-        required: true,
         unique: true,
     },
     email: {
         type: String,
-        required: true
+        default: '',
     },
     address: {
         type: String,
-        required: true
+        default: '',
     },
     numberBankAccount: {
         type: String,
-        required: true
+        default: '',
     },
     isAdmin: {
         type: Number,
@@ -35,10 +34,6 @@ const usersSchema = new mongoose.Schema({
     isProvider: {
         type: Number,
         default: 0
-    },
-    password: {
-        type: String,
-        required: true
     },
     comments: {
         type: [{

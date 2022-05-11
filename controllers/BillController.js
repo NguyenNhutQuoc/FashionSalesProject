@@ -20,6 +20,47 @@ const BillController = {
 
     },
 
+    findAllImportType: async (req, res) => {
+        try {
+            const bill = await Bills.find({
+                type: 'N'
+            })
+            if (bill.length > 0) {
+                res.status(200).json(bill)
+            } else {
+                res.statu(404).json({
+                    status: 404,
+                    errorMessage: 'Not Found'
+                })
+            }
+        } catch (error) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: error.message
+            })
+        }
+    },
+    findAllExportType: async (req, res) => {
+        try {
+            const bill = await Bills.find({
+                type: 'X'
+            })
+            if (bill.length > 0) {
+                res.status(200).json(bill)
+            } else {
+                res.statu(404).json({
+                    status: 404,
+                    errorMessage: 'Not Found'
+                })
+            }
+        } catch (error) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: error.message
+            })
+        }
+    },
+
     findById: async (req, res) => {
         try {
 
