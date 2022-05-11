@@ -6,7 +6,7 @@ const categoryController = {
 
     findAll: async (req, res) => {
         try {
-            const categories = await CategoriesSchema.find()
+            const categories = await CategoriesSchema.find().populate("products")
             res.status(200).json(categories)
         } catch (err) {
             res.status(500).json({
@@ -17,7 +17,7 @@ const categoryController = {
     },
     findById: async (req, res) => {
         try {
-            const category = await CategoriesSchema.findById(req.params.id)
+            const category = await CategoriesSchema.findById(req.params.id).populate("products")
             if (category) {
                 res.status(200).json(category)
             } else {

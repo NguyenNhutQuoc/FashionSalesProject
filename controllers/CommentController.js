@@ -11,7 +11,7 @@ const commentController = {
 
     findAll: async(req, res) => {
         try {
-            const comments = await CommentsSchema.find()
+            const comments = await CommentsSchema.find().populate('user').populate('product');
             res.status(200).json(comments)
         } catch (err) {
             res.status(500).json({
@@ -23,7 +23,7 @@ const commentController = {
 
     findById: async(req, res) => {
         try {
-            const comment = await CommentsSchema.findById(req.params.id)
+            const comment = await CommentsSchema.findById(req.params.id).populate('user').populate('product');
             if (comment) {
                 res.status(200).json(comment)
             } else {
@@ -83,46 +83,39 @@ const commentController = {
                 const user = await Users.findById(req.body.user)
                 const product = await Products.findById(req.body.product)
                 if (user && product && req.body.star >= 0) {
-                    if (user.get("isCustomer") === 1) {
-                        const bill = await Bills.findOne({
-                            user: user.get('_id'),
-                            status: 2
+                    const bill = await Bills.findOne({
+                        user: user.get('_id'),
+                        status: 2
+                    })
+                    if (bill || user.get('isAdmin') === 1) {
+                        const billDetail = await BillDetails.findOne({
+                            bill: bill.get('_id'),
+                            product: product.get('_id')
                         })
-                        if (bill) {
-                            const billDetail = await BillDetails.findOne({
-                                bill: bill.get('_id'),
-                                product: product.get('_id')
+                        if (billDetail) {
+                            const comment = new CommentsSchema(req.body)
+                            const result = await comment.save()
+                            await user.updateOne({
+                                $push: {
+                                    comments: result.get('_id')
+                                }
                             })
-                            if (billDetail) {
-                                const comment = new CommentsSchema(req.body)
-                                const result = await comment.save()
-                                await user.updateOne({
-                                    $push: {
-                                        comments: result.get('_id')
-                                    }
-                                })
-                                await product.updateOne({
-                                    $push: {
-                                        comments: result.get('_id')
-                                    }
-                                })
-                                res.status(201).json(comment)
-                            } else {
-                                res.status(400).json({
-                                    status: 400,
-                                    errorMessage: 'This user has not bought this product yet.'
-                                })
-                            }
+                            await product.updateOne({
+                                $push: {
+                                    comments: result.get('_id')
+                                }
+                            })
+                            res.status(201).json(comment)
                         } else {
                             res.status(400).json({
                                 status: 400,
-                                errorMessage: 'User has not bought any product'
+                                errorMessage: 'This user has not bought this product yet.'
                             })
                         }
                     } else {
-                        res.status(403).json({
-                            status: 403,
-                            errorMessage: 'This user is not a customer'
+                        res.status(400).json({
+                            status: 400,
+                            errorMessage: 'User has not bought any product'
                         })
                     }
                 } else {
@@ -151,11 +144,11 @@ const commentController = {
                 if (req.body.user && req.body.product) {
                     const user = await Users.findById(req.body.user)
                     const product = await Products.findById(req.body.product)
-                    if (user && product && user.get("isCustomer") === 1) {
+                    if (user && product) {
                         const bill = await Bills.findOne({
                             user: user.get('_id'),
                         })
-                        if (bill) {
+                        if (bill || user.get('isAdmin') === 1) {
                             const billDetail = await BillDetails.findOne({
                                 bill: bill.get('_id'),
                                 product: product.get('_id')
@@ -219,7 +212,7 @@ const commentController = {
                         const bill = await Bills.findOne({
                             user: user.get('_id'),
                         })
-                        if (bill) {
+                        if (bill || user.get('isAdmin') === 1) {
                             const billDetail = await BillDetails.findOne({
                                 bill: bill.get('_id'),
                                 product: comment.get('product')

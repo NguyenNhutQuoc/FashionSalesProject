@@ -9,7 +9,7 @@ const isNumber = require('is-number')
 const billDetailController = {
     findAll: async(req, res) => {
         try {
-            const billDetails = await BillDetails.find().populate('bill')
+            const billDetails = await BillDetails.find().populate('bill').populate('productDetail')
             res.status(200).json(billDetails)
         } catch (error) {
             res.status(500).json({

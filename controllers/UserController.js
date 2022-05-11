@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const userController = {
     findAll: async(req, res) => {
         try {
-            const users = await Users.find()
+            const users = await Users.find().populate('comments').populate('bills')
             res.status(200).json(users)
         } catch (err) {
             res.status(500).json({ status: 500, message: err.message })
@@ -18,7 +18,7 @@ const userController = {
                 isCustomer: 1
             })
             if (users.length > 0) {
-                res.status(200).json(users)
+                res.status(200).json(users.populate('comments').populate('bills'))
             } else {
                 res.status(404).json({ status: 404, errorMessage: 'No customers found' })
             }
@@ -32,7 +32,7 @@ const userController = {
                 isProvider: 1
             })
             if (users.length > 0) {
-                res.status(200).json(users)
+                res.status(200).json(users.populate('comments').populate('bills'))
             } else {
                 res.status(404).json({ status: 404, errorMessage: 'No providers found' })
             }
@@ -44,7 +44,7 @@ const userController = {
         try {
             const user = await Users.findById(req.params.id)
             if (user) {
-                res.status(200).json(user)
+                res.status(200).json(user.populate('comments').populate('bills'))
             } else {
                 res.status(404).json({ status: 404, errorMessage: "User not found" })
             }

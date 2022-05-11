@@ -1,7 +1,7 @@
 const {
     Coupons,
     Users,
-    Bills
+    Bills, BillDetails
 } = require('../model/model');
 
 const isNumber = require('is-number')
@@ -9,10 +9,24 @@ const isNumber = require('is-number')
 const BillController = {
     findAll: async (req, res) => {
         try {
-            const bill = await Bills.find()
-            res.json(bill)
+            const bills = await Bills.find()
+            let data = []
+            for (const index in bills) {
+                const bill = await Bills.findById(bills[index]._id).populate('user').populate('billDetails')
+                const billDetails = bill.get("billDetails")
+                let totalPrice = 0
+                for (let i = 0; i < billDetails.length; i++) {
+                    const billDetail = await BillDetails.findById(billDetails[i]._id)
+                    totalPrice += billDetail.get("price")
+                }
+                data.push({
+                    "Bill": bill,
+                    "TotalPrice": totalPrice
+                })
+            }
+            res.status(200).json(data)
         } catch (error) {
-            res.json({
+            res.status(500).json({
                 status: 500,
                 errorMessage: error.message
             })
@@ -24,11 +38,11 @@ const BillController = {
         try {
             const bill = await Bills.find({
                 type: 'N'
-            })
+            }).populate('user').populate('billDetails')
             if (bill.length > 0) {
                 res.status(200).json(bill)
             } else {
-                res.statu(404).json({
+                res.status(404).json({
                     status: 404,
                     errorMessage: 'Not Found'
                 })
@@ -44,11 +58,11 @@ const BillController = {
         try {
             const bill = await Bills.find({
                 type: 'X'
-            })
+            }).populate('user').populate('billDetails')
             if (bill.length > 0) {
                 res.status(200).json(bill)
             } else {
-                res.statu(404).json({
+                res.status(404).json({
                     status: 404,
                     errorMessage: 'Not Found'
                 })
@@ -195,7 +209,7 @@ const BillController = {
                     await user.updateOne(
                         {
                             $push: {
-                                bills: bill.get("_id")
+                                bills: result.get("_id")
                             }
                         }
                     )
@@ -211,7 +225,7 @@ const BillController = {
                     await user.updateOne(
                         {
                             $push: {
-                                bills: bill.get("_id")
+                                bills: result.get("_id")
                             }
                         }
                     )

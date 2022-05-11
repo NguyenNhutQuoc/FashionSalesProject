@@ -1,13 +1,5 @@
 const {
-  Categories,
-  Products,
-  Colors,
-  Sizes,
   Coupons,
-  Users,
-  Bills,
-  BillDetails,
-  Comments,
 } = require("../model/model");
 
 const couponController = {
@@ -18,7 +10,7 @@ const couponController = {
     } catch (err) {
       res.status(500).json({
         status: 500,
-        errorMessage: e.message,
+        errorMessage: err.message,
       });
     }
   },
@@ -53,8 +45,6 @@ const couponController = {
       const coupon_minimumAmount = await Coupons.find({
         minimumAmount: req.query.search,
       });
-
-      const bill = await Bills.findOne({ date: req.query.search });
       const coupon_bill = await Coupons.find({
         bill: coupon_bill ? coupon_bill.get("_id") : null,
       });
@@ -85,7 +75,7 @@ const couponController = {
     } catch (err) {
       res.status(500).json({
         status: 500,
-        errorMessage: e.message,
+        errorMessage: err.message,
       });
     }
   },
@@ -98,7 +88,7 @@ const couponController = {
     } catch (err) {
       res.status(500).json({
         status: 500,
-        errorMessage: e.message,
+        errorMessage: err.message,
       });
     }
   },

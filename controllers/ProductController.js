@@ -22,7 +22,27 @@ const productController = {
     },
     findById: async(req, res) => {
         try {
-            const product = await Products.findById(req.params.id)
+            const product = await Products.findById(req.params.id).populate("category").populate("productDetails")
+            if (product) {
+                res.status(200).json(product)
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Product not found",
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            })
+        }
+    },
+    findBySlug: async(req, res) => {
+        try {
+            const product = await Products.findOne({
+                slug: req.params.slug
+            }).populate('category').populate('productDetails')
             if (product) {
                 res.status(200).json(product)
             } else {
@@ -237,13 +257,13 @@ const productController = {
             });
         }
     },
-    findAllPropertiesBySlugProduct: async(req, res) => {
+    findAllProductDetailsBySlugProduct: async(req, res) => {
         try {
             const product = await Products.findOne({
                 slug: req.params.slug,
             })
             if (product) {
-                const properties = product.get('properties')
+                const properties = product.get('productDetails');
                 if (properties.length > 0) {
                     res.status(200).json(properties)
                 } else {
