@@ -14,15 +14,15 @@ const commentsSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
-        required: true
+        required: true,
     },
     product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Products',
-        required: true
+        required: true,
     }
 }, {
     timestamps: true
 })
-
+commentsSchema.plugin(require('mongoose-autopopulate'));
 module.exports = mongoose.model('Comments', commentsSchema)

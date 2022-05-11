@@ -8,10 +8,6 @@ const productController = {
     findAll: async(req, res) => {
         try {
             const products = await Products.find()
-                .populate("category").populate("productDetails")
-                .populate('productDetails.color')
-                .populate('productDetails.size')
-                .populate('productDetails.images').exec()
             res.status(200).json(products)
         } catch (e) {
             res.status(500).json({
@@ -22,7 +18,7 @@ const productController = {
     },
     findById: async(req, res) => {
         try {
-            const product = await Products.findById(req.params.id).populate("category").populate("productDetails")
+            const product = await Products.findById(req.params.id)
             if (product) {
                 res.status(200).json(product)
             } else {

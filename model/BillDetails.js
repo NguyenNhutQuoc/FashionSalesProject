@@ -16,13 +16,14 @@ const billDetailsSchema = new mongoose.Schema({
     productDetail: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductDetails',
-        required: true
+        required: true,
+
     },
     bill: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Bills',
-        required: true
+        required: true,
     }
 })
-
+billDetailsSchema.plugin(require('mongoose-autopopulate'));
 module.exports = mongoose.model('BillDetails', billDetailsSchema)

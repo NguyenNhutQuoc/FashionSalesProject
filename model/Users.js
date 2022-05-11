@@ -38,13 +38,15 @@ const usersSchema = new mongoose.Schema({
     comments: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comments'
+            ref: 'Comments',
+            autopopulate: true
         }]
     },
     bills: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Bills'
+            ref: 'Bills',
+            autopopulate: true
         }]
     },
     avatar: {
@@ -55,5 +57,5 @@ const usersSchema = new mongoose.Schema({
     {
         timestamps: true
     })
-
+usersSchema.plugin(require('mongoose-autopopulate'));
 module.exports = mongoose.model('Users', usersSchema);

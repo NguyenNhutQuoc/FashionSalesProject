@@ -15,7 +15,7 @@ const billsSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
-        required: true
+        required: true,
     },
     coupon: {
         type: mongoose.Schema.Types.ObjectId,
@@ -24,12 +24,12 @@ const billsSchema = new mongoose.Schema({
     billDetails: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'BillDetails'
+            ref: 'BillDetails',
         }]
     },
     type: {
         type: String,
     }
 })
-
+billsSchema.plugin(require('mongoose-autopopulate'));
 module.exports = mongoose.model('Bills', billsSchema);

@@ -20,8 +20,9 @@ const categoriesSchema = new mongoose.Schema({
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Products',
+            autopopulate: true
         }]
     }
 })
-
+categoriesSchema.plugin(require('mongoose-autopopulate'));
 module.exports = mongoose.model('Categories', categoriesSchema)

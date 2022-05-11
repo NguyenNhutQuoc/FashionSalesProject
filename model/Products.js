@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const slug = require('mongoose-slug-generator');
+const mongoose_auto_populate = require('mongoose-autopopulate');
 mongoose.plugin(slug)
-
 const productsSchema = new mongoose.Schema({
         name: {
             type: String,
@@ -33,7 +33,7 @@ const productsSchema = new mongoose.Schema({
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Categories',
-            required: true
+            required: true,
         },
         price: {
           type: Number,
@@ -43,16 +43,18 @@ const productsSchema = new mongoose.Schema({
             type: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'ProductDetails'
-            }]
+            }],
+            autopopulate: true
         },
         comments: {
             type: [{
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'Comments'
-            }]
+                ref: 'Comments',
+            }],
+            autopopulate: true
         },
     }
 )
-
+productsSchema.plugin(mongoose_auto_populate);
 module.exports = mongoose.model('Products', productsSchema);
 

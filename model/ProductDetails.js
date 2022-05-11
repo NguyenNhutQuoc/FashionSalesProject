@@ -12,11 +12,13 @@ const productDetailsSchema = new mongoose.Schema({
     product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Products',
-        required: true
+        required: true,
     },
     size: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sizes',
+
+
     },
     color: {
         type: mongoose.Schema.Types.ObjectId,
@@ -25,17 +27,18 @@ const productDetailsSchema = new mongoose.Schema({
     'images': [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'ImagesSchema'
+            ref: 'ImagesSchema',
+            autopopulate: true
         }
         ],
     billDetails: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'BillDetails'
+            ref: 'BillDetails',
+            autopopulate: true
         }]
         }
     },
-
 )
-
+productDetailsSchema.plugin(require('mongoose-autopopulate'));
 module.exports = mongoose.model('ProductDetails', productDetailsSchema);
