@@ -17,12 +17,12 @@ const productDetailsSchema = new mongoose.Schema({
     size: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sizes',
-
-
+        autopopulate: true
     },
     color: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Colors',
+        autopopulate: true
     },
     'images': [
         {

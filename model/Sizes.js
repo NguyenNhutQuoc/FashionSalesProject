@@ -10,9 +10,8 @@ const sizesSchema = new mongoose.Schema({
     productDetails: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'ProductDetails'
+            ref: 'ProductDetails',
         }]
     },
 })
-
 module.exports = mongoose.model('Sizes', sizesSchema)
