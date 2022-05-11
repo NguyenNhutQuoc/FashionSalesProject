@@ -1,10 +1,10 @@
 const router = require('express').Router();
 const UserController = require('../controllers/UserController');
 
-router.get('/:id', UserController.findById);
-router.get('/customers', UserController.findCustomers);
-router.get('/providers', UserController.findProviders)
 router.get('/', UserController.findAll)
+router.get('/:id', UserController.findById);
+router.get('/v1/customers', UserController.findCustomers);
+router.get('/v1/providers', UserController.findProviders)
 router.get('/search', UserController.findBy)
 router.post('/', UserController.create)
 router.put('/:id', UserController.update)

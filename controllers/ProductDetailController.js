@@ -10,6 +10,9 @@ const ProductDetailController = {
     findAll: async(req, res) => {
         try {
             const productDetails = await ProductDetails.find()
+                .populate('color')
+                .populate('size')
+                .populate('images')
             res.status(200).json(
                 productDetails
             )
