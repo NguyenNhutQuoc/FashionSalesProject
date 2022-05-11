@@ -25,5 +25,6 @@ const billDetailsSchema = new mongoose.Schema({
         required: true,
     }
 })
-billDetailsSchema.plugin(require('mongoose-autopopulate'));
+billDetailsSchema.plugin(require('mongoose-autopopulate'))
+billDetailsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('BillDetails', billDetailsSchema)

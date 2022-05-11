@@ -36,4 +36,5 @@ const couponsSchema = new mongoose.Schema({
     }
 })
 couponsSchema.plugin(require('mongoose-autopopulate'))
+couponsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('Coupons', couponsSchema);

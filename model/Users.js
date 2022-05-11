@@ -58,4 +58,5 @@ const usersSchema = new mongoose.Schema({
         timestamps: true
     })
 usersSchema.plugin(require('mongoose-autopopulate'));
+usersSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('Users', usersSchema);

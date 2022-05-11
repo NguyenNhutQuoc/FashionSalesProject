@@ -8,7 +8,21 @@ const productController = {
     findAll: async(req, res) => {
         try {
             const products = await Products.find()
-            res.status(200).json(products)
+            let data = []
+            products.forEach(product => {
+                const comments = product.comments
+                let rating = 0
+                for (let index in comments) {
+                    rating += comments[index].star
+                }
+                rating /= 5
+                data.push({
+                    "Product": product,
+                    "Rating": rating
+                })
+            })
+            res.status(200).json(data)
+
         } catch (e) {
             res.status(500).json({
                 status: 500,
@@ -20,7 +34,18 @@ const productController = {
         try {
             const product = await Products.findById(req.params.id)
             if (product) {
-                res.status(200).json(product)
+                let data = {}
+                const comments = product.comments
+                let rating = 0
+                for (let index in comments) {
+                    rating += comments[index].star
+                }
+                rating /= 5
+                data = {
+                    "Product": product,
+                    "Rating": rating
+                }
+                res.status(200).json(data)
             } else {
                 res.status(404).json({
                     status: 404,
@@ -40,7 +65,18 @@ const productController = {
                 slug: req.params.slug
             }).populate('category').populate('productDetails')
             if (product) {
-                res.status(200).json(product)
+                let data = {}
+                const comments = product.comments
+                let rating = 0
+                for (let index in comments) {
+                    rating += comments[index].star
+                }
+                rating /= 5
+                data = {
+                    "Product": product,
+                    "Rating": rating
+                }
+                res.status(200).json(data)
             } else {
                 res.status(404).json({
                     status: 404,

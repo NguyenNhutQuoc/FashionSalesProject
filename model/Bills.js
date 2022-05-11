@@ -31,5 +31,6 @@ const billsSchema = new mongoose.Schema({
         type: String,
     }
 })
-billsSchema.plugin(require('mongoose-autopopulate'));
+billsSchema.plugin(require('mongoose-autopopulate'))
+billsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('Bills', billsSchema);

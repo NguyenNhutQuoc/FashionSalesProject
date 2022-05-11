@@ -19,6 +19,10 @@ const BillController = {
                     const billDetail = await BillDetails.findById(billDetails[i]._id)
                     totalPrice += billDetail.get("price")
                 }
+                if (bill.coupon) {
+                    const coupon = await Coupons.findById(bill.coupon)
+                    totalPrice -= totalPrice * (coupon.percent / 100)
+                }
                 data.push({
                     "Bill": bill,
                     "TotalPrice": totalPrice
@@ -256,20 +260,32 @@ const BillController = {
                     const coupon = await Coupons.findById(req.body.coupon)
                     if (user && coupon  && user.get("isCustomer") === 1) {
                         if (coupon) {
-                            const oldCoupon = await Coupons.findById(bill.get("coupon"))
-                            await oldCoupon.updateOne({
-                                $pull: {
-                                    bills: bill.get("_id")
-                                }
-                            })
                             const newCoupon = await Coupons.findById(req.body.coupon)
-                            await newCoupon.updateOne(
-                                {
-                                    $push: {
+                            const minimumAmount = newCoupon.minimumAmount
+                            let totalPrice = 0
+                            bill.billDetails.forEach(billDetail => {
+                                totalPrice += billDetail.price
+                            })
+                            if (totalPrice >= minimumAmount) {
+                                const oldCoupon = await Coupons.findById(bill.get("coupon"))
+                                await oldCoupon.updateOne({
+                                    $pull: {
                                         bills: bill.get("_id")
                                     }
-                                }
-                            )
+                                })
+                                await newCoupon.updateOne(
+                                    {
+                                        $push: {
+                                            bills: bill.get("_id")
+                                        }
+                                    }
+                                )
+                            } else {
+                                res.status(400).json({
+                                    status: 400,
+                                    errorMessage: "You can't use this coupon because you don't have enough amount"
+                                })
+                            }
                         }
                         if (user) {
                             const oldUser = await Users.findById(bill.get("user"))
@@ -375,31 +391,50 @@ const BillController = {
                         })
                     }
                 } else if (req.body.coupon) {
-                    const coupon = await Coupons.findById(req.body.coupon)
-                    if (coupon) {
-                        const oldCoupon = await Coupons.findById(bill.get("coupon"))
-                        await oldCoupon.updateOne({
-                            $pull: {
-                                bills: bill.get("_id")
+                    if (bill.type === "X") {
+                        const coupon = await Coupons.findById(req.body.coupon)
+                        if (coupon) {
+                            const minimumAmount = coupon.minimumAmount
+                            let totalPrice = 0
+                            bill.billDetails.forEach(billDetail => {
+                                totalPrice += billDetail.price
+                            })
+                            if (totalPrice >= minimumAmount) {
+                                const oldCoupon = await Coupons.findById(bill.get("coupon"))
+                                await oldCoupon.updateOne({
+                                    $pull: {
+                                        bills: bill.get("_id")
+                                    }
+                                })
+                                const newCoupon = await Coupons.findById(req.body.coupon)
+                                await newCoupon.updateOne(
+                                    {
+                                        $push: {
+                                            bills: bill.get("_id")
+                                        }
+                                    }
+                                )
+                                await bill.updateOne(req.body)
+                                res.status(200).json({
+                                    status: 200,
+                                    message: "Bill updated successfully"
+                                })
+                            } else {
+                                res.status(400).json({
+                                    status: 400,
+                                    errorMessage: "The total price is not enough to use this coupon"
+                                })
                             }
-                        })
-                        const newCoupon = await Coupons.findById(req.body.coupon)
-                        await newCoupon.updateOne(
-                            {
-                                $push: {
-                                    bills: bill.get("_id")
-                                }
-                            }
-                        )
-                        await bill.updateOne(req.body)
-                        res.status(200).json({
-                            status: 200,
-                            message: "Bill updated successfully"
-                        })
+                        } else {
+                            res.status(404).json({
+                                status: 404,
+                                errorMessage: "Not Found coupon"
+                            })
+                        }
                     } else {
                         res.status(404).json({
                             status: 404,
-                            errorMessage: "Not Found coupon"
+                            errorMessage: "Coupon just apply for imports"
                         })
                     }
                 } else {

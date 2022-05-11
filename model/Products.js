@@ -56,5 +56,7 @@ const productsSchema = new mongoose.Schema({
     }
 )
 productsSchema.plugin(mongoose_auto_populate);
+productsSchema.plugin(require('mongoose-paginate-v2'));
+
 module.exports = mongoose.model('Products', productsSchema);
 

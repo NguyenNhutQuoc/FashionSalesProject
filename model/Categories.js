@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slug = require('mongoose-slug-generator');
+const mongoosePaginate = require('mongoose-paginate-v2');
 mongoose.plugin(slug)
 const categoriesSchema = new mongoose.Schema({
     name: {
@@ -24,5 +25,6 @@ const categoriesSchema = new mongoose.Schema({
         }]
     }
 })
-categoriesSchema.plugin(require('mongoose-autopopulate'));
+categoriesSchema.plugin(require('mongoose-autopopulate'))
+categoriesSchema.plugin(mongoosePaginate)
 module.exports = mongoose.model('Categories', categoriesSchema)

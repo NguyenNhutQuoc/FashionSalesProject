@@ -6,7 +6,10 @@ const categoryController = {
 
     findAll: async (req, res) => {
         try {
-            const categories = await CategoriesSchema.find().populate("products")
+            const categories = await CategoriesSchema.paginate({}, {
+                page: req.query.page || 1,
+                limit: req.query.limit || 10,
+            })
             res.status(200).json(categories)
         } catch (err) {
             res.status(500).json({

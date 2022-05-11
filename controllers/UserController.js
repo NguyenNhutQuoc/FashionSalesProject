@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const userController = {
     findAll: async(req, res) => {
         try {
-            const users = await Users.find().populate('comments').populate('bills')
+            const users = await Users.paginate()
             res.status(200).json(users)
         } catch (err) {
             res.status(500).json({ status: 500, message: err.message })

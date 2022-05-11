@@ -12,6 +12,16 @@ const Bills = require('./Bills')
 const BillDetails = require('./BillDetails')
 const ProductDetails = require('./ProductDetails')
 const ImagesSchema = require('./Images')
+const options = {
+    page:1,
+    limit: 10,
+    sort: {
+        name:1
+    },
+    collation: {
+        locale: 'en'
+    }
+}
 module.exports = {
     CategoriesSchema,
     Products,

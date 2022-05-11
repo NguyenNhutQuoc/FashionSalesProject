@@ -25,4 +25,5 @@ const commentsSchema = new mongoose.Schema({
     timestamps: true
 })
 commentsSchema.plugin(require('mongoose-autopopulate'));
+commentsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('Comments', commentsSchema)
