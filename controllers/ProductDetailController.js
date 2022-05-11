@@ -26,6 +26,9 @@ const ProductDetailController = {
     findById: async(req, res) => {
         try {
             const productDetail = await ProductDetails.findById(req.params.id)
+                .populate('color')
+                .populate('size')
+                .populate('images')
             if (productDetail) {
                 res.status(200).json(
                     productDetail
@@ -40,6 +43,28 @@ const ProductDetailController = {
             res.status(500).json({
                 status: 500,
                 errorMessage: e.message
+            })
+        }
+    },
+    findAllImagesByIdProduct: async(req, res) => {
+        try {
+            const images = await ImagesSchema.find({
+                productDetail: req.params.id
+            }).populate('productDetail')
+            if (images.length > 0) {
+                res.status(200).json(
+                    images
+                )
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Images not found"
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message || "error server"
             })
         }
     },

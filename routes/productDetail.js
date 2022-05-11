@@ -6,5 +6,5 @@ router.get('/', ProductDetailsController.findAll);
 router.post('/', ProductDetailsController.create);
 router.put('/:id', ProductDetailsController.update);
 router.delete('/:id', ProductDetailsController.delete);
-
+router.get('/:id/images', ProductDetailsController.findAllImagesByIdProduct);
 module.exports = router;
