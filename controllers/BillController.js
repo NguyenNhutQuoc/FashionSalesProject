@@ -11,7 +11,7 @@ const BillController = {
         try {
             const bills = await Bills.find()
             let data = []
-            for (const index in bills) {
+            for (let index in bills) {
                 const bill = await Bills.findById(bills[index]._id).populate('user').populate('billDetails')
                 const billDetails = bill.get("billDetails")
                 let totalPrice = 0
@@ -23,7 +23,7 @@ const BillController = {
                     const coupon = await Coupons.findById(bill.coupon)
                     totalPrice -= totalPrice * (coupon.percent / 100)
                 }
-                const billObject = bill
+                const billObject = bill.toObject()
                 billObject.totalPrice = totalPrice
                 data.push(
                     billObject

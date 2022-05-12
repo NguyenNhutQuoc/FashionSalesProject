@@ -29,6 +29,10 @@ const billsSchema = new mongoose.Schema({
     },
     type: {
         type: String,
+    },
+    COD: {
+        type: String,
+        default: 'Money'
     }
 })
 billsSchema.plugin(require('mongoose-autopopulate'))

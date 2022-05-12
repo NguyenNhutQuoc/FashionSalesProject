@@ -16,7 +16,7 @@ const productController = {
                     rating += comments[index].star
                 }
                 rating /= comments.length
-                const productObject = product
+                const productObject = product.toObject()
                 productObject.rating = rating > 5 ? 5: rating
                 data.push(productObject)
             })

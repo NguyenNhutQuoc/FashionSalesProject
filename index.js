@@ -49,7 +49,7 @@ app.use("/api/sizes", sizeRouter);
 app.use("/api/comments", commentsRouter);
 //
 app.use("/api/product-details", productDetailsSchema);
-app.use('/api/coupon', couponRouter)
+app.use('/api/coupons', couponRouter)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
