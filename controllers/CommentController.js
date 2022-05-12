@@ -18,7 +18,8 @@ const commentController = {
                 page: req.query.page || 1,
                 limit:1
             })
-            res.status(200).json(comments)
+            const {docs, ...others} = comments
+            res.status(200).json(docs)
         } catch (err) {
             res.status(500).json({
                 status: 500,

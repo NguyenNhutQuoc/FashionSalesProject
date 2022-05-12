@@ -16,8 +16,9 @@ const ProductDetailController = {
                     path: 'images size color',
                 }
             })
+            const {docs, ...others} = productDetails
             res.status(200).json(
-                productDetails
+                docs
             )
         } catch (e) {
             res.status(500).json({
@@ -91,13 +92,13 @@ const ProductDetailController = {
                         const size_id = await SizesSchema.findOne({
                             size: sizeCheck
                         })
-                        const color_id = await SizesSchema.findOne({
+                        const color_id = await Colors.findOne({
                             color: colorCheck,
                         })
                         if (!size_id) {
                             await SizesSchema.create({
                                 size: sizeCheck,
-                                  productDetails: []
+                                productDetails: []
                             })
                         }
                         if (!color_id) {
@@ -119,6 +120,9 @@ const ProductDetailController = {
                         const image_id = await ImagesSchema.findOne({
                             image: image
                         })
+                        console.log(image_id)
+                        console.log(size_id_)
+                        console.log(color_id_)
                         const productDetail = await ProductDetails.create({
                             quantity,
                             status,
@@ -130,23 +134,23 @@ const ProductDetailController = {
                         await ImagesSchema.updateOne({
                             'productDetail': productDetail.get('_id')
                         })
-                        await Products.updateOne({
+                        await product_id.updateOne({
                             $push: {
                                 productDetails: productDetail.get('_id')
                             }
                         })
-                        await SizesSchema.updateOne({
+                        await size_id_.updateOne({
                             $push: {
                                 productDetails: productDetail.get('_id')
                             }
                         })
-                        await Colors.updateOne({
+                        await color_id_.updateOne({
                             $push: {
                                 productDetails: productDetail.get('_id')
                             }
                         })
-                        res.status(200).json({
-                            data: productDetail
+                        res.status(201).json({
+                            productDetail
                         })
                     } else {
                         res.status(404).json({
@@ -193,12 +197,12 @@ const ProductDetailController = {
                             productDetail.get('product')
                         )
                         const newProduct = await Products.findById(req.body.product)
-                        oldProduct.updateOne({
+                        await oldProduct.updateOne({
                             $pull: {
                                 productDetails: productDetail.get('_id')
                             }
                         })
-                        newProduct.updateOne({
+                        await newProduct.updateOne({
                             $push: {
                                 productDetails: productDetail.get('_id')
                             }
@@ -211,7 +215,7 @@ const ProductDetailController = {
                 }
                 if (req.body.color) {
                     const oldColor = await Colors.findById(productDetail.get('color'))
-                    oldColor.updateOne({
+                    await oldColor.updateOne({
                         $pull: {
                             productDetails: productDetail.get('_id')
                         }
@@ -223,7 +227,7 @@ const ProductDetailController = {
                 }
                 if (req.body.size) {
                     const oldSize = await SizesSchema.findById(productDetail.get('size'))
-                    oldSize.updateOne({
+                    await oldSize.updateOne({
                         $pull: {
                             productDetails: productDetail.get('_id')
                         }
@@ -262,17 +266,17 @@ const ProductDetailController = {
                 console.log(product)
                 console.log(color)
                 console.log(size)
-                product.updateOne({
+                await product.updateOne({
                     $pull: {
                         productDetails: productDetail.get('_id')
                     }
                 })
-                color.updateOne({
+                await color.updateOne({
                     $pull: {
                         productDetails: productDetail.get('_id')
                     }
                 })
-                size.updateOne({
+                await size.updateOne({
                     $pull: {
                         productDetails: productDetail.get('_id')
                     }

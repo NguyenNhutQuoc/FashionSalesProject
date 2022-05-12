@@ -23,10 +23,11 @@ const BillController = {
                     const coupon = await Coupons.findById(bill.coupon)
                     totalPrice -= totalPrice * (coupon.percent / 100)
                 }
-                data.push({
-                    "Bill": bill,
-                    "TotalPrice": totalPrice
-                })
+                const billObject = bill
+                billObject.totalPrice = totalPrice
+                data.push(
+                    billObject
+                )
             }
             res.status(200).json(data)
         } catch (error) {

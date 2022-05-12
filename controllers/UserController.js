@@ -7,7 +7,10 @@ const userController = {
     findAll: async(req, res) => {
         try {
             const users = await Users.paginate()
-            res.status(200).json(users)
+            const {docs, ...others} = users
+            res.status(200).json(
+                docs
+            )
         } catch (err) {
             res.status(500).json({ status: 500, message: err.message })
         }

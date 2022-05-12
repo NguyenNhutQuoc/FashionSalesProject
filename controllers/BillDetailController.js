@@ -16,7 +16,8 @@ const billDetailController = {
                     path: 'bill productDetail',
                 }
             })
-            res.status(200).json(billDetails)
+            const {docs, ...other} = billDetails
+            res.status(200).json(docs)
         } catch (error) {
             res.status(500).json({
                 status: 500,

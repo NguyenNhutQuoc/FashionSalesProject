@@ -15,11 +15,10 @@ const productController = {
                 for (let index in comments) {
                     rating += comments[index].star
                 }
-                rating /= 5
-                data.push({
-                    "Product": product,
-                    "Rating": rating
-                })
+                rating /= comments.length
+                const productObject = product
+                productObject.rating = rating > 5 ? 5: rating
+                data.push(productObject)
             })
             res.status(200).json(data)
 

@@ -10,7 +10,11 @@ const categoryController = {
                 page: req.query.page || 1,
                 limit: req.query.limit || 10,
             })
-            res.status(200).json(categories)
+            const {docs, ...others} = categories
+            console.log(docs)
+            res.status(200).json(
+                docs
+            )
         } catch (err) {
             res.status(500).json({
                 status: "500",
