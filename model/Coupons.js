@@ -8,7 +8,7 @@ const couponsSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    percent: {
+    discount: {
         type: Number,
         required: true
     },
@@ -31,7 +31,7 @@ const couponsSchema = new mongoose.Schema({
     bills: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Bills'
+            ref: 'Bills',
         }]
     }
 })

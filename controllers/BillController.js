@@ -21,7 +21,7 @@ const BillController = {
                 }
                 if (bill.coupon) {
                     const coupon = await Coupons.findById(bill.coupon)
-                    totalPrice -= totalPrice * (coupon.percent / 100)
+                    totalPrice -= coupon.discount
                 }
                 const billObject = bill.toObject()
                 billObject.totalPrice = totalPrice
@@ -397,16 +397,19 @@ const BillController = {
                         if (coupon) {
                             const minimumAmount = coupon.minimumAmount
                             let totalPrice = 0
-                            bill.billDetails.forEach(billDetail => {
-                                totalPrice += billDetail.price
-                            })
+                            const billDetails = bill.billDetails
+                            for (let index in billDetails) {
+                                const billDetail = await BillDetails.findById(billDetails[index])
+                                totalPrice += billDetail.get("price")
+                            }
                             if (totalPrice >= minimumAmount) {
                                 const oldCoupon = await Coupons.findById(bill.get("coupon"))
-                                await oldCoupon.updateOne({
-                                    $pull: {
-                                        bills: bill.get("_id")
-                                    }
-                                })
+                                if (oldCoupon)
+                                    await oldCoupon.updateOne({
+                                        $pull: {
+                                            bills: bill.get("_id")
+                                        }
+                                    })
                                 const newCoupon = await Coupons.findById(req.body.coupon)
                                 await newCoupon.updateOne(
                                     {
