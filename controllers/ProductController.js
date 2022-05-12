@@ -34,16 +34,15 @@ const productController = {
             const product = await Products.findById(req.params.id)
             if (product) {
                 let data = {}
-                const comments = product.comments
+                const comments = product.get("comments")
                 let rating = 0
                 for (let index in comments) {
                     rating += comments[index].star
                 }
                 rating /= 5
-                data = {
-                    "Product": product,
-                    "Rating": rating
-                }
+                let productObject = product.toObject()
+                productObject.rating = rating > 5 ? 5: rating
+                data = productObject
                 res.status(200).json(data)
             } else {
                 res.status(404).json({
