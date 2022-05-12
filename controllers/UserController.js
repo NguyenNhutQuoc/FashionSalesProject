@@ -6,7 +6,10 @@ const mongoose = require("mongoose");
 const userController = {
     findAll: async(req, res) => {
         try {
-            const users = await Users.paginate()
+            const users = await Users.paginate({}, {
+                page: req.query.page || 1,
+                limit: req.query.limit || 10,
+            })
             const {docs, ...others} = users
             res.status(200).json(
                 docs

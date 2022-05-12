@@ -16,7 +16,7 @@ const commentController = {
                     path: 'user product',
                 },
                 page: req.query.page || 1,
-                limit:1
+                limit: req.query.limit || 10,
             })
             const {docs, ...others} = comments
             res.status(200).json(docs)
