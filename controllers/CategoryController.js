@@ -11,7 +11,7 @@ const categoryController = {
                 limit: req.query.limit || 10,
             })
             const {docs, ...others} = categories
-            console.log(docs)
+
             res.status(200).json(
                 docs
             )

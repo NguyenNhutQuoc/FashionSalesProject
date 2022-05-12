@@ -21,7 +21,7 @@ const userController = {
                 isCustomer: 1
             })
             if (users.length > 0) {
-                res.status(200).json(users.populate('comments').populate('bills'))
+                res.status(200).json(users)
             } else {
                 res.status(404).json({ status: 404, errorMessage: 'No customers found' })
             }
@@ -35,7 +35,7 @@ const userController = {
                 isProvider: 1
             })
             if (users.length > 0) {
-                res.status(200).json(users.populate('comments').populate('bills'))
+                res.status(200).json(users)
             } else {
                 res.status(404).json({ status: 404, errorMessage: 'No providers found' })
             }
@@ -47,7 +47,7 @@ const userController = {
         try {
             const user = await Users.findById(req.params.id)
             if (user) {
-                res.status(200).json(user.populate('comments').populate('bills'))
+                res.status(200).json(user)
             } else {
                 res.status(404).json({ status: 404, errorMessage: "User not found" })
             }
