@@ -1,6 +1,4 @@
-const {
-  Coupons,
-} = require("../model/model");
+const { Coupons } = require("../model/model");
 
 const couponController = {
   findAll: async (req, res) => {
@@ -17,20 +15,22 @@ const couponController = {
 
   findById: async (req, res) => {
     try {
-      const coupon = await Coupons.findById(req.params.id);
+      const coupon = await Coupons.findById(req.params.id).populate("bills");
       if (coupon) {
         res.status(200).json(coupon);
       } else {
         res.status(404).json({
           status: 404,
-          errorMessage: "Coupon not found",
-        })
+          errorMessage: "Coupon not found with id" + req.params.id,
+        });
       }
     } catch (e) {
       res.status(500).json({
         status: 500,
-        errorMessage: e.message,
-      })
+        errorMessage:
+          err.message ||
+          "Some error occurred while retrieving coupon." + req.params.id,
+      });
     }
   },
 
@@ -82,25 +82,35 @@ const couponController = {
 
   create: async (req, res) => {
     try {
-      const coupon = new Coupons(req.body);
-      const result = await coupon.save();
-      res.status(201).json(result);
+      const coupon = await Coupons.create(req.body);
+      res.status(201).json(coupon);
     } catch (err) {
       res.status(500).json({
         status: 500,
-        errorMessage: err.message,
+        errorMessage:
+          err.message || "Some error occurred while creating the Coupon.",
       });
     }
   },
 
   update: async (req, res) => {
     try {
-      const coupon = await Coupons.findOneAndUpdate(req.params.id, res.body);
+      const coupon = await Coupons.findById(req.params.id);
       if (coupon) {
-        res.status(200).json(coupon);
+        if (coupon.get("bills").length > 0) {
+          res.status(400).json({
+            errorMessage: "Coupon has bills",
+          });
+        } else {
+          await Coupons.updateOne({ $set: req.body });
+          res.status(200).json({
+            message: "Coupon update successfully!",
+          });
+        }
       } else {
         res.status(404).json({
-          errorMessage: "Not found",
+          status: 404,
+          errorMessage: "Not found coupon",
         });
       }
     } catch (err) {
