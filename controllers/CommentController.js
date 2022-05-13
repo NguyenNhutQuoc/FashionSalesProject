@@ -16,10 +16,13 @@ const commentController = {
                     path: 'user product',
                 },
                 page: req.query.page || 1,
-                limit:1
+                limit: req.query.limit || 10,
             })
-            const {docs, ...others} = comments
-            res.status(200).json(docs)
+            const { docs, ...others } = comments
+            res.status(200).json({
+                data: docs,
+                ...others
+            })
         } catch (err) {
             res.status(500).json({
                 status: 500,

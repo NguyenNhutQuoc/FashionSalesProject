@@ -16,10 +16,12 @@ const ProductDetailController = {
                     path: 'images size color',
                 }
             })
-            const {docs, ...others} = productDetails
-            res.status(200).json(
-                docs
-            )
+            const { docs, ...others } = productDetails
+
+            res.status(200).json({
+                data: docs,
+                ...others
+            })
         } catch (e) {
             res.status(500).json({
                 status: 500,
@@ -81,7 +83,7 @@ const ProductDetailController = {
                 size,
                 color,
                 image,
-                imagesSub
+                'images-sub': imagesSub
             } = req.body
             if (quantity && status && product && size && color) {
                 if (isNumber(quantity) && isNumber(status)) {
@@ -115,14 +117,11 @@ const ProductDetailController = {
                         })
                         await ImagesSchema.create({
                             image: image,
-                            'imagesSub': imagesSub
                         })
                         const image_id = await ImagesSchema.findOne({
                             image: image
                         })
-                        console.log(image_id)
-                        console.log(size_id_)
-                        console.log(color_id_)
+
                         const productDetail = await ProductDetails.create({
                             quantity,
                             status,
@@ -131,9 +130,13 @@ const ProductDetailController = {
                             color: color_id_.get('_id'),
                             images: image_id.get('_id')
                         })
-                        await ImagesSchema.updateOne({
-                            'productDetail': productDetail.get('_id')
+                        await image_id.updateOne({
+                            'productDetail': productDetail.get('_id'),
+                            $push: {
+                                'imagesSub': imagesSub
+                            }
                         })
+
                         await product_id.updateOne({
                             $push: {
                                 productDetails: productDetail.get('_id')

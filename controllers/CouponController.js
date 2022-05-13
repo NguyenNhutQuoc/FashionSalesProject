@@ -3,33 +3,22 @@ const { Coupons } = require("../model/model");
 const couponController = {
   findAll: async (req, res) => {
     try {
-      const coupons = await Coupons.find();
-      res.status(200).json(coupons);
+      const coupons = await Coupons.paginate(
+        {},
+        {
+          page: req.query.page || 1,
+          limit: req.query.limit || 10,
+        }
+      );
+      const { docs, ...others } = coupons;
+      res.status(200).json({
+        data: docs,
+        ...others,
+      });
     } catch (err) {
       res.status(500).json({
         status: 500,
         errorMessage: err.message,
-      });
-    }
-  },
-
-  findById: async (req, res) => {
-    try {
-      const coupon = await Coupons.findById(req.params.id).populate("bills");
-      if (coupon) {
-        res.status(200).json(coupon);
-      } else {
-        res.status(404).json({
-          status: 404,
-          errorMessage: "Coupon not found with id" + req.params.id,
-        });
-      }
-    } catch (e) {
-      res.status(500).json({
-        status: 500,
-        errorMessage:
-          err.message ||
-          "Some error occurred while retrieving coupon." + req.params.id,
       });
     }
   },
@@ -79,7 +68,6 @@ const couponController = {
       });
     }
   },
-
   create: async (req, res) => {
     try {
       const coupon = await Coupons.create(req.body);

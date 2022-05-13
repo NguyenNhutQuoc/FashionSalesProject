@@ -1,27 +1,33 @@
 const {
     Coupons,
     Users,
-    Bills, BillDetails
+    Bills,
+    BillDetails
 } = require('../model/model');
 
 const isNumber = require('is-number')
 
 const BillController = {
-    findAll: async (req, res) => {
+    findAll: async(req, res) => {
         try {
-            const bills = await Bills.find()
+            const bills = await Bills.paginate({}, {
+                page: req.query.page || 1,
+                limit: req.query.limit || 10,
+            })
+            const { docs, ...others } = bills
             let data = []
-            for (let index in bills) {
-                const bill = await Bills.findById(bills[index]._id).populate('user').populate('billDetails')
+            for (let index in docs) {
+
+                const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
                 const billDetails = bill.get("billDetails")
                 let totalPrice = 0
                 for (let i = 0; i < billDetails.length; i++) {
-                    const billDetail = await BillDetails.findById(billDetails[i]._id)
+                    const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
                     totalPrice += billDetail.get("price")
                 }
                 if (bill.coupon) {
                     const coupon = await Coupons.findById(bill.coupon)
-                    totalPrice -= totalPrice * (coupon.percent / 100)
+                    totalPrice -= coupon.discount
                 }
                 const billObject = bill.toObject()
                 billObject.totalPrice = totalPrice
@@ -29,7 +35,11 @@ const BillController = {
                     billObject
                 )
             }
-            res.status(200).json(data)
+
+            res.status(200).json({
+                data: data,
+                ...others
+            })
         } catch (error) {
             res.status(500).json({
                 status: 500,
@@ -39,7 +49,7 @@ const BillController = {
 
     },
 
-    findAllImportType: async (req, res) => {
+    findAllImportType: async(req, res) => {
         try {
             const bill = await Bills.find({
                 type: 'N'
@@ -59,7 +69,7 @@ const BillController = {
             })
         }
     },
-    findAllExportType: async (req, res) => {
+    findAllExportType: async(req, res) => {
         try {
             const bill = await Bills.find({
                 type: 'X'
@@ -80,12 +90,25 @@ const BillController = {
         }
     },
 
-    findById: async (req, res) => {
+    findById: async(req, res) => {
         try {
 
             const bill = await Bills.findById(req.params.id)
+
             if (bill) {
-                res.status(200).json(bill)
+                const billDetails = bill.get("billDetails")
+                let totalPrice = 0
+                for (let i = 0; i < billDetails.length; i++) {
+                    const billDetail = await BillDetails.findById(billDetails[i]._id)
+                    totalPrice += billDetail.get("price")
+                }
+                if (bill.coupon) {
+                    const coupon = await Coupons.findById(bill.coupon)
+                    totalPrice -= coupon.discount
+                }
+                const billObject = bill.toObject()
+                billObject.totalPrice = totalPrice
+                res.status(200).json(billObject)
             } else {
                 res.status(404).json({
                     status: 404,
@@ -100,7 +123,7 @@ const BillController = {
         }
     },
 
-    findByDate: async (req, res) => {
+    findByDate: async(req, res) => {
         try {
             const bill_date = await Bills.find({
                 date: req.param.date
@@ -121,7 +144,7 @@ const BillController = {
             })
         }
     },
-    findByShippedDate: async (req, res) => {
+    findByShippedDate: async(req, res) => {
         try {
             const bills_shipped_date = await Bills.find({
                 shipped_date: req.param.shipped_date
@@ -141,7 +164,7 @@ const BillController = {
             })
         }
     },
-    findBy: async (req, res) => {
+    findBy: async(req, res) => {
         try {
             const bill_statuses = isNumber(req.query.s) ? await Bills.find({
                 status: req.query.s
@@ -164,8 +187,8 @@ const BillController = {
             if (bill_statuses.length > 0 || bill_coupons.length > 0 || bill_users.length > 0) {
                 res.status(200).json(
                     bill_statuses.length > 0 ? bill_statuses :
-                        bill_coupons.length > 0 ? bill_coupons :
-                            bill_users.length > 0 ? bill_users : []
+                    bill_coupons.length > 0 ? bill_coupons :
+                    bill_users.length > 0 ? bill_users : []
                 )
             } else {
                 res.status(404).json({
@@ -180,25 +203,21 @@ const BillController = {
             })
         }
     },
-    create: async (req, res) => {
+    create: async(req, res) => {
         try {
             const user = await Users.findById(req.body.user)
             const coupon = await Users.findById(req.body.coupon)
             if (user && coupon && user.get("isCustomer") === 1) {
-                await user.updateOne(
-                    {
-                        $push: {
-                            bills: req.body._id
-                        }
+                await user.updateOne({
+                    $push: {
+                        bills: req.body._id
                     }
-                )
-                await coupon.updateOne(
-                    {
-                        $push: {
-                            bills: req.body._id
-                        }
+                })
+                await coupon.updateOne({
+                    $push: {
+                        bills: req.body._id
                     }
-                )
+                })
                 const bill = new Bills(req.body)
                 const result = await bill.save()
                 res.status(201).json(result)
@@ -211,13 +230,11 @@ const BillController = {
                             'type': 'X'
                         }
                     })
-                    await user.updateOne(
-                        {
-                            $push: {
-                                bills: result.get("_id")
-                            }
+                    await user.updateOne({
+                        $push: {
+                            bills: result.get("_id")
                         }
-                    )
+                    })
                     res.status(201).json(result)
                 } else {
                     const bill = new Bills(req.body)
@@ -227,17 +244,14 @@ const BillController = {
                             'type': 'N'
                         }
                     })
-                    await user.updateOne(
-                        {
-                            $push: {
-                                bills: result.get("_id")
-                            }
+                    await user.updateOne({
+                        $push: {
+                            bills: result.get("_id")
                         }
-                    )
+                    })
                     res.status(201).json(result)
                 }
-            }
-            else {
+            } else {
                 res.status(400).json({
                     status: 400,
                     errorMessage: "We can't find this user or this provider or you are not allowed to buy this product. Please contact with admin"
@@ -250,7 +264,7 @@ const BillController = {
             })
         }
     },
-    update: async (req, res) => {
+    update: async(req, res) => {
         try {
             const bill = await Bills.findById(req.params.id)
             console.log(req.body.user)
@@ -259,7 +273,7 @@ const BillController = {
                 if (req.body.coupon && req.body.user) {
                     const user = await Users.findById(req.body.user)
                     const coupon = await Coupons.findById(req.body.coupon)
-                    if (user && coupon  && user.get("isCustomer") === 1) {
+                    if (user && coupon && user.get("isCustomer") === 1) {
                         if (coupon) {
                             const newCoupon = await Coupons.findById(req.body.coupon)
                             const minimumAmount = newCoupon.minimumAmount
@@ -274,13 +288,11 @@ const BillController = {
                                         bills: bill.get("_id")
                                     }
                                 })
-                                await newCoupon.updateOne(
-                                    {
-                                        $push: {
-                                            bills: bill.get("_id")
-                                        }
+                                await newCoupon.updateOne({
+                                    $push: {
+                                        bills: bill.get("_id")
                                     }
-                                )
+                                })
                             } else {
                                 res.status(400).json({
                                     status: 400,
@@ -290,21 +302,17 @@ const BillController = {
                         }
                         if (user) {
                             const oldUser = await Users.findById(bill.get("user"))
-                            await oldUser.updateOne(
-                                {
-                                    $pull: {
-                                        bills: bill.get("_id")
-                                    }
+                            await oldUser.updateOne({
+                                $pull: {
+                                    bills: bill.get("_id")
                                 }
-                            )
+                            })
                             const newUser = await Users.findById(req.body.user)
-                            await newUser.updateOne(
-                                {
-                                    $push: {
-                                        bills: bill.get("_id")
-                                    }
+                            await newUser.updateOne({
+                                $push: {
+                                    bills: bill.get("_id")
                                 }
-                            )
+                            })
                         } else {
                             res.status(400).json({
                                 status: 400,
@@ -324,7 +332,7 @@ const BillController = {
                     } else {
                         res.status(404).json({
                             status: 404,
-                            errorMessage: user ? "Not Found user" : coupon ? "Cannot find this coupon": "You are not allowed to buy this product. Please contact with admin"
+                            errorMessage: user ? "Not Found user" : coupon ? "Cannot find this coupon" : "You are not allowed to buy this product. Please contact with admin"
                         })
                     }
                 } else if (req.body.user) {
@@ -332,21 +340,17 @@ const BillController = {
                     if (user && (user.get("isCustomer") === 1 || user.get("isProvider") === 1)) {
                         if (user.get("isCustomer") === 1) {
                             const oldUser = await Users.findById(bill.get("user"))
-                            await oldUser.updateOne(
-                                {
-                                    $pull: {
-                                        bills: bill.get("_id")
-                                    }
+                            await oldUser.updateOne({
+                                $pull: {
+                                    bills: bill.get("_id")
                                 }
-                            )
+                            })
                             const newUser = await Users.findById(req.body.user)
-                            await newUser.updateOne(
-                                {
-                                    $push: {
-                                        bills: bill.get("_id")
-                                    }
+                            await newUser.updateOne({
+                                $push: {
+                                    bills: bill.get("_id")
                                 }
-                            )
+                            })
                             await bill.updateOne(req.body)
                             await bill.updateOne({
                                 $set: {
@@ -359,21 +363,17 @@ const BillController = {
                             })
                         } else {
                             const oldUser = await Users.findById(bill.get("user"))
-                            await oldUser.updateOne(
-                                {
-                                    $pull: {
-                                        bills: bill.get("_id")
-                                    }
+                            await oldUser.updateOne({
+                                $pull: {
+                                    bills: bill.get("_id")
                                 }
-                            )
+                            })
                             const newUser = await Users.findById(req.body.user)
-                            await newUser.updateOne(
-                                {
-                                    $push: {
-                                        bills: bill.get("_id")
-                                    }
+                            await newUser.updateOne({
+                                $push: {
+                                    bills: bill.get("_id")
                                 }
-                            )
+                            })
                             await bill.updateOne(req.body)
                             await bill.updateOne({
                                 $set: {
@@ -397,24 +397,25 @@ const BillController = {
                         if (coupon) {
                             const minimumAmount = coupon.minimumAmount
                             let totalPrice = 0
-                            bill.billDetails.forEach(billDetail => {
-                                totalPrice += billDetail.price
-                            })
+                            const billDetails = bill.billDetails
+                            for (let index in billDetails) {
+                                const billDetail = await BillDetails.findById(billDetails[index])
+                                totalPrice += billDetail.get("price")
+                            }
                             if (totalPrice >= minimumAmount) {
                                 const oldCoupon = await Coupons.findById(bill.get("coupon"))
-                                await oldCoupon.updateOne({
-                                    $pull: {
+                                if (oldCoupon)
+                                    await oldCoupon.updateOne({
+                                        $pull: {
+                                            bills: bill.get("_id")
+                                        }
+                                    })
+                                const newCoupon = await Coupons.findById(req.body.coupon)
+                                await newCoupon.updateOne({
+                                    $push: {
                                         bills: bill.get("_id")
                                     }
                                 })
-                                const newCoupon = await Coupons.findById(req.body.coupon)
-                                await newCoupon.updateOne(
-                                    {
-                                        $push: {
-                                            bills: bill.get("_id")
-                                        }
-                                    }
-                                )
                                 await bill.updateOne(req.body)
                                 res.status(200).json({
                                     status: 200,
@@ -459,7 +460,7 @@ const BillController = {
             })
         }
     },
-    delete: async (req, res) => {
+    delete: async(req, res) => {
         try {
             const bill = await Bills.findById(req.params.id)
             if (bill) {
@@ -472,22 +473,18 @@ const BillController = {
                     const user = await Users.findById(bill.get("user"))
                     const coupon = await Coupons.findById(bill.get("coupon"))
                     if (user) {
-                        await user.updateOne(
-                            {
-                                $pull: {
-                                    bills: bill.get("_id")
-                                }
+                        await user.updateOne({
+                            $pull: {
+                                bills: bill.get("_id")
                             }
-                        )
+                        })
                     }
                     if (coupon) {
-                        await coupon.updateOne(
-                            {
-                                $pull: {
-                                    bills: bill.get("_id")
-                                }
+                        await coupon.updateOne({
+                            $pull: {
+                                bills: bill.get("_id")
                             }
-                        )
+                        })
                     }
                     await bill.remove()
                     res.status(200).json({
@@ -508,7 +505,7 @@ const BillController = {
             })
         }
     },
-    findAllBillDetailsByIdBill: async (req, res) => {
+    findAllBillDetailsByIdBill: async(req, res) => {
         try {
             const bill = await Bills.findById(req.params.id)
             if (bill) {

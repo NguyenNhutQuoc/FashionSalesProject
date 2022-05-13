@@ -20,6 +20,7 @@ const billsSchema = new mongoose.Schema({
     coupon: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Coupons',
+        autopopulate: true
     },
     billDetails: {
         type: [{

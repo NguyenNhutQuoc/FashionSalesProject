@@ -7,9 +7,13 @@ const isNumber = require("is-number");
 const productController = {
     findAll: async(req, res) => {
         try {
-            const products = await Products.find()
+            const productsAll = await Products.paginate({}, {
+                page: req.query.page || 1,
+                limit: req.query.limit || 10,
+            })
             let data = []
-            products.forEach(product => {
+            const { docs, ...others } = productsAll
+            docs.forEach(product => {
                 const comments = product.comments
                 let rating = 0
                 for (let index in comments) {
@@ -17,10 +21,13 @@ const productController = {
                 }
                 rating /= comments.length
                 const productObject = product.toObject()
-                productObject.rating = rating > 5 ? 5: rating
+                productObject.rating = rating > 5 ? 5 : rating
                 data.push(productObject)
             })
-            res.status(200).json(data)
+            res.status(200).json({
+                data: data,
+                ...others
+            })
 
         } catch (e) {
             res.status(500).json({
@@ -33,7 +40,7 @@ const productController = {
         try {
             const product = await Products.findById(req.params.id)
             if (product) {
-                let data = {}
+                let data;
                 const comments = product.get("comments")
                 let rating = 0
                 for (let index in comments) {
@@ -41,7 +48,7 @@ const productController = {
                 }
                 rating /= 5
                 let productObject = product.toObject()
-                productObject.rating = rating > 5 ? 5: rating
+                productObject.rating = rating > 5 ? 5 : rating
                 data = productObject
                 res.status(200).json(data)
             } else {
@@ -63,7 +70,7 @@ const productController = {
                 slug: req.params.slug
             }).populate('category').populate('productDetails')
             if (product) {
-                let data = {}
+                let data
                 const comments = product.comments
                 let rating = 0
                 for (let index in comments) {
