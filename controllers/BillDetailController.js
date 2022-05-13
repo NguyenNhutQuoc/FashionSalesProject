@@ -17,8 +17,11 @@ const billDetailController = {
                 }
             })
             const { docs, ...other } = billDetails
-            docs.push(other)
-            res.status(200).json(docs)
+
+            res.status(200).json({
+                data: docs,
+                ...other
+            })
         } catch (error) {
             res.status(500).json({
                 status: 500,

@@ -11,10 +11,11 @@ const categoryController = {
                 limit: req.query.limit || 10,
             })
             const { docs, ...others } = categories
-            docs.push(others)
-            res.status(200).json(
-                docs
-            )
+
+            res.status(200).json({
+                data: docs,
+                ...others
+            })
         } catch (err) {
             res.status(500).json({
                 status: "500",

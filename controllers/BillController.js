@@ -35,8 +35,11 @@ const BillController = {
                     billObject
                 )
             }
-            data.push(others)
-            res.status(200).json(data)
+
+            res.status(200).json({
+                data: data,
+                ...others
+            })
         } catch (error) {
             res.status(500).json({
                 status: 500,

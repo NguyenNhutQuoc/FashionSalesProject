@@ -17,10 +17,11 @@ const ProductDetailController = {
                 }
             })
             const { docs, ...others } = productDetails
-            docs.push(others)
-            res.status(200).json(
-                docs
-            )
+
+            res.status(200).json({
+                data: docs,
+                ...others
+            })
         } catch (e) {
             res.status(500).json({
                 status: 500,

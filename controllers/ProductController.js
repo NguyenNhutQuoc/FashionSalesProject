@@ -24,8 +24,10 @@ const productController = {
                 productObject.rating = rating > 5 ? 5 : rating
                 data.push(productObject)
             })
-            data.push(others)
-            res.status(200).json(data)
+            res.status(200).json({
+                data: data,
+                ...others
+            })
 
         } catch (e) {
             res.status(500).json({
