@@ -22,11 +22,18 @@ const userController = {
     },
     findCustomers: async(req, res) => {
         try {
-            const users = await Users.find({
+            const users = await Users.paginate({
                 isCustomer: 1
+            }, {
+                page: req.query.page || 1,
+                limit: req.query.limit || 10,
             })
-            if (users.length > 0) {
-                res.status(200).json(users)
+            const { docs, ...others } = users
+            if (docs.length > 0) {
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
             } else {
                 res.status(404).json({ status: 404, errorMessage: 'No customers found' })
             }
@@ -36,11 +43,18 @@ const userController = {
     },
     findProviders: async(req, res) => {
         try {
-            const users = await Users.find({
+            const users = await Users.paginate({
                 isProvider: 1
+            }, {
+                page: req.query.page || 1,
+                limit: req.query.limit || 10,
             })
-            if (users.length > 0) {
-                res.status(200).json(users)
+            const { docs, ...others } = users
+            if (docs.length > 0) {
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
             } else {
                 res.status(404).json({ status: 404, errorMessage: 'No providers found' })
             }
