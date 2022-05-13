@@ -84,8 +84,21 @@ const BillController = {
         try {
 
             const bill = await Bills.findById(req.params.id)
+
             if (bill) {
-                res.status(200).json(bill)
+                const billDetails = bill.get("billDetails")
+                let totalPrice = 0
+                for (let i = 0; i < billDetails.length; i++) {
+                    const billDetail = await BillDetails.findById(billDetails[i]._id)
+                    totalPrice += billDetail.get("price")
+                }
+                if (bill.coupon) {
+                    const coupon = await Coupons.findById(bill.coupon)
+                    totalPrice -= coupon.discount
+                }
+                const billObject = bill.toObject()
+                billObject.totalPrice = totalPrice
+                res.status(200).json(billObject)
             } else {
                 res.status(404).json({
                     status: 404,

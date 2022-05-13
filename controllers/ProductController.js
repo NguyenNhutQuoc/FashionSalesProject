@@ -7,9 +7,13 @@ const isNumber = require("is-number");
 const productController = {
     findAll: async(req, res) => {
         try {
-            const products = await Products.find()
+            const productsAll = await Products.paginate({}, {
+                page: req.query.page || 1,
+                limit: req.query.limit || 10,
+            })
             let data = []
-            products.forEach(product => {
+            const {docs} = productsAll
+            docs.forEach(product => {
                 const comments = product.comments
                 let rating = 0
                 for (let index in comments) {
@@ -33,7 +37,7 @@ const productController = {
         try {
             const product = await Products.findById(req.params.id)
             if (product) {
-                let data = {}
+                let data;
                 const comments = product.get("comments")
                 let rating = 0
                 for (let index in comments) {
@@ -63,7 +67,7 @@ const productController = {
                 slug: req.params.slug
             }).populate('category').populate('productDetails')
             if (product) {
-                let data = {}
+                let data
                 const comments = product.comments
                 let rating = 0
                 for (let index in comments) {
