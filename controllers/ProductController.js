@@ -7,27 +7,46 @@ const isNumber = require("is-number");
 const productController = {
     findAll: async(req, res) => {
         try {
-            const productsAll = await Products.paginate({}, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-            })
-            let data = []
-            const { docs, ...others } = productsAll
-            docs.forEach(product => {
-                const comments = product.comments
-                let rating = 0
-                for (let index in comments) {
-                    rating += comments[index].star
-                }
-                rating /= comments.length
-                const productObject = product.toObject()
-                productObject.rating = rating > 5 ? 5 : rating
-                data.push(productObject)
-            })
-            res.status(200).json({
-                data: data,
-                ...others
-            })
+            if (req.query.page || req.query.limit) {
+                const productsAll = await Products.paginate({}, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                })
+                let data = []
+                const {docs, ...others} = productsAll
+                docs.forEach(product => {
+                    const comments = product.comments
+                    let rating = 0
+                    for (let index in comments) {
+                        rating += comments[index].star
+                    }
+                    rating /= comments.length
+                    const productObject = product.toObject()
+                    productObject.rating = rating > 5 ? 5 : rating
+                    data.push(productObject)
+                })
+                res.status(200).json({
+                    data: data,
+                    ...others
+                })
+            } else {
+                const products = await Products.find({})
+                let data = []
+                products.forEach(product => {
+                    const comments = product.comments
+                    let rating = 0
+                    for (let index in comments) {
+                        rating += comments[index].star
+                    }
+                    rating /= comments.length
+                    const productObject = product.toObject()
+                    productObject.rating = rating > 5 ? 5 : rating
+                    data.push(productObject)
+                })
+                res.status(200).json({
+                    data: data
+                })
+            }
 
         } catch (e) {
             res.status(500).json({
@@ -46,7 +65,7 @@ const productController = {
                 for (let index in comments) {
                     rating += comments[index].star
                 }
-                rating /= 5
+                rating /= comments.length
                 let productObject = product.toObject()
                 productObject.rating = rating > 5 ? 5 : rating
                 data = productObject

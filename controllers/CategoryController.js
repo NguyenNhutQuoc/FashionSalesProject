@@ -6,16 +6,23 @@ const categoryController = {
 
     findAll: async(req, res) => {
         try {
-            const categories = await CategoriesSchema.paginate({}, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-            })
-            const { docs, ...others } = categories
+            if (req.query.page || req.query.limit) {
+                const categories = await CategoriesSchema.paginate({}, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                })
+                const {docs, ...others} = categories
 
-            res.status(200).json({
-                data: docs,
-                ...others
-            })
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const categories = await CategoriesSchema.find({})
+                res.status(200).json({
+                    data: categories
+                })
+            }
         } catch (err) {
             res.status(500).json({
                 status: "500",

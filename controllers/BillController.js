@@ -10,36 +10,64 @@ const isNumber = require('is-number')
 const BillController = {
     findAll: async(req, res) => {
         try {
-            const bills = await Bills.paginate({}, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-            })
-            const { docs, ...others } = bills
-            let data = []
-            for (let index in docs) {
+            if (req.query.page || req.query.limit) {
+                const bills = await Bills.paginate({}, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                })
+                const {docs, ...others} = bills
+                let data = []
+                for (let index in docs) {
 
-                const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
-                const billDetails = bill.get("billDetails")
-                let totalPrice = 0
-                for (let i = 0; i < billDetails.length; i++) {
-                    const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
-                    totalPrice += billDetail.get("price")
+                    const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
+                    const billDetails = bill.get("billDetails")
+                    let totalPrice = 0
+                    for (let i = 0; i < billDetails.length; i++) {
+                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
+                        totalPrice += billDetail.get("price")
+                    }
+                    if (bill.coupon) {
+                        const coupon = await Coupons.findById(bill.coupon)
+                        totalPrice -= coupon.discount
+                    }
+                    const billObject = bill.toObject()
+                    billObject.totalPrice = totalPrice
+                    data.push(
+                        billObject
+                    )
                 }
-                if (bill.coupon) {
-                    const coupon = await Coupons.findById(bill.coupon)
-                    totalPrice -= coupon.discount
+
+                res.status(200).json({
+                    data: data,
+                    ...others
+                })
+            } else {
+                const bills = await Bills.find().populate('user').populate('billDetails')
+                let data = []
+                for (let index in bills) {
+                    const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')
+                    const billDetails = bill.get("billDetails")
+                    let totalPrice = 0
+                    for (let i = 0; i < billDetails.length; i++) {
+                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
+                        totalPrice += billDetail.get("price")
+                    }
+                    if (bill.coupon) {
+                        const coupon = await Coupons.findById(bill.coupon)
+                        totalPrice -= coupon.discount
+                    }
+                    const billObject = bill.toObject()
+                    billObject.totalPrice = totalPrice
+                    data.push(
+                        billObject
+                    )
                 }
-                const billObject = bill.toObject()
-                billObject.totalPrice = totalPrice
-                data.push(
-                    billObject
-                )
+
+                res.status(200).json({
+                    data: data,
+
+                })
             }
-
-            res.status(200).json({
-                data: data,
-                ...others
-            })
         } catch (error) {
             res.status(500).json({
                 status: 500,

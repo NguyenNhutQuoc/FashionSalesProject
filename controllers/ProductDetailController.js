@@ -9,19 +9,26 @@ const ImagesSchema = require("../model/Images");
 const ProductDetailController = {
     findAll: async(req, res) => {
         try {
-            const productDetails = await ProductDetails.paginate({}, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-                populate: {
-                    path: 'images size color',
-                }
-            })
-            const { docs, ...others } = productDetails
+            if (req.query.page || req.query.limit) {
+                const productDetails = await ProductDetails.paginate({}, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                    populate: {
+                        path: 'images size color',
+                    }
+                })
+                const {docs, ...others} = productDetails
 
-            res.status(200).json({
-                data: docs,
-                ...others
-            })
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const productDetails = await ProductDetails.find({}).populate('images size color')
+                res.status(200).json({
+                    data: productDetails
+                })
+            }
         } catch (e) {
             res.status(500).json({
                 status: 500,

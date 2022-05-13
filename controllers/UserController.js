@@ -6,36 +6,54 @@ const mongoose = require("mongoose");
 const userController = {
     findAll: async(req, res) => {
         try {
-            const users = await Users.paginate({}, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-            })
-            const { docs, ...others } = users
+            if (req.query.page || req.query.limit) {
+                const users = await Users.paginate({}, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                })
+                const {docs, ...others} = users
 
-            res.status(200).json({
-                data: docs,
-                ...others
-            })
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const users = await Users.find();
+                res.status(200).json({
+                    data: users
+                });
+            }
         } catch (err) {
             res.status(500).json({ status: 500, message: err.message })
         }
     },
     findCustomers: async(req, res) => {
         try {
-            const users = await Users.paginate({
-                isCustomer: 1
-            }, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-            })
-            const { docs, ...others } = users
-            if (docs.length > 0) {
-                res.status(200).json({
-                    data: docs,
-                    ...others
+            if (req.query.page || req.query.limit) {
+                const users = await Users.paginate({
+                    isCustomer: 1
+                }, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
                 })
+                const {docs, ...others} = users
+                if (docs.length > 0) {
+                    res.status(200).json({
+                        data: docs,
+                        ...others
+                    })
+                } else {
+                    res.status(404).json({status: 404, errorMessage: 'No customers found'})
+                }
             } else {
-                res.status(404).json({ status: 404, errorMessage: 'No customers found' })
+                const users = await Users.find({isCustomer: 1});
+                if (users.length > 0) {
+                    res.status(200).json({
+                        data: users
+                    })
+                } else {
+                    res.status(404).json({status: 404, errorMessage: 'No customers found'})
+                }
             }
         } catch (err) {
             res.status(500).json({ status: 500, errorMessage: err.message })
@@ -43,20 +61,31 @@ const userController = {
     },
     findProviders: async(req, res) => {
         try {
-            const users = await Users.paginate({
-                isProvider: 1
-            }, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-            })
-            const { docs, ...others } = users
-            if (docs.length > 0) {
-                res.status(200).json({
-                    data: docs,
-                    ...others
+            if (req.query.page || req.query.limit) {
+                const users = await Users.paginate({
+                    isProvider: 1
+                }, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
                 })
+                const {docs, ...others} = users
+                if (docs.length > 0) {
+                    res.status(200).json({
+                        data: docs,
+                        ...others
+                    })
+                } else {
+                    res.status(404).json({status: 404, errorMessage: 'No providers found'})
+                }
             } else {
-                res.status(404).json({ status: 404, errorMessage: 'No providers found' })
+                const users = await Users.find({isProvider: 1});
+                if (users.length > 0) {
+                    res.status(200).json({
+                        data: users
+                    })
+                } else {
+                    res.status(404).json({status: 404, errorMessage: 'No providers found'})
+                }
             }
         } catch (e) {
             res.status(500).json({ status: 500, errorMessage: e.message })

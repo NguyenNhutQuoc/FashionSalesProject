@@ -5,15 +5,23 @@ const {
 const couponController = {
     findAll: async(req, res) => {
         try {
-            const coupons = await Coupons.paginate({}, {
-                page: req.query.page || 1,
-                limit: req.query.limit || 10,
-            })
-            const { docs, ...others } = coupons
-            res.status(200).json({
-                data: docs,
-                ...others
-            });
+            if (req.query.page || req.query.limit) {
+                const coupons = await Coupons.paginate({}, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                })
+                const {docs, ...others} = coupons
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                });
+            }
+            else {
+                const coupons = await Coupons.find();
+                res.status(200).json({
+                    data: coupons
+                })
+            }
         } catch (err) {
             res.status(500).json({
                 status: 500,
