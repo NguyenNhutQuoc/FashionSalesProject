@@ -12,7 +12,7 @@ const productController = {
                 limit: req.query.limit || 10,
             })
             let data = []
-            const {docs} = productsAll
+            const { docs, ...others } = productsAll
             docs.forEach(product => {
                 const comments = product.comments
                 let rating = 0
@@ -21,9 +21,10 @@ const productController = {
                 }
                 rating /= comments.length
                 const productObject = product.toObject()
-                productObject.rating = rating > 5 ? 5: rating
+                productObject.rating = rating > 5 ? 5 : rating
                 data.push(productObject)
             })
+            data.push(others)
             res.status(200).json(data)
 
         } catch (e) {
@@ -45,7 +46,7 @@ const productController = {
                 }
                 rating /= 5
                 let productObject = product.toObject()
-                productObject.rating = rating > 5 ? 5: rating
+                productObject.rating = rating > 5 ? 5 : rating
                 data = productObject
                 res.status(200).json(data)
             } else {

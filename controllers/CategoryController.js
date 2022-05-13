@@ -4,14 +4,14 @@ const {
 
 const categoryController = {
 
-    findAll: async (req, res) => {
+    findAll: async(req, res) => {
         try {
             const categories = await CategoriesSchema.paginate({}, {
                 page: req.query.page || 1,
                 limit: req.query.limit || 10,
             })
-            const {docs, ...others} = categories
-
+            const { docs, ...others } = categories
+            docs.push(others)
             res.status(200).json(
                 docs
             )
@@ -22,7 +22,7 @@ const categoryController = {
             })
         }
     },
-    findById: async (req, res) => {
+    findById: async(req, res) => {
         try {
             const category = await CategoriesSchema.findById(req.params.id).populate("products")
             if (category) {
@@ -40,7 +40,7 @@ const categoryController = {
             })
         }
     },
-    findBy: async (req, res) => {
+    findBy: async(req, res) => {
         try {
             const category_name = await CategoriesSchema.findOne({
                 name: req.query.search
@@ -50,15 +50,14 @@ const categoryController = {
             })
             console.log(category_name)
             console.log(category_slug)
-            if ( category_name || category_slug) {
+            if (category_name || category_slug) {
                 res.status(200).json(category_name || category_slug)
-            }
-            else
+            } else
                 res.status(404).json({
                     status: "404",
                     errorMessage: "Not found"
                 })
-        }catch(e) {
+        } catch (e) {
             res.status(500).send({
                 status: "500",
                 errorMessage: e.message || "Some error occurred while retrieving categories."
@@ -66,7 +65,7 @@ const categoryController = {
         }
     },
 
-    create: async (req, res) => {
+    create: async(req, res) => {
         try {
             const category = await CategoriesSchema.create(req.body)
             res.status(201).json(category)
@@ -78,7 +77,7 @@ const categoryController = {
             })
         }
     },
-    update: async (req, res) => {
+    update: async(req, res) => {
         try {
             const category = await CategoriesSchema.findByIdAndUpdate(req.params.id, req.body)
             if (category)
@@ -94,7 +93,7 @@ const categoryController = {
             })
         }
     },
-    delete: async (req, res) => {
+    delete: async(req, res) => {
         try {
             const category = await CategoriesSchema.findById(req.params.id)
             if (category) {
@@ -116,7 +115,7 @@ const categoryController = {
             })
         }
     },
-    findAllProductsBySlugCategory: async (req, res) => {
+    findAllProductsBySlugCategory: async(req, res) => {
         try {
             const category = await CategoriesSchema.findOne({ slug: req.params.slug })
             if (category) {

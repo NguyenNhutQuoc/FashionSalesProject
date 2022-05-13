@@ -10,7 +10,8 @@ const userController = {
                 page: req.query.page || 1,
                 limit: req.query.limit || 10,
             })
-            const {docs, ...others} = users
+            const { docs, ...others } = users
+            docs.push(others)
             res.status(200).json(
                 docs
             )

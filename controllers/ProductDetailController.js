@@ -16,7 +16,8 @@ const ProductDetailController = {
                     path: 'images size color',
                 }
             })
-            const {docs, ...others} = productDetails
+            const { docs, ...others } = productDetails
+            docs.push(others)
             res.status(200).json(
                 docs
             )
