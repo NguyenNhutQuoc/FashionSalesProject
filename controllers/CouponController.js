@@ -27,7 +27,26 @@ const couponController = {
             });
         }
   },
-
+    findById: async(req, res) => {
+        try {
+            const coupon = await Coupons.findById(req.params.id);
+            if (coupon) {
+                res.status(200).json({
+                    data: coupon
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    errorMessage: "Coupon not found",
+                });
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message,
+            });
+        }
+    },
   findBy: async (req, res) => {
     try {
       const coupon_code = await Coupons.find({ code: req.query.search });

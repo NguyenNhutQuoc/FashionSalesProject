@@ -83,100 +83,102 @@ const ProductDetailController = {
     },
     create: async(req, res) => {
         try {
-            const {
-                quantity,
-                status,
-                product,
-                size,
-                color,
-                image,
-                'images-sub': imagesSub
-            } = req.body
-            if (quantity && status && product && size && color) {
-                if (isNumber(quantity) && isNumber(status)) {
-                    const product_id = await Products.findById(product)
-                    if (product_id) {
-                        const sizeCheck = size.toLowerCase()
-                        const colorCheck = color.toLowerCase()
-                        const size_id = await SizesSchema.findOne({
-                            size: sizeCheck
-                        })
-                        const color_id = await Colors.findOne({
-                            color: colorCheck,
-                        })
-                        if (!size_id) {
-                            await SizesSchema.create({
-                                size: sizeCheck,
-                                productDetails: []
+            for (let element in req.body) {
+                const {
+                    quantity,
+                    status,
+                    product,
+                    size,
+                    color,
+                    image,
+                    'images-sub': imagesSub
+                } = req.body[element]
+                if (quantity && status && product && size && color) {
+                    if (isNumber(quantity) && isNumber(status)) {
+                        const product_id = await Products.findById(product)
+                        if (product_id) {
+                            const sizeCheck = size.toLowerCase()
+                            const colorCheck = color.toLowerCase()
+                            const size_id = await SizesSchema.findOne({
+                                size: sizeCheck
                             })
-                        }
-                        if (!color_id) {
-                            await Colors.create({
+                            const color_id = await Colors.findOne({
                                 color: colorCheck,
-                                productDetails: []
+                            })
+                            if (!size_id) {
+                                await SizesSchema.create({
+                                    size: sizeCheck,
+                                    productDetails: []
+                                })
+                            }
+                            if (!color_id) {
+                                await Colors.create({
+                                    color: colorCheck,
+                                    productDetails: []
+                                })
+                            }
+                            const size_id_ = await SizesSchema.findOne({
+                                size: sizeCheck
+                            })
+                            const color_id_ = await Colors.findOne({
+                                color: colorCheck,
+                            })
+                            await ImagesSchema.create({
+                                image: image,
+                            })
+                            const image_id = await ImagesSchema.findOne({
+                                image: image
+                            })
+
+                            const productDetail = await ProductDetails.create({
+                                quantity,
+                                status,
+                                product: product_id.get('_id'),
+                                size: size_id_.get('_id'),
+                                color: color_id_.get('_id'),
+                                images: image_id.get('_id')
+                            })
+                            await image_id.updateOne({
+                                'productDetail': productDetail.get('_id'),
+                                $push: {
+                                    'imagesSub': imagesSub
+                                }
+                            })
+
+                            await product_id.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                            await size_id_.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                            await color_id_.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                        } else {
+                            res.status(404).json({
+                                errorMessage: 'Product not found'
                             })
                         }
-                        const size_id_ = await SizesSchema.findOne({
-                            size: sizeCheck
-                        })
-                        const color_id_ = await Colors.findOne({
-                            color: colorCheck,
-                        })
-                        await ImagesSchema.create({
-                            image: image,
-                        })
-                        const image_id = await ImagesSchema.findOne({
-                            image: image
-                        })
-
-                        const productDetail = await ProductDetails.create({
-                            quantity,
-                            status,
-                            product: product_id.get('_id'),
-                            size: size_id_.get('_id'),
-                            color: color_id_.get('_id'),
-                            images: image_id.get('_id')
-                        })
-                        await image_id.updateOne({
-                            'productDetail': productDetail.get('_id'),
-                            $push: {
-                                'imagesSub': imagesSub
-                            }
-                        })
-
-                        await product_id.updateOne({
-                            $push: {
-                                productDetails: productDetail.get('_id')
-                            }
-                        })
-                        await size_id_.updateOne({
-                            $push: {
-                                productDetails: productDetail.get('_id')
-                            }
-                        })
-                        await color_id_.updateOne({
-                            $push: {
-                                productDetails: productDetail.get('_id')
-                            }
-                        })
-                        res.status(201).json({
-                            productDetail
-                        })
                     } else {
                         res.status(404).json({
-                            errorMessage: 'Product not found'
+                            errorMessage: 'Quantity, price, status must be number'
                         })
                     }
                 } else {
-                    res.status(404).json({
-                        errorMessage: 'Quantity, price, status must be number'
+                    res.status(400).json({
+                        errorMessage: 'Missing parameters'
                     })
                 }
-            } else {
-                res.status(400).json({
-                    errorMessage: 'Missing parameters'
-                })
             }
+            res.status(201).json({
+                message: 'Create product detail success'
+            })
         } catch (e) {
             res.status(500).json({
                 errorMessage: e.message
