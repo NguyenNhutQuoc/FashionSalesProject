@@ -6,8 +6,8 @@ const ImageSchema = new mongoose.Schema({
         required: true
     },
     'imagesSub': [{
-        type: [String],
-        required: true
+        type: String,
+        default: ''
     }],
     'productDetail': {
         type: mongoose.Schema.Types.ObjectId,
