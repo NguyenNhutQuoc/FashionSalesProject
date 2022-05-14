@@ -84,7 +84,7 @@ const ProductDetailController = {
     create: async(req, res) => {
         try {
             for (let element in req.body) {
-                const {
+                let {
                     quantity,
                     status,
                     product,
@@ -93,7 +93,13 @@ const ProductDetailController = {
                     image,
                     'images-sub': imagesSub
                 } = req.body[element]
-                if (quantity && status && product && size && color) {
+                if (product && size && color) {
+                    if (!quantity) {
+                        quantity = 0
+                    }
+                    if (!status) {
+                        status = 0
+                    }
                     if (isNumber(quantity) && isNumber(status)) {
                         const product_id = await Products.findById(product)
                         if (product_id) {
