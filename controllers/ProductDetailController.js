@@ -17,7 +17,7 @@ const ProductDetailController = {
                         path: 'images size color',
                     }
                 })
-                const {docs, ...others} = productDetails
+                const { docs, ...others } = productDetails
 
                 res.status(200).json({
                     data: docs,
@@ -192,7 +192,7 @@ const ProductDetailController = {
             })
         } catch (e) {
             res.status(500).json({
-                errorMessage: e.message
+                errorMessage: 'Create product detail failed'
             })
         }
     },
