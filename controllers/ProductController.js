@@ -25,14 +25,18 @@ const productController = {
                     productObject.rating = rating > 5 ? 5 : rating
                     data.push(productObject)
                 })
+                const product = await Products.find({})
+
                 res.status(200).json({
                     data: data,
+                    length: product.get('productDetails').length,
                     ...others
                 })
             } else {
                 const products = await Products.find({})
                 let data = []
                 products.forEach(product => {
+                    console.log(product.productDetails.length)
                     const comments = product.comments
                     let rating = 0
                     for (let index in comments) {
@@ -260,14 +264,14 @@ const productController = {
             const product = await Products.findById(req.params.id);
             if (product) {
                 if (
-                    product.get("comments") > 0
+                    product.get("comments").length > 0 && product.get('billDetails').length > 0 && product.productDetails.length > 0
                 ) {
                     res.status(400).json({
                         status: 400,
-                        errorMessage: "Product has comments. You can't delete it",
+                        errorMessage: "You can't delete it",
                     });
                 } else {
-                    const category = await CategoriesSchema.findById(product.get("category"));
+                    const category = await CategoriesSchema.findById(product.get("category"))
                     await category.updateOne({
                         $pull: {
                             products: product.get("_id"),

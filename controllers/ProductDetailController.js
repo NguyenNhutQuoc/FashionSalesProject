@@ -83,7 +83,11 @@ const ProductDetailController = {
     },
     create: async(req, res) => {
         try {
+            let i = 0
+            let checkExist = 0
+            let checkErr = 0
             for (let element in req.body) {
+                i = element + 1
                 let {
                     quantity,
                     status,
@@ -142,54 +146,79 @@ const ProductDetailController = {
                         const image_id_ = await ImagesSchema.findOne({
                             image: imageCheck
                         })
-                        const productDetail = await ProductDetails.create({
-                            quantity,
-                            status,
-                            product: product_id.get('_id'),
-                            size: size_id_.get('_id'),
-                            color: color_id_.get('_id'),
-                            images: image_id_.get('_id')
+                        const productDetail = await ProductDetails.findOne({
+                            product: product_id._id,
+                            size: size_id_._id,
+                            color: color_id_._id,
                         })
-                        await image_id_.updateOne({
-                            'productDetail': productDetail.get('_id'),
-                        })
-                        for (const index in imagesSub) {
+                        if (productDetail) {
+                            checkExist += '1' + ' '
+                            await productDetail.updateOne(
+                                {
+                                    $inc: {
+                                        quantity: quantity
+                                    }
+                                }
+                            )
+                        } else {
+                            const productDetail = await ProductDetails.create({
+                                quantity,
+                                status,
+                                product: product_id.get('_id'),
+                                size: size_id_.get('_id'),
+                                color: color_id_.get('_id'),
+                                images: image_id_.get('_id')
+                            })
                             await image_id_.updateOne({
+                                'productDetail': productDetail.get('_id'),
+                            })
+                            for (const index in imagesSub) {
+                                await image_id_.updateOne({
+                                    $push: {
+                                        imagesSub: imagesSub[index]
+                                    }
+                                })
+                            }
+                            await product_id.updateOne({
                                 $push: {
-                                    imagesSub: imagesSub[index]
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                            await size_id_.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                            await color_id_.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
                                 }
                             })
                         }
-                        await product_id.updateOne({
-                            $push: {
-                                productDetails: productDetail.get('_id')
-                            }
-                        })
-                        await size_id_.updateOne({
-                            $push: {
-                                productDetails: productDetail.get('_id')
-                            }
-                        })
-                        await color_id_.updateOne({
-                            $push: {
-                                productDetails: productDetail.get('_id')
-                            }
-                        })
                     } else {
                         res.status(404).json({
-                            errorMessage: 'Product not found'
+                            errorMessage: 'Product at locate'+(element + 1) +' not found'
                         })
+                        checkErr = 1
+                        break
                     }
                 } else {
                     res.status(404).json({
-                        errorMessage: 'Quantity, price, status must be number'
+                        errorMessage: 'Missing data at '+(element + 1) +' row'
                     })
+                    checkErr = 1
+                    break
                 }
             }
-
-            res.status(201).json({
-                message: 'Create product detail success'
-            })
+            if (checkExist && !checkErr) {
+                res.status(200).json({
+                    message: "Product detail at located " + checkExist + "is exist, so update quantity. Otherwise create new product detail"
+                })
+            }else if (!checkExist && !checkErr) {
+                res.status(201).json({
+                    message: 'Create product detail success'
+                })
+            }
         } catch (e) {
             res.status(500).json({
                 errorMessage: 'Create product detail failed'

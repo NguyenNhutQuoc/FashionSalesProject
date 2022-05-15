@@ -5,7 +5,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const PORT = process.env.PORT || 3000;
-dotenv.config();
+dotenv.config(); // load .env file
 const app = express();
 // Config routes
 const categoryRouter = require("./routes/category");
