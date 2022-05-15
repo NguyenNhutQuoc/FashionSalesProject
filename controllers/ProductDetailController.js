@@ -90,7 +90,6 @@ const ProductDetailController = {
                 i = element + 1
                 let {
                     quantity,
-                    status,
                     product,
                     size,
                     color,
@@ -98,13 +97,9 @@ const ProductDetailController = {
                     'images-sub': imagesSub
                 } = req.body[element]
                 if (product && size && color) {
-                    if (!quantity) {
-                        quantity = 0
+                    if (quantity) {
+                        status=1
                     }
-                    if (!status) {
-                        status = 0
-                    }
-
                     const product_id = await Products.findById(product)
                     if (product_id) {
                         const sizeCheck = size.toLowerCase()

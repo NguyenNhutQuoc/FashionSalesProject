@@ -158,6 +158,19 @@ const billDetailController = {
                             }
                         })
                     }
+                    if (product.get('quantity') === 0) {
+                        await product.updateOne({
+                            $set: {
+                                status: 0
+                            }
+                        })
+                    } else {
+                        await product.updateOne({
+                            $set: {
+                                status: 1
+                            }
+                        })
+                    }
                     res.status(201).json(billDetail)
                 } else {
                     res.status(400).json({
