@@ -216,7 +216,7 @@ const ProductDetailController = {
             }
         } catch (e) {
             res.status(500).json({
-                errorMessage: 'Create product detail failed'
+                errorMessage: e.message
             })
         }
     },
