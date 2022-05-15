@@ -261,7 +261,7 @@ const productController = {
         try {
             const product = await Products.findById(req.params.id);
             if (product) {
-                if (product.get("comments").length > 0 || product.get('billDetails').length > 0 || product.productDetails.length > 0) {
+                if (product.get("comments").length > 0 || product.get('billDetails').length > 0 || product.get('billDetails').length > 0) {
                     res.status(400).json({
                         status: 400,
                         errorMessage: "You can't delete it",
