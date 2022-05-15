@@ -89,6 +89,7 @@ const ProductDetailController = {
             for (let element in req.body) {
                 i = element + 1
                 let {
+                    status,
                     quantity,
                     product,
                     size,
@@ -158,7 +159,6 @@ const ProductDetailController = {
                         } else {
                             const productDetail = await ProductDetails.create({
                                 quantity,
-                                status,
                                 product: product_id.get('_id'),
                                 size: size_id_.get('_id'),
                                 color: color_id_.get('_id'),
@@ -224,16 +224,17 @@ const ProductDetailController = {
         try {
             const productDetail = await ProductDetails.findById(req.params.id)
             if (productDetail) {
-                if (req.body.quantity || req.body.status) {
+                if (req.body.quantity) {
                     if (req.body.quantity && !isNumber(req.body.quantity)) {
                         res.status(404).json({
                             errorMessage: 'Quantity must be number'
 
                         })
-                    }
-                    if (req.body.status && !isNumber(req.body.status)) {
-                        res.status(404).json({
-                            errorMessage: 'Status must be number'
+                    } else {
+                        await productDetail.updateOne({
+                            $set: {
+                                status: 1,
+                            }
                         })
                     }
                 }
