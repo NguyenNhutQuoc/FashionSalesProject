@@ -25,11 +25,9 @@ const productController = {
                     productObject.rating = rating > 5 ? 5 : rating
                     data.push(productObject)
                 })
-                const product = await Products.find({})
 
                 res.status(200).json({
                     data: data,
-                    length: product.get('productDetails').length,
                     ...others
                 })
             } else {
