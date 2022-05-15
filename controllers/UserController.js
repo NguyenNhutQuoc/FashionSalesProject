@@ -37,23 +37,19 @@ const userController = {
                     limit: req.query.limit || 10,
                 })
                 const {docs, ...others} = users
-                if (docs.length > 0) {
+
                     res.status(200).json({
                         data: docs,
                         ...others
                     })
-                } else {
+
                     res.status(404).json({status: 404, errorMessage: 'No customers found'})
-                }
+
             } else {
                 const users = await Users.find({isCustomer: 1});
-                if (users.length > 0) {
-                    res.status(200).json({
-                        data: users
-                    })
-                } else {
-                    res.status(404).json({status: 404, errorMessage: 'No customers found'})
-                }
+                res.status(200).json({
+                    data: users,
+                })
             }
         } catch (err) {
             res.status(500).json({ status: 500, errorMessage: err.message })
@@ -69,23 +65,19 @@ const userController = {
                     limit: req.query.limit || 10,
                 })
                 const {docs, ...others} = users
-                if (docs.length > 0) {
+
                     res.status(200).json({
                         data: docs,
                         ...others
                     })
-                } else {
-                    res.status(404).json({status: 404, errorMessage: 'No providers found'})
-                }
+
             } else {
                 const users = await Users.find({isProvider: 1});
-                if (users.length > 0) {
+
                     res.status(200).json({
                         data: users
                     })
-                } else {
-                    res.status(404).json({status: 404, errorMessage: 'No providers found'})
-                }
+
             }
         } catch (e) {
             res.status(500).json({ status: 500, errorMessage: e.message })
