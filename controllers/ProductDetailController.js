@@ -259,72 +259,92 @@ const ProductDetailController = {
         try {
             const productDetail = await ProductDetails.findById(req.params.id)
             if (productDetail) {
-                if (req.body.quantity) {
-                    if (req.body.quantity && !isNumber(req.body.quantity)) {
-                        res.status(404).json({
-                            errorMessage: 'Quantity must be number'
-
-                        })
-                    } else {
-                        await productDetail.updateOne({
-                            $set: {
-                                status: 1,
-                            }
-                        })
+                for (let element of req.body) {
+                    if (element.quantity) {
+                        if (element.quantity && !isNumber(element.quantity)) {
+                            res.status(404).json({
+                                errorMessage: 'Quantity must be number'
+                            })
+                            break
+                        } else {
+                            await productDetail.updateOne({
+                                $set: {
+                                    status: 1,
+                                }
+                            })
+                        }
                     }
-                }
-                if (req.body.product) {
-                    const product_id = await Products.findById(req.body.product)
-                    if (product_id) {
-                        const oldProduct = await Products.findById(
-                            productDetail.get('product')
-                        )
-                        const newProduct = await Products.findById(req.body.product)
-                        await oldProduct.updateOne({
+                    if (element.product) {
+                        const product_id = await Products.findById(element.product)
+                        if (product_id) {
+                            const oldProduct = await Products.findById(
+                                productDetail.get('product')
+                            )
+                            const newProduct = await Products.findById(element.product)
+                            await oldProduct.updateOne({
+                                $pull: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                            await newProduct.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                        } else {
+                            res.status(404).json({
+                                errorMessage: 'Product not found'
+                            })
+                        }
+                    }
+                    if (element.color) {
+                        const oldColor = await Colors.findById(productDetail.get('color'))
+                        await oldColor.updateOne({
                             $pull: {
                                 productDetails: productDetail.get('_id')
                             }
                         })
-                        await newProduct.updateOne({
-                            $push: {
+                        const newColor = await Colors.findOne({
+                            color: element.color
+                        })
+                        if (newColor) {
+                            await newColor.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                        } else {
+                            await Colors.create({
+                                color: element.color,
+                                productDetails: productDetail.get('_id')
+                            })
+                        }
+                    }
+                    if (req.body.size) {
+                        const oldSize = await SizesSchema.findById(productDetail.get('size'))
+                        await oldSize.updateOne({
+                            $pull: {
                                 productDetails: productDetail.get('_id')
                             }
                         })
-                    } else {
-                        res.status(404).json({
-                            errorMessage: 'Product not found'
+                        const newSize = await SizesSchema.findOne({
+                            size: req.body.size
                         })
-                    }
-                }
-                if (req.body.color) {
-                    const oldColor = await Colors.findById(productDetail.get('color'))
-                    await oldColor.updateOne({
-                        $pull: {
-                            productDetails: productDetail.get('_id')
+                        if (newSize) {
+                            await newSize.updateOne({
+                                $push: {
+                                    productDetails: productDetail.get('_id')
+                                }
+                            })
+                        } else {
+                            await SizesSchema.create({
+                                size: req.body.size,
+                                productDetails: productDetail.get('_id')
+                            })
                         }
-                    })
-                    await Colors.create({
-                        color: req.body.color,
-                        productDetails: productDetail.get('_id')
-                    })
-                }
-                if (req.body.size) {
-                    const oldSize = await SizesSchema.findById(productDetail.get('size'))
-                    await oldSize.updateOne({
-                        $pull: {
-                            productDetails: productDetail.get('_id')
-                        }
-                    })
-                    await SizesSchema.create({
-                        size: req.body.size,
-                        productDetails: productDetail.get('_id')
-                    })
-                }
-                await productDetail.updateOne({
-                    $set: {
-                        ...req.body
                     }
-                })
+                    await productDetail.updateOne(element)
+                }
                 res.status(200).json({
                     message: 'Update success'
                 })
