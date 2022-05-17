@@ -39,7 +39,6 @@ const productController = {
                 const products = await Products.find({})
                 let data = []
                 products.forEach(product => {
-                    console.log(product.productDetails.length)
                     const comments = product.comments
                     let rating = 0
                     for (let index in comments) {
@@ -102,7 +101,7 @@ const productController = {
                 for (let index in comments) {
                     rating += comments[index].star
                 }
-                rating /= 5
+                rating /= comments.length
                 data = {
                     "Product": product,
                     "Rating": rating
@@ -264,7 +263,7 @@ const productController = {
     },
     delete: async(req, res) => {
         try {
-            const checkDelete = 0
+            let checkDelete = 0
             const product = await Products.findById(req.params.id);
             if (product) {
                 if (product.get("comments").length > 0) {
