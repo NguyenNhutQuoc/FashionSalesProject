@@ -1,6 +1,11 @@
 const {
     CategoriesSchema,
-    Products
+    Products,
+    ProductDetails,
+    Colors,
+    SizesSchema,
+    ImagesSchema,
+    BillDetails
 } = require("../model/model");
 
 const isNumber = require("is-number");
@@ -14,7 +19,7 @@ const productController = {
                     limit: req.query.limit || 10,
                 })
                 let data = []
-                const {docs, ...others} = productsAll
+                const { docs, ...others } = productsAll
                 docs.forEach(product => {
                     const comments = product.comments
                     let rating = 0
@@ -35,7 +40,6 @@ const productController = {
                 const products = await Products.find({})
                 let data = []
                 products.forEach(product => {
-                    console.log(product.productDetails.length)
                     const comments = product.comments
                     let rating = 0
                     for (let index in comments) {
@@ -100,7 +104,7 @@ const productController = {
                 for (let index in comments) {
                     rating += comments[index].star
                 }
-                rating /= 5
+                rating /= comments.length
                 data = {
                     "Product": product,
                     "Rating": rating
@@ -262,9 +266,10 @@ const productController = {
     },
     delete: async(req, res) => {
         try {
+            let checkDelete = 0
             const product = await Products.findById(req.params.id);
             if (product) {
-                if (product.get("comments").length > 0 || product.get('productDetails').length > 0) {
+                if (product.get("comments").length > 0) {
                     res.status(400).json({
                         status: 400,
                         errorMessage: "You can't delete it",
@@ -276,11 +281,49 @@ const productController = {
                             products: product.get("_id"),
                         },
                     });
-                    await product.remove();
-                    res.status(200).json({
-                        status: 200,
-                        message: "Product deleted",
-                    });
+                    const productDetails = await ProductDetails.find({
+                        product: product.get("_id")
+                    })
+                    for (let productDetail of productDetails) {
+                        const color = await Colors.findById(productDetail.get("color"))
+                        const size = await SizesSchema.findById(productDetail.get("size"))
+                        const images = await ImagesSchema.findById(productDetail.get("images")[0])
+                        const billDetails = productDetail.get("billDetails")
+                        if (billDetails.length === 0) {
+                            if (color) {
+                                await color.updateOne({
+                                    $pull: {
+                                        productDetails: productDetail.get("_id"),
+                                    },
+                                });
+                            }
+                            if (size) {
+                                await size.updateOne({
+                                    $pull: {
+                                        productDetails: productDetail.get("_id"),
+                                    },
+                                });
+                            }
+                            if (images) {
+                                await images.remove()
+                            }
+                            await productDetail.remove()
+                        } else {
+                            checkDelete = 1
+                        }
+                    }
+                    if (checkDelete === 0) {
+                        await product.remove()
+                        res.status(200).json({
+                            status: 200,
+                            message: "Delete success",
+                        });
+                    } else {
+                        res.status(400).json({
+                            status: 400,
+                            errorMessage: "You can't delete it",
+                        });
+                    }
                 }
             }
         } catch (e) {
