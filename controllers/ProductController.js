@@ -5,6 +5,7 @@ const {
 
 const isNumber = require("is-number");
 const productController = {
+    //***
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
@@ -57,6 +58,7 @@ const productController = {
             });
         }
     },
+    //****
     findById: async(req, res) => {
         try {
             const product = await Products.findById(req.params.id)
@@ -85,6 +87,7 @@ const productController = {
             })
         }
     },
+    //***
     findBySlug: async(req, res) => {
         try {
             const product = await Products.findOne({

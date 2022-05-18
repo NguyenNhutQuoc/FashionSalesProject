@@ -7,6 +7,7 @@ const {
 const isNumber = require('is-number')
 const ImagesSchema = require("../model/Images");
 const ProductDetailController = {
+    //***
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
@@ -81,6 +82,7 @@ const ProductDetailController = {
             })
         }
     },
+    //***
     create: async(req, res) => {
         try {
             let i = 0
