@@ -17,7 +17,7 @@ const billDetailController = {
                         path: 'bill productDetail',
                     }
                 })
-                const {docs, ...other} = billDetails
+                const { docs, ...other } = billDetails
 
                 res.status(200).json({
                     data: docs,
@@ -137,6 +137,15 @@ const billDetailController = {
                                     "quantity": -req.body.quantity
                                 }
                             })
+                            const prducded = await ProductDetails.findById(req.body.productDetail)
+                            const quantity = prducded.get('quantity')
+                            if (quantity === 0) {
+                                await ProductDetails.findByIdAndUpdate(req.body.productDetail, {
+                                    $set: {
+                                        status: 0
+                                    }
+                                })
+                            }
                         }
                     } else {
                         await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
@@ -155,17 +164,7 @@ const billDetailController = {
                         await product.updateOne({
                             $inc: {
                                 "quantity": req.body.quantity
-                            }
-                        })
-                    }
-                    if (product.get('quantity') === 0) {
-                        await product.updateOne({
-                            $set: {
-                                status: 0
-                            }
-                        })
-                    } else {
-                        await product.updateOne({
+                            },
                             $set: {
                                 status: 1
                             }
