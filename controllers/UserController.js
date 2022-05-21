@@ -4,6 +4,7 @@ const {
 const mongoose = require("mongoose");
 
 const userController = {
+    //****
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
@@ -27,6 +28,7 @@ const userController = {
             res.status(500).json({ status: 500, message: err.message })
         }
     },
+    //**
     findCustomers: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
