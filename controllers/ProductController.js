@@ -5,7 +5,7 @@ const {
     Colors,
     SizesSchema,
     ImagesSchema,
-    BillDetails
+    BillDetails, Trademarks
 } = require("../model/model");
 
 const isNumber = require("is-number");
@@ -23,15 +23,30 @@ const productController = {
                 docs.forEach(product => {
                     const comments = product.comments
                     let rating = 0
+                    let fiveStar = 0
+                    let fourStar = 0
+                    let threeStar = 0
+                    let twoStar = 0
+                    let oneStar = 0
                     for (let index in comments) {
+                        comments[index].star === 5 ? fiveStar += 1 :
+                            comments[index].star === 4 ? fourStar += 1 :
+                                comments[index].star === 3 ? threeStar += 1 :
+                                    comments[index].star === 2 ? twoStar += 1 :
+                                        comments[index].star === 1 ? oneStar += 1 : null
                         rating += comments[index].star
                     }
                     rating /= comments.length
                     const productObject = product.toObject()
                     productObject.rating = rating > 5 ? 5 : rating
+                    productObject.numberOfComments = comments.length
+                    productObject.fiveStar = fiveStar
+                    productObject.fourStar = fourStar
+                    productObject.threeStar = threeStar
+                    productObject.twoStar = twoStar
+                    productObject.oneStar = oneStar
                     data.push(productObject)
                 })
-
                 res.status(200).json({
                     data: data,
                     ...others
@@ -42,12 +57,28 @@ const productController = {
                 products.forEach(product => {
                     const comments = product.comments
                     let rating = 0
+                    let fiveStar = 0
+                    let fourStar = 0
+                    let threeStar = 0
+                    let twoStar = 0
+                    let oneStar = 0
                     for (let index in comments) {
+                        comments[index].star === 5 ? fiveStar += 1 :
+                            comments[index].star === 4 ? fourStar += 1 :
+                                comments[index].star === 3 ? threeStar += 1 :
+                                    comments[index].star === 2 ? twoStar += 1 :
+                                        comments[index].star === 1 ? oneStar += 1 : null
                         rating += comments[index].star
                     }
                     rating /= comments.length
                     const productObject = product.toObject()
                     productObject.rating = rating > 5 ? 5 : rating
+                    productObject.numberOfComments = comments.length
+                    productObject.fiveStar = fiveStar
+                    productObject.fourStar = fourStar
+                    productObject.threeStar = threeStar
+                    productObject.twoStar = twoStar
+                    productObject.oneStar = oneStar
                     data.push(productObject)
                 })
                 res.status(200).json({
@@ -70,12 +101,28 @@ const productController = {
                 let data;
                 const comments = product.get("comments")
                 let rating = 0
+                let fiveStar = 0
+                let fourStar = 0
+                let threeStar = 0
+                let twoStar = 0
+                let oneStar = 0
                 for (let index in comments) {
+                    comments[index].star === 5 ? fiveStar += 1 :
+                        comments[index].star === 4 ? fourStar += 1 :
+                            comments[index].star === 3 ? threeStar += 1 :
+                                comments[index].star === 2 ? twoStar += 1 :
+                                    comments[index].star === 1 ? oneStar += 1 : null
                     rating += comments[index].star
                 }
                 rating /= comments.length
                 let productObject = product.toObject()
                 productObject.rating = rating > 5 ? 5 : rating
+                productObject.numberOfComments = comments.length
+                productObject.fiveStar = fiveStar
+                productObject.fourStar = fourStar
+                productObject.threeStar = threeStar
+                productObject.twoStar = twoStar
+                productObject.oneStar = oneStar
                 data = productObject
                 res.status(200).json(data)
             } else {
@@ -99,16 +146,31 @@ const productController = {
             }).populate('category').populate('productDetails')
             if (product) {
                 let data
-                const comments = product.comments
+                const comments = product.get("comments")
                 let rating = 0
+                let fiveStar = 0
+                let fourStar = 0
+                let threeStar = 0
+                let twoStar = 0
+                let oneStar = 0
                 for (let index in comments) {
+                    comments[index].star === 5 ? fiveStar += 1 :
+                        comments[index].star === 4 ? fourStar += 1 :
+                            comments[index].star === 3 ? threeStar += 1 :
+                                comments[index].star === 2 ? twoStar += 1 :
+                                    comments[index].star === 1 ? oneStar += 1 : null
                     rating += comments[index].star
                 }
                 rating /= comments.length
-                data = {
-                    "Product": product,
-                    "Rating": rating
-                }
+                let productObject = product.toObject()
+                productObject.rating = rating > 5 ? 5 : rating
+                productObject.numberOfComments = comments.length
+                productObject.fiveStar = fiveStar
+                productObject.fourStar = fourStar
+                productObject.threeStar = threeStar
+                productObject.twoStar = twoStar
+                productObject.oneStar = oneStar
+                data = productObject
                 res.status(200).json(data)
             } else {
                 res.status(404).json({
@@ -190,9 +252,15 @@ const productController = {
     create: async(req, res) => {
         try {
             const category = await CategoriesSchema.findById(req.body.category)
-            if (req.body.price && isNumber(req.body.price) && req.body.price > 0 && category) {
+            const trademark = await Trademarks.findById(req.body.trademark)
+            if (req.body.price && isNumber(req.body.price) && req.body.price > 0 && category && trademark) {
                 const product = await Products.create(req.body);
                 await category.updateOne({
+                    $push: {
+                        products: product.get("_id"),
+                    },
+                });
+                await trademark.updateOne({
                     $push: {
                         products: product.get("_id"),
                     },
@@ -244,6 +312,34 @@ const productController = {
                             errorMessage: "Category not found",
                         });
                     }
+                } else if (req.body.trademark){
+                    const oldTrademark = await Trademarks.findById(
+                        product.get("trademark")
+                    );
+                    console.log(oldTrademark)
+                    const trademark = await Trademarks.findById(req.body.trademark);
+                    if (trademark) {
+                        const result = await Products.findByIdAndUpdate(
+                            req.params.id,
+                            req.body
+                        );
+                        await oldTrademark.updateOne({
+                            $pull: {
+                                products: product.get("_id"),
+                            },
+                        });
+                        await trademark.updateOne({
+                            $push: {
+                                products: product.get("_id"),
+                            },
+                        });
+                        res.status(200).json(result);
+                    } else {
+                        res.status(404).json({
+                            status: 404,
+                            errorMessage: "Trademark not found",
+                        });
+                    }
                 } else {
                     const result = await Products.findByIdAndUpdate(
                         req.params.id,
@@ -277,6 +373,12 @@ const productController = {
                 } else {
                     const category = await CategoriesSchema.findById(product.get("category"))
                     await category.updateOne({
+                        $pull: {
+                            products: product.get("_id"),
+                        },
+                    });
+                    const trademark = await Trademarks.findById(product.get("trademark"))
+                    await trademark.updateOne({
                         $pull: {
                             products: product.get("_id"),
                         },

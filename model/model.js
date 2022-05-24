@@ -12,16 +12,7 @@ const Bills = require('./Bills')
 const BillDetails = require('./BillDetails')
 const ProductDetails = require('./ProductDetails')
 const ImagesSchema = require('./Images')
-const options = {
-    page:1,
-    limit: 10,
-    sort: {
-        name:1
-    },
-    collation: {
-        locale: 'en'
-    }
-}
+const Trademarks = require('./Trademarks')
 module.exports = {
     CategoriesSchema,
     Products,
@@ -33,5 +24,6 @@ module.exports = {
     BillDetails,
     CommentsSchema,
     ProductDetails,
-    ImagesSchema
+    ImagesSchema,
+    Trademarks,
 }

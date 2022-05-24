@@ -2,12 +2,10 @@ const {
     ProductDetails,
     Products,
     SizesSchema,
-    Colors
+    Colors, BillDetails, Bills
 } = require('../model/model');
-const isNumber = require('is-number')
 const ImagesSchema = require("../model/Images");
 const ProductDetailController = {
-    //***
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
@@ -35,6 +33,41 @@ const ProductDetailController = {
                 status: 500,
                 errorMessage: e.message
             })
+        }
+    },
+    findBy: async(req, res) => {
+        try {
+            const {size_option,color_option} = req.query;
+            const sizeTempt = await SizesSchema.findOne({
+                size: size_option
+            });
+            const colorTempt = await  Colors.findOne({
+                color: color_option
+            });
+            if(!size_option || !color_option){
+                const  productDetail = (!color_option) ? await  ProductDetails.findOne({
+                    size: sizeTempt.get("_id"),
+                }): await ProductDetails.findOne({
+                    color: colorTempt.get("_id")
+                })
+                res.status(200).json(productDetail)
+            }else{
+                const productDetail = (!size_option && color_option) ? await  ProductDetails.find({
+                    color: colorTempt.get("_id")
+                }): (!color_option && size_option) ? await ProductDetails.find({
+                    size: sizeTempt.get("_id")
+                }): await ProductDetails.find({
+                    color: colorTempt.get("_id"),
+                    size: sizeTempt.get("_id"),
+                })
+                res.status(200).json(productDetail)
+            }
+
+        }catch (e){
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            });
         }
     },
     findById: async(req, res) => {
@@ -82,7 +115,99 @@ const ProductDetailController = {
             })
         }
     },
-    //***
+
+    calculateQuantityImportAndExport: async (req, res) => {
+        try {
+            const {fromDate, toDate} = req.query
+            let exportBills;
+            let importBills;
+            if (fromDate && toDate) {
+                importBills = await Bills.find({
+                    type: 'N',
+                    date: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date(toDate)
+                    }
+                })
+                exportBills = await Bills.find({
+                    type: 'X',
+                    date: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date(toDate)
+                    }
+                })
+            } else {
+                importBills = await Bills.find({
+                    type: 'N'
+                })
+                exportBills = await Bills.find({
+                    type: 'X'
+                })
+            }
+            const productDetails = await ProductDetails.find({})
+
+            const data = []
+
+            for (const item of productDetails) {
+                let importQuantity = 0
+                let exportQuantity = 0
+                let expense = 0
+                let revenue = 0
+                let profit = 0
+                let loss = 0
+                for (const bill of importBills) {
+                    const billDetail = await BillDetails.find({
+                        bill: bill._id,
+                        productDetail: item._id
+                    })
+                    if (billDetail.length > 0) {
+                        for (const itemBillDetail of billDetail) {
+                            importQuantity += itemBillDetail.quantity
+                            expense += itemBillDetail.price
+                        }
+                    }
+                }
+                for (const bill of exportBills) {
+                    const billDetail = await BillDetails.find({
+                        bill: bill._id,
+                        productDetail: item._id
+                    })
+                    if (billDetail.length > 0) {
+                        for (const itemBillDetail of billDetail) {
+                            exportQuantity += itemBillDetail.quantity
+                            revenue += itemBillDetail.price
+                        }
+                    }
+                }
+                profit = revenue - expense
+                const productDetailPopulate = await ProductDetails.findById(item._id)
+                if (profit < 0) {
+                    loss = profit * -1
+                    profit = 0
+                } else {
+                    loss = 0
+                }
+                data.push({
+                    productDetail: productDetailPopulate,
+                    importQuantity,
+                    exportQuantity,
+                    expense,
+                    revenue,
+                    profit,
+                    loss
+                })
+            }
+            res.status(200).json({
+                data: data
+            })
+
+        } catch (e) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            })
+        }
+    },
     create: async(req, res) => {
         try {
             let i = 0
@@ -109,9 +234,6 @@ const ProductDetailController = {
                         const color_id = await Colors.findOne({
                             color: colorCheck,
                         })
-                        const image_id = await ImagesSchema.findOne({
-                            image: imageCheck
-                        })
                         if (!size_id) {
                             await SizesSchema.create({
                                 size: sizeCheck,
@@ -124,12 +246,12 @@ const ProductDetailController = {
                                 productDetails: []
                             })
                         }
-                        if (!image_id) {
-                            await ImagesSchema.create({
-                                image: imageCheck,
-                                productDetails: []
-                            })
-                        }
+
+                        await ImagesSchema.create({
+                            image: imageCheck,
+                            productDetails: []
+                        })
+
                         const size_id_ = await SizesSchema.findOne({
                             size: sizeCheck
                         })
@@ -143,9 +265,7 @@ const ProductDetailController = {
                             product: product_id._id,
                             size: size_id_._id,
                             color: color_id_._id,
-                            images: [
-                                image_id_._id
-                            ]
+
                         })
                         if (productDetail) {
                             checkExist += '1' + ' '
@@ -191,14 +311,14 @@ const ProductDetailController = {
                         }
                     } else {
                         res.status(404).json({
-                            errorMessage: 'Product at locate'+(element + 1) +' not found'
+                            errorMessage: 'Product at locate' + (element + 1) + ' not found'
                         })
                         checkErr = 1
                         break
                     }
                 } else {
                     res.status(404).json({
-                        errorMessage: 'Missing data at '+(element + 1) +' row'
+                        errorMessage: 'Missing data at ' + (element + 1) + ' row'
                     })
                     checkErr = 1
                     break
@@ -208,7 +328,7 @@ const ProductDetailController = {
                 res.status(200).json({
                     message: "Product detail at located " + checkExist + "is exist. Otherwise create new product detail"
                 })
-            }else if (!checkExist && !checkErr) {
+            } else if (!checkExist && !checkErr) {
                 res.status(201).json({
                     message: 'Create product detail success'
                 })
@@ -323,8 +443,7 @@ const ProductDetailController = {
                                         image_id_._id
                                     ]
                                 })
-                                if (productDetail) {
-                                } else {
+                                if (productDetail) {} else {
                                     const productDetail = await ProductDetails.create({
                                         product: product_id.get('_id'),
                                         size: size_id_.get('_id'),
@@ -367,14 +486,14 @@ const ProductDetailController = {
                             } else {
                                 check = 1
                                 res.status(404).json({
-                                    errorMessage: 'Product at locate'+(element + 1) +' not found'
+                                    errorMessage: 'Product at locate' + (element + 1) + ' not found'
                                 })
                                 break
                             }
                         } else {
                             check = 1
                             res.status(404).json({
-                                errorMessage: 'Missing data at '+(element + 1) +' row'
+                                errorMessage: 'Missing data at ' + (element + 1) + ' row'
                             })
                             break
                         }

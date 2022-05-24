@@ -30,6 +30,7 @@ const billsSchema = new mongoose.Schema({
     },
     type: {
         type: String,
+        default: ''
     },
     COD: {
         type: String,

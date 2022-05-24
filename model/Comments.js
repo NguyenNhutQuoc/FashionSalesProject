@@ -11,6 +11,10 @@ const commentsSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    images: {
+        type:[String],
+        default: []
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
