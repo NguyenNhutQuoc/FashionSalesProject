@@ -35,6 +35,41 @@ const ProductDetailController = {
             })
         }
     },
+    findBy: async(req, res) => {
+        try {
+            const {size_option,color_option} = req.query;
+            const sizeTempt = await SizesSchema.findOne({
+                size: size_option
+            });
+            const colorTempt = await  Colors.findOne({
+                color: color_option
+            });
+            if(!size_option || !color_option){
+                const  productDetail = (!color_option) ? await  ProductDetails.findOne({
+                    size: sizeTempt.get("_id"),
+                }): await ProductDetails.findOne({
+                    color: colorTempt.get("_id")
+                })
+                res.status(200).json(productDetail)
+            }else{
+                const productDetail = (!size_option && color_option) ? await  ProductDetails.find({
+                    color: colorTempt.get("_id")
+                }): (!color_option && size_option) ? await ProductDetails.find({
+                    size: sizeTempt.get("_id")
+                }): await ProductDetails.find({
+                    color: colorTempt.get("_id"),
+                    size: sizeTempt.get("_id"),
+                })
+                res.status(200).json(productDetail)
+            }
+
+        }catch (e){
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message
+            });
+        }
+    },
     findById: async(req, res) => {
         try {
             const productDetail = await ProductDetails.findById(req.params.id)
