@@ -5,10 +5,24 @@ const {
 const trademarkController = {
     findAll: async (req, res) => {
         try {
-            const trademarks = await Trademarks.find()
-            res.status(200).json({
-                data: trademarks
-            })
+            if(req.query.page || req.query.limit) {
+                const trademarks = await Trademarks.paginate({}, {
+                    page: req.query.page,
+                    limit: req.query.limit | 10,
+                })
+                const {docs, ...others } = trademarks
+                res.status(200).json(
+                    {
+                        data: docs,
+                        ...others
+                    }
+                )
+            } else {
+                const trademarks = await Trademarks.find({})
+                res.status(200).json({
+                    data: trademarks
+                })
+            }
         } catch (e) {
             res.status(500).json({
                 message: e.message
