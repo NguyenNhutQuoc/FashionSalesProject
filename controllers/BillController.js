@@ -74,7 +74,6 @@ const BillController = {
                 errorMessage: error.message
             })
         }
-
     },
 
     findAllImportType: async(req, res) => {

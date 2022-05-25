@@ -6,3 +6,5 @@ route.get('/:id', TrademarkController.findById)
 route.post('/', TrademarkController.create)
 route.put('/:id', TrademarkController.update)
 route.delete('/:id', TrademarkController.delete)
+
+module.exports = route;
