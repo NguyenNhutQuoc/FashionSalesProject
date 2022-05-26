@@ -127,12 +127,10 @@ const userController = {
                 })
                 const {docs, ...others} = users
 
-                    res.status(200).json({
-                        data: docs,
-                        ...others
-                    })
-
-                    res.status(404).json({status: 404, errorMessage: 'No customers found'})
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
 
             } else {
                 const users = await Users.find({isCustomer: 1});
@@ -155,18 +153,16 @@ const userController = {
                 })
                 const {docs, ...others} = users
 
-                    res.status(200).json({
-                        data: docs,
-                        ...others
-                    })
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
 
             } else {
                 const users = await Users.find({isProvider: 1});
-
-                    res.status(200).json({
-                        data: users
-                    })
-
+                res.status(200).json({
+                    data: users
+                })
             }
         } catch (e) {
             res.status(500).json({ status: 500, errorMessage: e.message })

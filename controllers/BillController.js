@@ -86,7 +86,7 @@ const BillController = {
             const bill = await Bills.find({
                 type: 'N'
             }).populate('user').populate('billDetails')
-            if (bill.length > 0) {
+            if (bill.length >= 0) {
                 res.status(200).json(bill)
             } else {
                 res.status(404).json({
@@ -106,7 +106,7 @@ const BillController = {
             const bill = await Bills.find({
                 type: 'X'
             }).populate('user').populate('billDetails')
-            if (bill.length > 0) {
+            if (bill.length >= 0) {
                 res.status(200).json(bill)
             } else {
                 res.status(404).json({
