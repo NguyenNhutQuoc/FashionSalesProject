@@ -18,6 +18,7 @@ const sizeRouter = require("./routes/sizes");
 const commentsRouter = require("./routes/comment");
 const productDetailsSchema = require("./routes/productDetail");
 const couponRouter = require("./routes/coupon");
+const trademarkRouter = require("./routes/trademark");
 mongoose.connect(process.env.MONGDB_URL, (err) => {
   if (err) {
     console.log("Can't connect to database");
@@ -51,7 +52,10 @@ app.use("/api/sizes", sizeRouter);
 app.use("/api/comments", commentsRouter);
 //
 app.use("/api/product-details", productDetailsSchema);
+
 app.use("/api/coupons", couponRouter);
+
+app.use("/api/trademarks", trademarkRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

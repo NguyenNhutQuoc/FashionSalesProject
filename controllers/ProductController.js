@@ -9,14 +9,153 @@ const {
 } = require("../model/model");
 
 const isNumber = require("is-number");
+const Console = require("console");
 const productController = {
-    //***
+    search: async (req, res) => {
+        try {
+            const {
+                word,
+                page,
+                limit
+            } = req.query
+            const categories = await CategoriesSchema.find(
+                {
+                    name: {
+                        $regex: word,
+                        $options: "i"
+                    }
+                }
+            )
+            const trademark = await Trademarks.find({
+                name: {
+                    $regex: word,
+                    $options: "i"
+                }
+            })
+            if (page || limit) {
+                const products = await Products.paginate({
+                    $or: [
+                        {
+                            name: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            description: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            material: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            origin: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            unit: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            category: {
+                                $regex: categories.get("_id"),
+                                $options: "i"
+                            }
+                        },
+                        {
+                            trademark: {
+                                $regex: trademark.get("_id"),
+                                $options: "i"
+                            }
+                        }
+                    ]
+                }, {
+                    page: page | 1,
+                    limit: limit | 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const {docs, ...others} = products
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const products = await Products.find({
+                    $or: [
+                        {
+                            name: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            description: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            material: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            origin: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            unit: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            category: {
+                                $regex: categories.get("_id"),
+                                $options: "i"
+                            }
+                        },
+                        {
+                            trademark: {
+                                $regex: trademark.get("_id"),
+                                $options: "i"
+                            }
+                        }
+                    ]
+                })
+                res.status(200).json({
+                    data: products
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                message: e.message
+            })
+        }
+    },
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
                 const productsAll = await Products.paginate({}, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 let data = []
                 const { docs, ...others } = productsAll
@@ -52,7 +191,9 @@ const productController = {
                     ...others
                 })
             } else {
-                const products = await Products.find({})
+                const products = await Products.find({}).sort({
+                    createdAt: -1
+                })
                 let data = []
                 products.forEach(product => {
                     const comments = product.comments
@@ -253,33 +394,36 @@ const productController = {
             // //id của product
             const productId = await Products.findById(req.params.id)
             const {size_option, color_option} = req.query;
-            const sizeSearch = await SizesSchema.findOne({size: size_option});
-            const getSize = sizeSearch.get("_id");
-            const colorSearch = Colors.findOne({color: color_option})
-            const getColor = colorSearch.get("_id");
 
-            const productDetailsSize = await ProductDetails.find({size:getSize})
-            const productDetailColor = await  ProductDetails.find({color: getColor})
             if (productId) {
-                if(!productDetailsSize || !productDetailColor){
-                    const product = (!productDetailsSize) ? await Products.findOne({
-                            productDetails: productDetailColor.get("_id")
-                        }) : await Products.findOne({
-                        productDetails: productDetailsSize.get("_id")
-                    })
-                    res.status(200).json(product)
-                }else{
-                    const product = (!productDetailColor && productDetailsSize) ? await Products.findOne({
-                        productDetails: productDetailsSize.get("_id")
-                    }):(!productDetailsSize && productDetailColor) ? await Products.findOne({
-                        productDetails: productDetailColor.get("_id")
-                    }):await Products.findOne({
-                        productDetails: productDetailsSize.get("_id"),
-                        productDetails: productDetailColor.get("_id"),
-                    })
-                    res.status(200).json(product)
-                }
 
+                let data = [];
+                if(size_option){
+                    const sizeSearch = await SizesSchema.findOne({size: size_option});
+                    const getSize = sizeSearch.get("_id");
+                    const productDetailsSize = await ProductDetails.find({size:getSize})
+                    for (let i = 0; i < productDetailsSize.length; i++) {
+                        data.push(await Products.findOne({productDetails: productDetailsSize[i]._id}))
+                    }
+                }else if(color_option){
+                    const colorSearch = await Colors.findOne({color: color_option})
+                    const getColor = colorSearch.get("_id");
+                    const productDetailsColor = await  ProductDetails.find({color: getColor})
+                    for (let i = 0; i < productDetailsColor.length; i++) {
+                        data.push(await Products.findOne({productDetails: productDetailsColor[i]._id}))
+                    }
+                }else {
+                    const sizeSearch = await SizesSchema.findOne({size: size_option});
+                    const getSize = sizeSearch.get("_id");
+                    const colorSearch = await Colors.findOne({color: color_option})
+                    const getColor = colorSearch.get("_id");
+                    const productDetailsSAC = await  ProductDetails.find({size: getSize, color: getColor})
+                    for (let i = 0; i < productDetailsSAC.length; i++) {
+                        data.push(await Products.findOne({productDetails: productDetailsSAC[i]._id}))
+                    }
+                }
+                console.log("data",data)
+                res.status(200).json(data)
             } else {
                 res.status(404).json({
                     status: 404,

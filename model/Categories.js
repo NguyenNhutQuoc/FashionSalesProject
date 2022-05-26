@@ -24,7 +24,11 @@ const categoriesSchema = new mongoose.Schema({
             autopopulate: true
         }]
     }
-})
+},
+    {
+        timestamps: true
+    }
+);
 categoriesSchema.plugin(require('mongoose-autopopulate'))
 categoriesSchema.plugin(mongoosePaginate)
 module.exports = mongoose.model('Categories', categoriesSchema)

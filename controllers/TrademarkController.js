@@ -3,12 +3,75 @@ const {
 } = require('../model/model')
 
 const trademarkController = {
+    search: async (req, res) => {
+        try {
+            const {word, page, limit} = req.query
+            if (page || limit) {
+                const trademarks = await Trademarks.paginate({
+                    name: {
+                        $regex: word,
+                        $options: 'i'
+                    }
+                },
+                    {
+                        page: page | 1,
+                        limit: limit | 10,
+                        sort: {
+                            createdAt: -1
+                        }
+                    })
+                const {docs, ...others} = trademarks
+                res.status(200).json({
+                    message: 'success',
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const trademarks = await Trademarks.find({
+                    name: {
+                        $regex: word,
+                        $options: 'i'
+                    }
+                })
+                res.status(200).json({
+                    message: 'success',
+                    data: trademarks
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            res.status(500).json(
+                {
+                    message: 'Internal Server Error'
+                }
+            )
+        }
+    },
     findAll: async (req, res) => {
         try {
-            const trademarks = await Trademarks.find()
-            res.status(200).json({
-                data: trademarks
-            })
+            if(req.query.page || req.query.limit) {
+                const trademarks = await Trademarks.paginate({}, {
+                    page: req.query.page,
+                    limit: req.query.limit | 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const {docs, ...others } = trademarks
+                res.status(200).json(
+                    {
+                        data: docs,
+                        ...others
+                    }
+                )
+            } else {
+                const trademarks = await Trademarks.find({}).sort({
+                    createdAt: -1
+                })
+                res.status(200).json({
+                    data: trademarks
+                })
+            }
         } catch (e) {
             res.status(500).json({
                 message: e.message

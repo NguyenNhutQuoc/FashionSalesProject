@@ -14,6 +14,9 @@ const BillController = {
                 const bills = await Bills.paginate({}, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 const {docs, ...others} = bills
                 let data = []
@@ -42,7 +45,9 @@ const BillController = {
                     ...others
                 })
             } else {
-                const bills = await Bills.find().populate('user').populate('billDetails')
+                const bills = await Bills.find().sort({
+                    createdAt: -1
+                }).populate('user').populate('billDetails')
                 let data = []
                 for (let index in bills) {
                     const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')
@@ -74,20 +79,29 @@ const BillController = {
                 errorMessage: error.message
             })
         }
-
     },
 
     findAllImportType: async(req, res) => {
         try {
-            const bill = await Bills.find({
-                type: 'N'
-            }).populate('user').populate('billDetails')
-            if (bill.length > 0) {
-                res.status(200).json(bill)
+            if (req.query.page || req.query.limit) {
+                const bill = await Bills.paginate({
+                    type: 'N'
+                }, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                res.status(200).json({
+                    data: bill
+                })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    errorMessage: 'Not Found'
+                const bill = await Bills.find({
+                    type: 'N'
+                }).populate('user').populate('billDetails')
+                res.status(200).json({
+                    data: bill
                 })
             }
         } catch (error) {
@@ -99,15 +113,25 @@ const BillController = {
     },
     findAllExportType: async(req, res) => {
         try {
-            const bill = await Bills.find({
-                type: 'X'
-            }).populate('user').populate('billDetails')
-            if (bill.length > 0) {
-                res.status(200).json(bill)
+            if (req.query.page || req.query.limit) {
+                const bill = await Bills.paginate({
+                    type: 'X'
+                }, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                res.status(200).json({
+                    data: bill
+                })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    errorMessage: 'Not Found'
+                const bill = await Bills.find({
+                    type: 'N'
+                }).populate('user').populate('billDetails')
+                res.status(200).json({
+                    data: bill
                 })
             }
         } catch (error) {

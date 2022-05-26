@@ -11,13 +11,19 @@ const commentController = {
 
     findAll: async(req, res) => {
         try {
+            const {word} = req.query
             if (req.query.page || req.query.limit) {
-                const comments = await CommentsSchema.paginate({}, {
+                const comments = await CommentsSchema.paginate({
+
+                }, {
                     populate: {
                         path: 'user product',
                     },
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 const {docs, ...others} = comments
                 res.status(200).json({
@@ -25,7 +31,9 @@ const commentController = {
                     ...others
                 })
             } else {
-                const comments = await CommentsSchema.find({}).populate('user product')
+                const comments = await CommentsSchema.find({}).sort({
+                    createdAt: -1
+                }).populate('user product')
                 res.status(200).json({
                     data: comments
                 })

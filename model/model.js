@@ -13,6 +13,9 @@ const BillDetails = require('./BillDetails')
 const ProductDetails = require('./ProductDetails')
 const ImagesSchema = require('./Images')
 const Trademarks = require('./Trademarks')
+const Province = require('./ProvinceTable')
+const District = require('./District')
+const Commune = require('./Commune')
 module.exports = {
     CategoriesSchema,
     Products,
@@ -26,4 +29,7 @@ module.exports = {
     ProductDetails,
     ImagesSchema,
     Trademarks,
+    Province,
+    District,
+    Commune
 }

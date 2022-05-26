@@ -53,7 +53,15 @@ const productsSchema = new mongoose.Schema({
         }],
         autopopulate: true
     },
-})
+    trademark: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Trademarks',
+        required: true,
+    },
+},
+    {
+        timestamps: true
+    });
 productsSchema.plugin(mongoose_auto_populate);
 productsSchema.plugin(require('mongoose-paginate-v2'));
 

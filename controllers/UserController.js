@@ -5,12 +5,97 @@ const mongoose = require("mongoose");
 
 const userController = {
     //****
+    search: async (req, res) => {
+        try {
+            const {
+                word,
+                page,
+                limit,
+                auth
+            } = req.query;
+            const regex = new RegExp(word, 'i');
+            if (page || limit) {
+                const users = await Users.paginate({
+                    $or: [{
+                        name: regex
+                    },
+                        {
+                            email: regex
+                        },
+                        {
+                            phone: regex
+                        },
+                        {
+                            address: regex
+                        },
+                        {
+                            address: regex
+                        },
+                        {
+                            numberAccount: regex
+                        },
+                    ],
+                    isAdmin: 0,
+                    isCustomer: auth === "customer" ? 1 : 0,
+                    isProvider: auth === "provider" ? 1 : 0,
+                }, {
+                    page: page | 1,
+                    limit: limit | 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const {docs, ...others} = users
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const users = await Users.find({
+                    $or: [{
+                        name: regex
+                    },
+                        {
+                            email: regex
+                        },
+                        {
+                            phone: regex
+                        },
+                        {
+                            address: regex
+                        },
+                        {
+                            address: regex
+                        },
+                        {
+                            numberAccount: regex
+                        },
+                    ],
+                    isAdmin: 0,
+                    isCustomer: auth === "customer" ? 1 : 0,
+                    isProvider: auth === "provider" ? 1 : 0,
+                })
+                res.status(200).json({
+                    data: users
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                message: e.message
+            })
+        }
+    },
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
-                const users = await Users.paginate({}, {
+                const users = await Users.paginate({
+
+                }, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 const {docs, ...others} = users
 
@@ -19,7 +104,9 @@ const userController = {
                     ...others
                 })
             } else {
-                const users = await Users.find();
+                const users = await Users.find().sort({
+                    createdAt: -1
+                });
                 res.status(200).json({
                     data: users
                 });
@@ -40,12 +127,10 @@ const userController = {
                 })
                 const {docs, ...others} = users
 
-                    res.status(200).json({
-                        data: docs,
-                        ...others
-                    })
-
-                    res.status(404).json({status: 404, errorMessage: 'No customers found'})
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
 
             } else {
                 const users = await Users.find({isCustomer: 1});
@@ -68,18 +153,16 @@ const userController = {
                 })
                 const {docs, ...others} = users
 
-                    res.status(200).json({
-                        data: docs,
-                        ...others
-                    })
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
 
             } else {
                 const users = await Users.find({isProvider: 1});
-
-                    res.status(200).json({
-                        data: users
-                    })
-
+                res.status(200).json({
+                    data: users
+                })
             }
         } catch (e) {
             res.status(500).json({ status: 500, errorMessage: e.message })

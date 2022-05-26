@@ -24,7 +24,10 @@ const billDetailsSchema = new mongoose.Schema({
         ref: 'Bills',
         required: true,
     }
-})
+},
+    {
+        timestamps:true
+    })
 billDetailsSchema.plugin(require('mongoose-autopopulate'))
 billDetailsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('BillDetails', billDetailsSchema)

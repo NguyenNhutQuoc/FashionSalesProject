@@ -39,6 +39,9 @@ const productDetailsSchema = new mongoose.Schema({
         }]
         }
     },
+    {
+        timestamps: true
+    }
 )
 productDetailsSchema.plugin(require('mongoose-autopopulate'));
 productDetailsSchema.plugin(require('mongoose-paginate-v2'))

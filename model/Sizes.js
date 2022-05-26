@@ -13,5 +13,9 @@ const sizesSchema = new mongoose.Schema({
             ref: 'ProductDetails',
         }]
     },
-})
+},
+    {
+        timestamps: true
+    }
+);
 module.exports = mongoose.model('Sizes', sizesSchema)
