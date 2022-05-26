@@ -10,6 +10,6 @@ router.post('/', billController.create);
 router.put('/:id', billController.update);
 router.delete('/:id', billController.delete);
 router.get('/:id/bill-detail', billController.findAllBillDetailsByIdBill)
-router.get('/types/imports', billController.findAllImportType);
-router.get('/types/exports', billController.findAllExportType);
+router.get('/type/imports', billController.findAllImportType);
+router.get('/type/exports', billController.findAllExportType);
 module.exports = router
