@@ -94,10 +94,9 @@ const couponController = {
                     data: coupon
                 })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    errorMessage: "Coupon not found",
-                });
+                res.status(200).json({
+                    data: {}
+                })
             }
         } catch (err) {
             res.status(500).json({

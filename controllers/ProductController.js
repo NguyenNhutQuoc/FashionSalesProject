@@ -314,9 +314,8 @@ const productController = {
                 data = productObject
                 res.status(200).json(data)
             } else {
-                res.status(404).json({
-                    status: 404,
-                    errorMessage: "Product not found",
+                res.status(200).json({
+                    data: {}
                 })
             }
         } catch (e) {
