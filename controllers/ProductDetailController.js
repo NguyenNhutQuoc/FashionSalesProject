@@ -256,57 +256,62 @@ const ProductDetailController = {
                             image: imageCheck,
                             productDetails: []
                         })
-
+                        for (const index in imagesSub) {
+                            await newImage.updateOne({
+                                $push: {
+                                    imagesSub: imagesSub[index]
+                                }
+                            })
+                        }
                         const color_id_ = await Colors.findOne({
                             color: colorCheck,
                         })
-                        const productDetail = await ProductDetails.findOne({
-                            product: product_id._id,
-                            size: size_id_._id,
-                            color: color_id_._id,
-
-                        })
-                        if (productDetail) {
-
-                        } else {
-                            const productDetail = await ProductDetails.create({
-                                product: product_id.get('_id'),
-                                size: size_id_.get('_id'),
-                                color: color_id_.get('_id'),
-                                images: newImage.get('_id')
+                        for (const size of sizes) {
+                            const check_size = await SizesSchema.findOne({
+                                size: size.toLowerCase()
                             })
-                            console.log(productDetail.get('_id'))
-                            await newImage.updateOne({
-                                'productDetail': productDetail.get('_id'),
+                            const productDetail = await ProductDetails.findOne({
+                                product: product_id._id,
+                                size: check_size._id,
+                                color: color_id_._id,
+
                             })
-                            for (const index in imagesSub) {
+                            if (productDetail) {
+
+                            } else {
+                                const productDetail = await ProductDetails.create({
+                                    product: product_id.get('_id'),
+                                    size: check_size.get('_id'),
+                                    color: color_id_.get('_id'),
+                                    images: newImage.get('_id')
+                                })
+                                console.log(productDetail.get('_id'))
                                 await newImage.updateOne({
+                                    'productDetail': productDetail.get('_id'),
+                                })
+
+                                await Products.updateOne({
+                                    _id: product_id.get('_id')
+                                }, {
                                     $push: {
-                                        imagesSub: imagesSub[index]
+                                        productDetails: productDetail.get('_id')
+                                    }
+                                })
+                                await SizesSchema.updateOne({
+                                    _id: check_size.get('_id')
+                                }, {
+                                    $push: {
+                                        productDetails: productDetail.get('_id')
+                                    }
+                                })
+                                await Colors.updateOne({
+                                    _id: color_id_.get('_id')
+                                }, {
+                                    $push: {
+                                        productDetails: productDetail.get('_id')
                                     }
                                 })
                             }
-                            await Products.updateOne({
-                                _id: product_id.get('_id')
-                            }, {
-                                $push: {
-                                    productDetails: productDetail.get('_id')
-                                }
-                            })
-                            await SizesSchema.updateOne({
-                                _id: size_id_.get('_id')
-                            }, {
-                                $push: {
-                                    productDetails: productDetail.get('_id')
-                                }
-                            })
-                            await Colors.updateOne({
-                                _id: color_id_.get('_id')
-                            }, {
-                                $push: {
-                                    productDetails: productDetail.get('_id')
-                                }
-                            })
                         }
                     } else {
                         res.status(404).json({
