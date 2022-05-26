@@ -92,7 +92,7 @@ const BillController = {
                     sort: {
                         createdAt: -1
                     }
-                }).populate('user').populate('billDetails')
+                })
                 res.status(200).json({
                     data: bill
                 })
@@ -122,7 +122,7 @@ const BillController = {
                     sort: {
                         createdAt: -1
                     }
-                }).populate('user').populate('billDetails')
+                })
                 res.status(200).json({
                     data: bill
                 })
