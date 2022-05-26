@@ -257,9 +257,6 @@ const ProductDetailController = {
                             productDetails: []
                         })
 
-                        const size_id_ = await SizesSchema.findOne({
-                            size: sizeCheck
-                        })
                         const color_id_ = await Colors.findOne({
                             color: colorCheck,
                         })
@@ -270,7 +267,7 @@ const ProductDetailController = {
 
                         })
                         if (productDetail) {
-                            checkExist += '1' + ' '
+
                         } else {
                             const productDetail = await ProductDetails.create({
                                 product: product_id.get('_id'),
