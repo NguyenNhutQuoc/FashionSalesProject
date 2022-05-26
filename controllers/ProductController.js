@@ -248,7 +248,52 @@ const productController = {
             });
         }
     },
+    findBySizeColor: async(req, res) => {
+        try {
+            // //id của product
+            const productId = await Products.findById(req.params.id)
+            const {size_option, color_option} = req.query;
+            const sizeSearch = await SizesSchema.findOne({size: size_option});
+            const getSize = sizeSearch.get("_id");
+            const colorSearch = Colors.findOne({color: color_option})
+            const getColor = colorSearch.get("_id");
 
+            const productDetailsSize = await ProductDetails.find({size:getSize})
+            const productDetailColor = await  ProductDetails.find({color: getColor})
+            if (productId) {
+                if(!productDetailsSize || !productDetailColor){
+                    const product = (!productDetailsSize) ? await Products.findOne({
+                            productDetails: productDetailColor.get("_id")
+                        }) : await Products.findOne({
+                        productDetails: productDetailsSize.get("_id")
+                    })
+                    res.status(200).json(product)
+                }else{
+                    const product = (!productDetailColor && productDetailsSize) ? await Products.findOne({
+                        productDetails: productDetailsSize.get("_id")
+                    }):(!productDetailsSize && productDetailColor) ? await Products.findOne({
+                        productDetails: productDetailColor.get("_id")
+                    }):await Products.findOne({
+                        productDetails: productDetailsSize.get("_id"),
+                        productDetails: productDetailColor.get("_id"),
+                    })
+                    res.status(200).json(product)
+                }
+
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: "Not found product"
+                })
+            }
+
+        }catch(e){
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            });
+        }
+    },
     create: async(req, res) => {
         try {
             const category = await CategoriesSchema.findById(req.body.category)

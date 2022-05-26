@@ -4,6 +4,7 @@ const productController = require('../controllers/ProductController');
 router.get('/:id', productController.findById)
 router.get("/", productController.findAll)
 router.get("/find/search", productController.findBy)
+router.get("/:id/find",productController.findBySizeColor)
 router.post("/", productController.create)
 router.put("/:id", productController.update)
 router.delete("/:id", productController.delete)
