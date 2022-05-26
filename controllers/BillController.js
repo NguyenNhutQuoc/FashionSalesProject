@@ -14,6 +14,9 @@ const BillController = {
                 const bills = await Bills.paginate({}, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 const {docs, ...others} = bills
                 let data = []
@@ -42,7 +45,9 @@ const BillController = {
                     ...others
                 })
             } else {
-                const bills = await Bills.find().populate('user').populate('billDetails')
+                const bills = await Bills.find().sort({
+                    createdAt: -1
+                }).populate('user').populate('billDetails')
                 let data = []
                 for (let index in bills) {
                     const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')

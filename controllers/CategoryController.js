@@ -1,12 +1,54 @@
 const { CategoriesSchema } = require("../model/model");
 
 const categoryController = {
+    search: async (req, res) => {
+        try {
+            const {word, page, limit} = req.query
+            const regex = new RegExp(word, 'i')
+            if (page || limit) {
+                const categories = await CategoriesSchema.paginate({
+                    name: regex
+                }, {
+                    page: page | 1,
+                    limit: limit | 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const {docs, ...others} = categories
+                res.status(200).json(
+                    {
+                        data: docs,
+                        ...others
+                    }
+                )
+            } else {
+                const categories = await CategoriesSchema.find({
+                    name: regex
+                })
+                res.status(200).json(
+                    {
+                        data: categories
+                    }
+                )
+            }
+        } catch (e) {
+            res.status(500).json(
+                {
+                    message: e.message
+                }
+            )
+        }
+    },
     findAll: async (req, res) => {
         try {
             if (req.query.page || req.query.limit) {
                 const categories = await CategoriesSchema.paginate({}, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 const {docs, ...others} = categories
 
@@ -15,7 +57,9 @@ const categoryController = {
                     ...others
                 })
             } else {
-                const categories = await CategoriesSchema.find({})
+                const categories = await CategoriesSchema.find({}).sort({
+                    createdAt: -1
+                })
                 res.status(200).json({
                     data: categories
                 })
@@ -26,6 +70,7 @@ const categoryController = {
                 errorMessage: err.message || "Some error occurred while retrieving categories."
             })
         }
+
     },
     findById: async (req, res) => {
         try {

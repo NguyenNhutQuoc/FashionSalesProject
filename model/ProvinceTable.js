@@ -11,6 +11,9 @@ const province = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'District'
         }]
+    },
+    {
+        timestamps: true
     }
 )
 

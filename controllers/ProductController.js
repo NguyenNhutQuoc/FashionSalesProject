@@ -10,13 +10,151 @@ const {
 
 const isNumber = require("is-number");
 const productController = {
-    //***
+    search: async (req, res) => {
+        try {
+            const {
+                word,
+                page,
+                limit
+            } = req.query
+            const categories = await CategoriesSchema.find(
+                {
+                    name: {
+                        $regex: word,
+                        $options: "i"
+                    }
+                }
+            )
+            const trademark = await Trademarks.find({
+                name: {
+                    $regex: word,
+                    $options: "i"
+                }
+            })
+            if (page || limit) {
+                const products = await Products.paginate({
+                    $or: [
+                        {
+                            name: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            description: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            material: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            origin: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            unit: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            category: {
+                                $regex: categories.get("_id"),
+                                $options: "i"
+                            }
+                        },
+                        {
+                            trademark: {
+                                $regex: trademark.get("_id"),
+                                $options: "i"
+                            }
+                        }
+                    ]
+                }, {
+                    page: page | 1,
+                    limit: limit | 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const {docs, ...others} = products
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const products = await Products.find({
+                    $or: [
+                        {
+                            name: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            description: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            material: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            origin: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            unit: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        },
+                        {
+                            category: {
+                                $regex: categories.get("_id"),
+                                $options: "i"
+                            }
+                        },
+                        {
+                            trademark: {
+                                $regex: trademark.get("_id"),
+                                $options: "i"
+                            }
+                        }
+                    ]
+                })
+                res.status(200).json({
+                    data: products
+                })
+            }
+        } catch (e) {
+            res.status(500).json({
+                message: e.message
+            })
+        }
+    },
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
                 const productsAll = await Products.paginate({}, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 let data = []
                 const { docs, ...others } = productsAll
@@ -52,7 +190,9 @@ const productController = {
                     ...others
                 })
             } else {
-                const products = await Products.find({})
+                const products = await Products.find({}).sort({
+                    createdAt: -1
+                })
                 let data = []
                 products.forEach(product => {
                     const comments = product.comments

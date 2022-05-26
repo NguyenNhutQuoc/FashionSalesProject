@@ -14,6 +14,9 @@ const ImageSchema = new mongoose.Schema({
         ref: 'ProductDetails',
 
     }
-})
+},
+    {
+        timestamps: true
+    })
 
 module.exports = mongoose.model('ImagesSchema', ImageSchema)

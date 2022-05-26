@@ -14,6 +14,9 @@ const ProductDetailController = {
                     limit: req.query.limit || 10,
                     populate: {
                         path: 'images size color',
+                    },
+                    sort: {
+                        createdAt: -1
                     }
                 })
                 const { docs, ...others } = productDetails
@@ -23,7 +26,9 @@ const ProductDetailController = {
                     ...others
                 })
             } else {
-                const productDetails = await ProductDetails.find({}).populate('images size color')
+                const productDetails = await ProductDetails.find({}).sort({
+                    createdAt: -1
+                }).populate('images size color')
                 res.status(200).json({
                     data: productDetails
                 })
@@ -247,7 +252,7 @@ const ProductDetailController = {
                             })
                         }
 
-                        await ImagesSchema.create({
+                        const newImage = await ImagesSchema.create({
                             image: imageCheck,
                             productDetails: []
                         })
@@ -257,9 +262,6 @@ const ProductDetailController = {
                         })
                         const color_id_ = await Colors.findOne({
                             color: colorCheck,
-                        })
-                        const image_id_ = await ImagesSchema.findOne({
-                            image: imageCheck
                         })
                         const productDetail = await ProductDetails.findOne({
                             product: product_id._id,
@@ -274,14 +276,14 @@ const ProductDetailController = {
                                 product: product_id.get('_id'),
                                 size: size_id_.get('_id'),
                                 color: color_id_.get('_id'),
-                                images: image_id_.get('_id')
+                                images: newImage.get('_id')
                             })
                             console.log(productDetail.get('_id'))
-                            await image_id_.updateOne({
+                            await newImage.updateOne({
                                 'productDetail': productDetail.get('_id'),
                             })
                             for (const index in imagesSub) {
-                                await image_id_.updateOne({
+                                await newImage.updateOne({
                                     $push: {
                                         imagesSub: imagesSub[index]
                                     }

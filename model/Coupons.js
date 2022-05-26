@@ -36,6 +36,9 @@ const couponsSchema = new mongoose.Schema({
       },
     ],
   },
+},
+    {
+  timestamps: true,
 });
 couponsSchema.plugin(require("mongoose-autopopulate"));
 couponsSchema.plugin(require("mongoose-paginate-v2"));

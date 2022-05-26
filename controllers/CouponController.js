@@ -1,12 +1,27 @@
 const { Coupons } = require("../model/model");
 
 const couponController = {
-    findAll: async(req, res) => {
+    search: async(req, res) => {
         try {
+            const {
+                word
+            } = req.query
             if (req.query.page || req.query.limit) {
-                const coupons = await Coupons.paginate({}, {
+                const coupons = await Coupons.paginate({
+                    $or: [
+                        {
+                            code: {
+                                $regex: word,
+                                $options: "i"
+                            }
+                        }
+                    ]
+                }, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
                 })
                 const {docs, ...others} = coupons
                 res.status(200).json({
@@ -15,7 +30,51 @@ const couponController = {
                 });
             }
             else {
-                const coupons = await Coupons.find();
+                const coupons = await Coupons.find(
+                    {
+                        $or: [
+                            {
+                                code: {
+                                    $regex: word,
+                                    $options: "i"
+                                }
+                            }
+                        ]
+                    }
+                ).sort({
+                    createdAt: -1
+                });
+                res.status(200).json({
+                    data: coupons
+                })
+            }
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message,
+            });
+        }
+    },
+    findAll: async(req, res) => {
+        try {
+            if (req.query.page || req.query.limit) {
+                const coupons = await Coupons.paginate({}, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const {docs, ...others} = coupons
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                });
+            }
+            else {
+                const coupons = await Coupons.find().sort({
+                    createdAt: -1
+                });
                 res.status(200).json({
                     data: coupons
                 })

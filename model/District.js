@@ -17,6 +17,9 @@ const district = new Schema(
                 ref: 'Commune',
             }
         ]
+    },
+    {
+        timestamps: true
     }
 )
 

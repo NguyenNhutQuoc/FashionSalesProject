@@ -11,6 +11,9 @@ const Commune = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'District',
     }
-})
+},
+    {
+        timestamps: true
+    })
 
 module.exports = mongoose.model('Commune', Commune)

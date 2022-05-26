@@ -16,7 +16,11 @@ const trademarkSchema = new Schema({
         ref: 'Products',
         autopopulate: true
     }
-})
+},
+    {
+        timestamps: true
+    }
+);
 
 trademarkSchema.plugin(mongoose_auto_populate);
 trademarkSchema.plugin(require('mongoose-paginate-v2'));

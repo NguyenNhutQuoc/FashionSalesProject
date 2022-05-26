@@ -13,6 +13,10 @@ const colorsSchema = new mongoose.Schema({
             ref: 'ProductDetails',
         }]
     },
-})
+},
+    {
+        timestamps: true
+    }
+);
 
 module.exports = mongoose.model('Colors', colorsSchema);

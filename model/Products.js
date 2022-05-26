@@ -58,7 +58,10 @@ const productsSchema = new mongoose.Schema({
         ref: 'Trademarks',
         required: true,
     },
-})
+},
+    {
+        timestamps: true
+    });
 productsSchema.plugin(mongoose_auto_populate);
 productsSchema.plugin(require('mongoose-paginate-v2'));
 

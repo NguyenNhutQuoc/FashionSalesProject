@@ -15,6 +15,9 @@ const billDetailController = {
                     limit: req.query.limit || 10,
                     populate: {
                         path: 'bill productDetail',
+                    },
+                    sort: {
+                        createdAt: -1
                     }
                 })
                 const { docs, ...other } = billDetails
@@ -24,7 +27,9 @@ const billDetailController = {
                     ...other
                 })
             } else {
-                const billDetails = await BillDetails.find().populate('bill productDetail')
+                const billDetails = await BillDetails.find().sort({
+                    createdAt: -1
+                }).populate('bill productDetail')
                 res.status(200).json({
                     data: billDetails
                 })
