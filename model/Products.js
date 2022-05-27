@@ -57,6 +57,7 @@ const productsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Trademarks',
         required: true,
+        autopopulate:true
     },
 },
     {

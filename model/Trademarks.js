@@ -14,7 +14,6 @@ const trademarkSchema = new Schema({
     products: {
         type: [Schema.Types.ObjectId],
         ref: 'Products',
-        autopopulate: true
     }
 },
     {
