@@ -66,14 +66,10 @@ const productController = {
                             }
                         },
                         {
-                            category: {
-                                $regex: categories ? categories.get('_id'): null,
-                            }
+                            category: categories ? categories._id : null
                         },
                         {
-                            trademark: {
-                                $regex: trademark ? trademark.get('_id'): null,
-                            }
+                            trademark: trademark ? trademark._id : null
                         }
                     ]
                 }, {
