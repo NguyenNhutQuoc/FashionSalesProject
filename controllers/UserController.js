@@ -8,12 +8,12 @@ const userController = {
     search: async (req, res) => {
         try {
             const {
-                word,
+                q,
                 page,
                 limit,
                 auth
             } = req.query;
-            const regex = new RegExp(word, 'i');
+            const regex = new RegExp(q, 'i');
             if (page || limit) {
                 const users = await Users.paginate({
                     $or: [{

@@ -88,8 +88,8 @@ const categoryController = {
     },
     search: async (req, res) => {
         try {
-            const {word, page, limit} = req.query
-            const regex = new RegExp(word, 'i')
+            const {q, page, limit} = req.query
+            const regex = new RegExp(q, 'i')
             if (page || limit) {
                 const categories = await Categories.paginate({
                     name: regex

@@ -4,14 +4,14 @@ const couponController = {
     search: async(req, res) => {
         try {
             const {
-                word
+                word: q
             } = req.query
             if (req.query.page || req.query.limit) {
                 const coupons = await Coupons.paginate({
                     $or: [
                         {
                             code: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         }
@@ -35,7 +35,7 @@ const couponController = {
                         $or: [
                             {
                                 code: {
-                                    $regex: word,
+                                    $regex: q,
                                     $options: "i"
                                 }
                             }

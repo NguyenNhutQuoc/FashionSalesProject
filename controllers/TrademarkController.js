@@ -5,11 +5,11 @@ const {
 const trademarkController = {
     search: async (req, res) => {
         try {
-            const {word, page, limit} = req.query
+            const {q, page, limit} = req.query
             if (page || limit) {
                 const trademarks = await Trademarks.paginate({
                     name: {
-                        $regex: word,
+                        $regex: q,
                         $options: 'i'
                     }
                 },
@@ -29,7 +29,7 @@ const trademarkController = {
             } else {
                 const trademarks = await Trademarks.find({
                     name: {
-                        $regex: word,
+                        $regex: q,
                         $options: 'i'
                     }
                 })

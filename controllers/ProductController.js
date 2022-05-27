@@ -9,7 +9,6 @@ const {
 } = require("../model/model");
 
 const isNumber = require("is-number");
-const Console = require("console");
 const productController = {
     search: async (req, res) => {
         try {
@@ -18,7 +17,7 @@ const productController = {
                 page,
                 limit
             } = req.query
-            const categories = await Categories.find(
+            const categories = await Categories.findOne(
                 {
                     name: {
                         $regex: q,
@@ -26,12 +25,13 @@ const productController = {
                     }
                 }
             )
-            const trademark = await Trademarks.find({
+            const trademark = await Trademarks.findOne({
                 name: {
                     $regex: q,
                     $options: "i"
                 }
             })
+            console.log(categories)
             if (page || limit) {
                 const products = await Products.paginate({
                     $or: [
@@ -67,14 +67,12 @@ const productController = {
                         },
                         {
                             category: {
-                                $regex: categories.get("_id"),
-                                $options: "i"
+                                $regex: categories ? categories.get('_id'): null,
                             }
                         },
                         {
                             trademark: {
-                                $regex: trademark.get("_id"),
-                                $options: "i"
+                                $regex: trademark ? trademark.get('_id'): null,
                             }
                         }
                     ]
@@ -124,16 +122,10 @@ const productController = {
                             }
                         },
                         {
-                            category: {
-                                $regex: categories.get("_id"),
-                                $options: "i"
-                            }
+                            category: categories ? categories.get('_id'): null,
                         },
                         {
-                            trademark: {
-                                $regex: trademark.get("_id"),
-                                $options: "i"
-                            }
+                            trademark: trademark ? trademark.get('_id'): null,
                         }
                     ]
                 })
