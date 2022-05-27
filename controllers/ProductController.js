@@ -9,6 +9,7 @@ const {
 } = require("../model/model");
 
 const isNumber = require("is-number");
+const Console = require("console");
 const productController = {
     search: async (req, res) => {
         try {
@@ -387,7 +388,55 @@ const productController = {
             });
         }
     },
+    findBySizeColor: async(req, res) => {
+        try {
+            // //id của product
+            const productId = await Products.findById(req.params.id)
+            const {size_option, color_option} = req.query;
 
+            if (productId) {
+
+                let data = [];
+                if(size_option){
+                    const sizeSearch = await SizesSchema.findOne({size: size_option});
+                    const getSize = sizeSearch.get("_id");
+                    const productDetailsSize = await ProductDetails.find({size:getSize})
+                    for (let i = 0; i < productDetailsSize.length; i++) {
+                        data.push(await Products.findOne({productDetails: productDetailsSize[i]._id}))
+                    }
+                }else if(color_option){
+                    const colorSearch = await Colors.findOne({color: color_option})
+                    const getColor = colorSearch.get("_id");
+                    const productDetailsColor = await  ProductDetails.find({color: getColor})
+                    for (let i = 0; i < productDetailsColor.length; i++) {
+                        data.push(await Products.findOne({productDetails: productDetailsColor[i]._id}))
+                    }
+                }else {
+                    const sizeSearch = await SizesSchema.findOne({size: size_option});
+                    const getSize = sizeSearch.get("_id");
+                    const colorSearch = await Colors.findOne({color: color_option})
+                    const getColor = colorSearch.get("_id");
+                    const productDetailsSAC = await  ProductDetails.find({size: getSize, color: getColor})
+                    for (let i = 0; i < productDetailsSAC.length; i++) {
+                        data.push(await Products.findOne({productDetails: productDetailsSAC[i]._id}))
+                    }
+                }
+                console.log("data",data)
+                res.status(200).json(data)
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: "Not found product"
+                })
+            }
+
+        }catch(e){
+            res.status(500).json({
+                status: 500,
+                errorMessage: e.message,
+            });
+        }
+    },
     create: async(req, res) => {
         try {
             const category = await Categories.findById(req.body.category)
