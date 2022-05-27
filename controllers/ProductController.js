@@ -14,21 +14,21 @@ const productController = {
     search: async (req, res) => {
         try {
             const {
-                word,
+                q,
                 page,
                 limit
             } = req.query
             const categories = await Categories.find(
                 {
                     name: {
-                        $regex: word,
+                        $regex: q,
                         $options: "i"
                     }
                 }
             )
             const trademark = await Trademarks.find({
                 name: {
-                    $regex: word,
+                    $regex: q,
                     $options: "i"
                 }
             })
@@ -37,31 +37,31 @@ const productController = {
                     $or: [
                         {
                             name: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             description: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             material: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             origin: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             unit: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
@@ -95,31 +95,31 @@ const productController = {
                     $or: [
                         {
                             name: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             description: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             material: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             origin: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
                         {
                             unit: {
-                                $regex: word,
+                                $regex: q,
                                 $options: "i"
                             }
                         },
