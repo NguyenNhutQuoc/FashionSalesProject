@@ -1,5 +1,5 @@
 const {
-    CategoriesSchema,
+    Categories,
     Products,
     ProductDetails,
     Colors,
@@ -17,7 +17,7 @@ const productController = {
                 page,
                 limit
             } = req.query
-            const categories = await CategoriesSchema.find(
+            const categories = await Categories.find(
                 {
                     name: {
                         $regex: word,
@@ -350,7 +350,7 @@ const productController = {
                 origin_option,
                 category_option
             } = req.query;
-            const category = await CategoriesSchema.findOne({
+            const category = await Categories.findOne({
                 name: category_option
             })
             if ((!material_option && !category_option) || (!material_option && !origin_option) || (!origin_option && !category_option)) {
@@ -390,7 +390,7 @@ const productController = {
 
     create: async(req, res) => {
         try {
-            const category = await CategoriesSchema.findById(req.body.category)
+            const category = await Categories.findById(req.body.category)
             const trademark = await Trademarks.findById(req.body.trademark)
             if (req.body.price && isNumber(req.body.price) && req.body.price > 0 && category && trademark) {
                 const product = await Products.create(req.body);
@@ -423,11 +423,11 @@ const productController = {
             const product = await Products.findById(req.params.id);
             if (product) {
                 if (req.body.category) {
-                    const oldCategory = await CategoriesSchema.findById(
+                    const oldCategory = await Categories.findById(
                         product.get("category")
                     );
                     console.log(oldCategory)
-                    const category = await CategoriesSchema.findById(req.body.category);
+                    const category = await Categories.findById(req.body.category);
                     console.log(category)
                     if (category) {
                         const result = await Products.findByIdAndUpdate(
@@ -510,7 +510,7 @@ const productController = {
                         errorMessage: "You can't delete it",
                     });
                 } else {
-                    const category = await CategoriesSchema.findById(product.get("category"))
+                    const category = await Categories.findById(product.get("category"))
                     await category.updateOne({
                         $pull: {
                             products: product.get("_id"),

@@ -3,7 +3,7 @@ const {
     Users,
     Bills,
     BillDetails,
-    CommentsSchema
+    CommentsSchema: Comments
 } = require('../model/model');
 
 const isNumber = require('is-number')
@@ -13,7 +13,7 @@ const commentController = {
         try {
             const {word} = req.query
             if (req.query.page || req.query.limit) {
-                const comments = await CommentsSchema.paginate({
+                const comments = await Comments.paginate({
 
                 }, {
                     populate: {
@@ -31,7 +31,7 @@ const commentController = {
                     ...others
                 })
             } else {
-                const comments = await CommentsSchema.find({}).sort({
+                const comments = await Comments.find({}).sort({
                     createdAt: -1
                 }).populate('user product')
                 res.status(200).json({
@@ -48,7 +48,7 @@ const commentController = {
 
     findById: async(req, res) => {
         try {
-            const comment = await CommentsSchema.findById(req.params.id).populate('user').populate('product');
+            const comment = await Comments.findById(req.params.id).populate('user').populate('product');
             if (comment) {
                 res.status(200).json(comment)
             } else {
@@ -67,19 +67,19 @@ const commentController = {
 
     findBy: async(req, res) => {
         try {
-            const commentByStarNumber = await CommentsSchema.find({
+            const commentByStarNumber = await Comments.find({
                 star: isNumber(req.query.s) ? req.query.s : -1
             })
             const user = await Users.findOne({
                 name: req.query.u
             })
-            const commentByUser = await CommentsSchema.find({
+            const commentByUser = await Comments.find({
                 user: user ? user.get('_id') : null
             })
             const product = await Products.findOne({
                 name: req.query.p
             })
-            const commentByProduct = await CommentsSchema.find({
+            const commentByProduct = await Comments.find({
                 product: product ? product.get('_id') : null
             })
 
@@ -118,7 +118,7 @@ const commentController = {
                             product: product.get('_id')
                         })
                         if (billDetail) {
-                            const comment = new CommentsSchema(req.body)
+                            const comment = new Comments(req.body)
                             const result = await comment.save()
                             await user.updateOne({
                                 $push: {
@@ -164,7 +164,7 @@ const commentController = {
     },
     update: async(req, res) => {
         try {
-            const comment = await CommentsSchema.findById(req.params.id)
+            const comment = await Comments.findById(req.params.id)
             if (comment) {
                 if (req.body.user && req.body.product) {
                     const user = await Users.findById(req.body.user)
@@ -375,7 +375,7 @@ const commentController = {
     },
     delete: async(req, res) => {
         try {
-            const comment = await CommentsSchema.findById(req.params.id)
+            const comment = await Comments.findById(req.params.id)
             if (comment) {
                 const user = await Users.findById(comment.get('user'))
                 const product = await Products.findById(comment.get('product'))

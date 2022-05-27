@@ -1,33 +1,33 @@
 const mongoose = require('mongoose')
 const slug = require('mongoose-slug-generator')
 mongoose.plugin(slug)
-const CategoriesSchema = require('./Categories')
+const Categories = require('./Categories')
 const Products = require('./Products')
 const Users = require('./Users')
-const SizesSchema = require('./Sizes')
+const Sizes = require('./Sizes')
 const Colors = require('./Colors')
 const Coupons = require('./Coupons')
-const CommentsSchema = require('./Comments')
+const Comments = require('./Comments')
 const Bills = require('./Bills')
 const BillDetails = require('./BillDetails')
 const ProductDetails = require('./ProductDetails')
-const ImagesSchema = require('./Images')
+const Images = require('./Images')
 const Trademarks = require('./Trademarks')
 const Province = require('./ProvinceTable')
 const District = require('./District')
 const Commune = require('./Commune')
 module.exports = {
-    CategoriesSchema,
+    Categories,
     Products,
     Colors,
-    SizesSchema,
+    Sizes,
     Coupons,
     Users,
     Bills,
     BillDetails,
-    CommentsSchema,
+    Comments,
     ProductDetails,
-    ImagesSchema,
+    Images,
     Trademarks,
     Province,
     District,

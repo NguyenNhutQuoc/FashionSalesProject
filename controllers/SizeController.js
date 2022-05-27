@@ -1,19 +1,12 @@
 const {
-  Categories,
   Products,
-  Colors,
-  SizesSchema,
-  Coupons,
-  Users,
-  Bills,
-  BillDetails,
-  Comments,
+  Sizes,
 } = require("../model/model");
 
 const sizeController = {
   findAll: async (req, res) => {
     try {
-      const sizes = await SizesSchema.find();
+      const sizes = await Sizes.find();
       res.status(200).json(sizes);
     } catch (e) {
       res.status(500).json({
@@ -25,9 +18,9 @@ const sizeController = {
 
   findBy: async (req, res) => {
     try {
-      const size = await SizesSchema.find({ size: req.query.search });
+      const size = await Sizes.find({ size: req.query.search });
       const product = await Products.findOne({ name: req.query.search });
-      const size_product = await SizesSchema.find({
+      const size_product = await Sizes.find({
         product: size_product ? size_product.get("_id") : null,
       });
       if (size || size_product) {
@@ -50,7 +43,7 @@ const sizeController = {
     try {
       const product = Products.findById(req.body.product);
       if (product) {
-        const size = new SizesSchema(req.body);
+        const size = new Sizes(req.body);
         const result = await size.save();
         await product.updateOne({ $push: { sizes: result._id } });
       } else {
@@ -69,14 +62,14 @@ const sizeController = {
 
   update: async (req, res) => {
     try {
-      const size = await SizesSchema.findById(req.params.id);
+      const size = await Sizes.findById(req.params.id);
       if (size) {
-        const exitProduct = await SizesSchema.findById(req.body.product);
+        const exitProduct = await Sizes.findById(req.body.product);
         if (exitProduct) {
           const presenProduct = await Products.findById(size.product);
           const product = await Products.findById(req.body.product);
           if (product) {
-            const updateSize = await SizesSchema.findById(req.params.id);
+            const updateSize = await Sizes.findById(req.params.id);
             await updateSize.updateOne({ $set: req.body });
             await presenProduct.updateOne({ $pull: { product: size._id } });
             await product.updateOne({ $push: size._id });
@@ -85,7 +78,7 @@ const sizeController = {
             });
           }
         } else {
-          const result = await SizesSchema.findById(req.params.id);
+          const result = await Sizes.findById(req.params.id);
           await result.updateOne({ $set: req.body });
           res.status(200).json("Updated successfully!");
         }
@@ -105,7 +98,7 @@ const sizeController = {
 
   delete: async (req, res) => {
     try {
-      const size = await SizesSchema.findById(req.params.id);
+      const size = await Sizes.findById(req.params.id);
       if (size) {
         if (size.get("product").length > 0) {
           res.status(400).json({

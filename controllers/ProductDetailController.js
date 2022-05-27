@@ -1,7 +1,7 @@
 const {
     ProductDetails,
     Products,
-    SizesSchema,
+    Sizes,
     Colors, BillDetails, Bills
 } = require('../model/model');
 const ImagesSchema = require("../model/Images");
@@ -43,7 +43,7 @@ const ProductDetailController = {
     findBy: async(req, res) => {
         try {
             const {size_option,color_option} = req.query;
-            const sizeTempt = await SizesSchema.findOne({
+            const sizeTempt = await Sizes.findOne({
                 size: size_option
             });
             const colorTempt = await  Colors.findOne({
@@ -236,11 +236,11 @@ const ProductDetailController = {
                             color: colorCheck,
                         })
                         for (const size of sizes) {
-                            const check_size = await SizesSchema.findOne({
+                            const check_size = await Sizes.findOne({
                                 size: size.toLowerCase()
                             })
                             if (!check_size) {
-                                await SizesSchema.create({
+                                await Sizes.create({
                                     size: size.toLowerCase()
                                 })
                             }
@@ -267,7 +267,7 @@ const ProductDetailController = {
                             color: colorCheck,
                         })
                         for (const size of sizes) {
-                            const check_size = await SizesSchema.findOne({
+                            const check_size = await Sizes.findOne({
                                 size: size.toLowerCase()
                             })
                             const productDetail = await ProductDetails.findOne({
@@ -297,7 +297,7 @@ const ProductDetailController = {
                                         productDetails: productDetail.get('_id')
                                     }
                                 })
-                                await SizesSchema.updateOne({
+                                await Sizes.updateOne({
                                     _id: check_size.get('_id')
                                 }, {
                                     $push: {
@@ -361,7 +361,7 @@ const ProductDetailController = {
                             }
                         })
 
-                        await SizesSchema.updateOne({
+                        await Sizes.updateOne({
                             _id: productDetails[index].size
                         }, {
                             $pull: {
@@ -409,7 +409,7 @@ const ProductDetailController = {
                                         size: size.toLowerCase()
                                     })
                                     if (!size_id) {
-                                        await SizesSchema.create({
+                                        await Sizes.create({
                                             size: size.toLowerCase(),
                                             productDetails: []
                                         })
@@ -437,7 +437,7 @@ const ProductDetailController = {
                                     color: colorCheck,
                                 })
                                 for (const size of sizes) {
-                                    const size_id_ = await SizesSchema.findOne({
+                                    const size_id_ = await Sizes.findOne({
                                         size: size.toLowerCase()
                                     })
                                     const productDetail = await ProductDetails.findOne({
@@ -463,7 +463,7 @@ const ProductDetailController = {
                                                 productDetails: productDetail.get('_id')
                                             }
                                         })
-                                        await SizesSchema.updateOne({
+                                        await Sizes.updateOne({
                                             _id: size_id_.get('_id')
                                         }, {
                                             $push: {
@@ -521,7 +521,7 @@ const ProductDetailController = {
             if (productDetail) {
                 const product = await Products.findById(productDetail.get('product'))
                 const color = await Colors.findById(productDetail.get('color'))
-                const size = await SizesSchema.findById(productDetail.get('size'))
+                const size = await Sizes.findById(productDetail.get('size'))
                 console.log(product)
                 console.log(color)
                 console.log(size)
