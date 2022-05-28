@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 
 const billsSchema = new mongoose.Schema({
-    date: {
-        type: Date,
-        required: true
-    },
     shippedDate: {
         type: Date
     },

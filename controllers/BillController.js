@@ -175,27 +175,6 @@ const BillController = {
         }
     },
 
-    findByDate: async(req, res) => {
-        try {
-            const bill_date = await Bills.find({
-                date: req.param.date
-            })
-            if (bill_date.length > 0) {
-                res.status(200).json(bill_date)
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    errorMessage: "Not Found"
-                })
-            }
-
-        } catch (error) {
-            res.status(500).json({
-                status: 500,
-                errorMessage: error.message
-            })
-        }
-    },
     findByShippedDate: async(req, res) => {
         try {
             const bills_shipped_date = await Bills.find({
