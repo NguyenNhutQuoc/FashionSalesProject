@@ -3,9 +3,9 @@ const {
     Products,
     ProductDetails,
     Colors,
-    SizesSchema,
-    ImagesSchema,
-    BillDetails, Trademarks
+    Sizes,
+    Images,
+    Trademarks
 } = require("../model/model");
 
 const isNumber = require("is-number");
@@ -386,7 +386,7 @@ const productController = {
 
                 let data = [];
                 if(size_option){
-                    const sizeSearch = await SizesSchema.findOne({size: size_option});
+                    const sizeSearch = await Sizes.findOne({size: size_option});
                     const getSize = sizeSearch.get("_id");
                     const productDetailsSize = await ProductDetails.find({size:getSize})
                     for (let i = 0; i < productDetailsSize.length; i++) {
@@ -400,7 +400,7 @@ const productController = {
                         data.push(await Products.findOne({productDetails: productDetailsColor[i]._id}))
                     }
                 }else {
-                    const sizeSearch = await SizesSchema.findOne({size: size_option});
+                    const sizeSearch = await Sizes.findOne({size: size_option});
                     const getSize = sizeSearch.get("_id");
                     const colorSearch = await Colors.findOne({color: color_option})
                     const getColor = colorSearch.get("_id");
@@ -539,6 +539,7 @@ const productController = {
     delete: async(req, res) => {
         try {
             let checkDelete = 0
+            console.log(Categories)
             const product = await Products.findById(req.params.id);
             if (product) {
                 if (product.get("comments").length > 0) {
@@ -564,8 +565,8 @@ const productController = {
                     })
                     for (let productDetail of productDetails) {
                         const color = await Colors.findById(productDetail.get("color"))
-                        const size = await SizesSchema.findById(productDetail.get("size"))
-                        const images = await ImagesSchema.findById(productDetail.get("images")[0])
+                        const size = await Sizes.findById(productDetail.get("size"))
+                        const images = await Images.findById(productDetail.get("images")[0])
                         const billDetails = productDetail.get("billDetails")
                         if (billDetails.length === 0) {
                             if (color) {
