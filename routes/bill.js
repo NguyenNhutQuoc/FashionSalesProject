@@ -4,7 +4,6 @@ const billController = require('../controllers/BillController');
 router.get('/:id', billController.findById);
 router.get('/', billController.findAll);
 router.get('/search', billController.findBy);
-router.get('/date', billController.findByDate);
 router.get('/shipped-date', billController.findByShippedDate);
 router.post('/', billController.create);
 router.put('/:id', billController.update);
