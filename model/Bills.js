@@ -28,9 +28,9 @@ const billsSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    COD: {
+    method: {
         type: String,
-        default: 'Money'
+        default: 'COD'
     }
 },
     {
