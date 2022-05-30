@@ -39,7 +39,6 @@ const BillController = {
                         billObject
                     )
                 }
-
                 res.status(200).json({
                     data: data,
                     ...others
@@ -84,7 +83,7 @@ const BillController = {
     findAllImportType: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
-                const bill = await Bills.paginate({
+                const bills = await Bills.paginate({
                     type: 'N'
                 }, {
                     page: req.query.page || 1,
@@ -93,17 +92,58 @@ const BillController = {
                         createdAt: -1
                     }
                 })
-                const {docs, ...others} = bill
+                const {docs, ...others} = bills
+                let data = []
+                for (let index in docs) {
+
+                    const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
+                    const billDetails = bill.get("billDetails")
+                    let totalPrice = 0
+                    for (let i = 0; i < billDetails.length; i++) {
+                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
+                        totalPrice += billDetail.get("price")
+                    }
+                    if (bill.coupon) {
+                        const coupon = await Coupons.findById(bill.coupon)
+                        totalPrice -= coupon.discount
+                    }
+                    const billObject = bill.toObject()
+                    billObject.totalPrice = totalPrice
+                    data.push(
+                        billObject
+                    )
+                }
                 res.status(200).json({
-                    data: docs,
+                    data: data,
                     ...others
                 })
             } else {
-                const bill = await Bills.find({
+                const bills = await Bills.find({
                     type: 'N'
                 }).populate('user').populate('billDetails')
+                let data = []
+                for (let index in bills) {
+                    const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')
+                    const billDetails = bill.get("billDetails")
+                    let totalPrice = 0
+                    for (let i = 0; i < billDetails.length; i++) {
+                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
+                        totalPrice += billDetail.get("price")
+                    }
+                    if (bill.coupon) {
+                        const coupon = await Coupons.findById(bill.coupon)
+                        totalPrice -= coupon.discount
+                    }
+                    const billObject = bill.toObject()
+                    billObject.totalPrice = totalPrice
+                    data.push(
+                        billObject
+                    )
+                }
+
                 res.status(200).json({
-                    data: bill
+                    data: data,
+
                 })
             }
         } catch (error) {
@@ -116,7 +156,7 @@ const BillController = {
     findAllExportType: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
-                const bill = await Bills.paginate({
+                const bills = await Bills.paginate({
                     type: 'X'
                 }, {
                     page: req.query.page || 1,
@@ -125,17 +165,58 @@ const BillController = {
                         createdAt: -1
                     }
                 })
-                const {docs, ...others} = bill
+                const {docs, ...others} = bills
+                let data = []
+                for (let index in docs) {
+
+                    const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
+                    const billDetails = bill.get("billDetails")
+                    let totalPrice = 0
+                    for (let i = 0; i < billDetails.length; i++) {
+                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
+                        totalPrice += billDetail.get("price")
+                    }
+                    if (bill.coupon) {
+                        const coupon = await Coupons.findById(bill.coupon)
+                        totalPrice -= coupon.discount
+                    }
+                    const billObject = bill.toObject()
+                    billObject.totalPrice = totalPrice
+                    data.push(
+                        billObject
+                    )
+                }
                 res.status(200).json({
-                    data: docs,
+                    data: data,
                     ...others
                 })
             } else {
-                const bill = await Bills.find({
-                    type: 'N'
+                const bills = await Bills.find({
+                    type: 'X'
                 }).populate('user').populate('billDetails')
+                let data = []
+                for (let index in bills) {
+                    const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')
+                    const billDetails = bill.get("billDetails")
+                    let totalPrice = 0
+                    for (let i = 0; i < billDetails.length; i++) {
+                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
+                        totalPrice += billDetail.get("price")
+                    }
+                    if (bill.coupon) {
+                        const coupon = await Coupons.findById(bill.coupon)
+                        totalPrice -= coupon.discount
+                    }
+                    const billObject = bill.toObject()
+                    billObject.totalPrice = totalPrice
+                    data.push(
+                        billObject
+                    )
+                }
+
                 res.status(200).json({
-                    data: bill
+                    data: data,
+
                 })
             }
         } catch (error) {

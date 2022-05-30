@@ -31,7 +31,7 @@ const billsSchema = new mongoose.Schema({
     method: {
         type: String,
         default: 'COD'
-    }
+    },
 },
     {
         timestamps: true
