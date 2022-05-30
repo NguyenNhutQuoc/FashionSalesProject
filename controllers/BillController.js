@@ -93,8 +93,10 @@ const BillController = {
                         createdAt: -1
                     }
                 })
+                const {docs, ...others} = bill
                 res.status(200).json({
-                    data: bill
+                    data: docs,
+                    ...others
                 })
             } else {
                 const bill = await Bills.find({
@@ -123,8 +125,10 @@ const BillController = {
                         createdAt: -1
                     }
                 })
+                const {docs, ...others} = bill
                 res.status(200).json({
-                    data: bill
+                    data: docs,
+                    ...others
                 })
             } else {
                 const bill = await Bills.find({
