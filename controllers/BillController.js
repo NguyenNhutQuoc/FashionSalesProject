@@ -8,7 +8,59 @@ const {
 const isNumber = require('is-number')
 
 const BillController = {
-    search: async (req, res) => {
+
+    findByDate: async(req, res) => {
+        try {
+            let {
+                fromDate,
+                toDate,
+                page,
+                limit
+            } = req.query
+            if (!fromDate)
+                fromDate = "2000-01-01"
+            if (!toDate)
+                toDate = new Date().toString()
+            console.log(fromDate, toDate)
+            if (page || limit) {
+                const bills = await Bills.paginate({
+                    createdAt: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date(toDate)
+                    }
+                }, {
+                    page: page || 1,
+                    limit: limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const { docs, ...others } = bills
+                return res.json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const bills = await Bills.find({
+                    createdAt: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date(toDate)
+                    }
+                }).sort({
+                    createdAt: -1
+                }).populate('user')
+                res.json({
+                    data: bills
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            res.json({
+                error: e
+            })
+        }
+    },
+    search: async(req, res) => {
         const {
             page,
             limit,
@@ -26,12 +78,12 @@ const BillController = {
             })
             const bills = await Bills.paginate({
                 $or: [{
-                    method: {
-                        $regex: regex
-                    }
-                },
+                        method: {
+                            $regex: regex
+                        }
+                    },
                     {
-                        user: user? user.get('_id') : null
+                        user: user ? user.get('_id') : null
                     },
                     {
                         status: isNumber(q) ? q : 0
@@ -45,7 +97,7 @@ const BillController = {
                     createdAt: -1
                 }
             })
-            const {docs, ...others} = bills
+            const { docs, ...others } = bills
             res.json({
                 data: docs,
                 ...others
@@ -60,9 +112,8 @@ const BillController = {
                 }
             })
             const bills = await Bills.find({
-                $or: [
-                    {
-                        user:user ? user.get('_id'): null
+                $or: [{
+                        user: user ? user.get('_id') : null
                     },
                     {
                         status: isNumber(q) ? q : 0
@@ -91,7 +142,7 @@ const BillController = {
                         createdAt: -1
                     }
                 })
-                const {docs, ...others} = bills
+                const { docs, ...others } = bills
                 let data = []
                 for (let index in docs) {
 
@@ -166,7 +217,7 @@ const BillController = {
                         createdAt: -1
                     }
                 })
-                const {docs, ...others} = bills
+                const { docs, ...others } = bills
                 let data = []
                 for (let index in docs) {
 
@@ -239,7 +290,7 @@ const BillController = {
                         createdAt: -1
                     }
                 })
-                const {docs, ...others} = bills
+                const { docs, ...others } = bills
                 let data = []
                 for (let index in docs) {
 

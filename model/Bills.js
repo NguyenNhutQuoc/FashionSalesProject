@@ -12,7 +12,6 @@ const billsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
         required: true,
-        autopopulate: true
     },
     coupon: {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,10 +36,9 @@ const billsSchema = new mongoose.Schema({
         type: Number,
         required: true
     }
-},
-    {
-        timestamps: true
-    });
+}, {
+    timestamps: true
+});
 billsSchema.plugin(require('mongoose-autopopulate'))
 billsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('Bills', billsSchema);

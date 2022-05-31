@@ -2,6 +2,7 @@ const router = require('express').Router();
 const billController = require('../controllers/BillController');
 
 router.get('/find', billController.search);
+router.get('/find-from-to-date', billController.findByDate);
 router.get('/:id', billController.findById);
 router.get('/', billController.findAll);
 router.get('/search', billController.findBy);
