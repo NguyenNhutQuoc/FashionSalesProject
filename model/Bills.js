@@ -32,6 +32,10 @@ const billsSchema = new mongoose.Schema({
         type: String,
         default: 'COD'
     },
+    feeShip: {
+        type: Number,
+        required: true
+    }
 },
     {
         timestamps: true

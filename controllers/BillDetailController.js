@@ -29,7 +29,7 @@ const billDetailController = {
             } else {
                 const billDetails = await BillDetails.find().sort({
                     createdAt: -1
-                }).populate('bill productDetail')
+                }).populate('bill productDetail').populate('coupon').populate('productDetail')
                 res.status(200).json({
                     data: billDetails
                 })

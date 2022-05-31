@@ -34,6 +34,7 @@ const BillController = {
                         totalPrice -= coupon.discount
                     }
                     const billObject = bill.toObject()
+                    totalPrice += bill.get("feeShip")
                     billObject.totalPrice = totalPrice
                     data.push(
                         billObject
