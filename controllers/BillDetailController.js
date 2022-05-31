@@ -68,7 +68,7 @@ const billDetailController = {
     },
     findById: async(req, res) => {
         try {
-            const billDetail = await BillDetails.findById(req.params.id)
+            const billDetail = await BillDetails.findById(req.params.id).populate("productDetail")
             if (billDetail) {
                 res.status(200).json(billDetail)
             } else {
