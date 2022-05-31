@@ -230,7 +230,7 @@ const BillController = {
     findById: async(req, res) => {
         try {
 
-            const bill = await Bills.findById(req.params.id)
+            const bill = await Bills.findById(req.params.id).populate("billDetails").populate("user")
 
             if (bill) {
                 const billDetails = bill.get("billDetails")
