@@ -8,6 +8,79 @@ const {
 const isNumber = require('is-number')
 
 const BillController = {
+    search: async (req, res) => {
+        const {
+            page,
+            limit,
+            q,
+            type
+        } = req.query;
+        const regex = new RegExp(q, 'i')
+        if (page || limit) {
+            const user = await Users.findOne({
+                where: {
+                    name: {
+                        $regex: regex
+                    }
+                }
+            })
+            const bills = await Bills.paginate({
+                $or: [{
+                    method: {
+                        $regex: regex
+                    }
+                },
+                    {
+                        user: user? user.get('_id') : null
+                    },
+                    {
+                        status: isNumber(q) ? q : 0
+                    },
+                ],
+                type: type
+            }, {
+                page: page || 1,
+                limit: limit || 10,
+                sort: {
+                    createdAt: -1
+                }
+            })
+            const {docs, ...others} = bills
+            res.json({
+                data: docs,
+                ...others
+            })
+
+        } else {
+            const user = await Users.findOne({
+                where: {
+                    name: {
+                        $regex: regex
+                    }
+                }
+            })
+            const bills = await Bills.find({
+                $or: [
+                    {
+                        user:user ? user.get('_id'): null
+                    },
+                    {
+                        status: isNumber(q) ? q : 0
+                    },
+                    {
+                        method: {
+                            $regex: regex
+                        }
+                    }
+                ],
+                type: type
+            }).populate('user').populate('billDetails')
+            res.status(200).json({
+                data: bills
+            })
+        }
+
+    },
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
