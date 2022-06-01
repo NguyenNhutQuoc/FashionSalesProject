@@ -9,7 +9,7 @@ const {
     Categories
 } = require('../model/model');
 const ImagesSchema = require("../model/Images");
-var translate = require('translate')
+const translate = require('translate')
 const ProductDetailController = {
     findAll: async(req, res) => {
         try {

@@ -17,7 +17,7 @@ const productController = {
                 page,
                 limit
             } = req.query
-            const categories = await Categories.findOne(
+            const categories = await Categories.find(
                 {
                     name: {
                         $regex: q,
@@ -25,12 +25,22 @@ const productController = {
                     }
                 }
             )
-            const trademark = await Trademarks.findOne({
+            const arrayCateIds = categories.length > 0 ? categories.map(item => item._id) : []
+            const trademark = await Trademarks.find({
                 name: {
                     $regex: q,
                     $options: "i"
                 }
             })
+            const arrayTrademarkIds = trademark.length > 0 ? trademark.map(item => item._id) : []
+            const productDetail = await ProductDetails.find({
+                SKU: {
+                    $regex: q,
+                    $options: "i"
+                }
+            })
+            const arrayIdProductDetail = productDetail.map(item => item._id)
+
             console.log(categories)
             if (page || limit) {
                 const products = await Products.paginate({
@@ -66,10 +76,19 @@ const productController = {
                             }
                         },
                         {
-                            category: categories ? categories._id : null
+                            category: {
+                                $in: arrayCateIds
+                            }
                         },
                         {
-                            trademark: trademark ? trademark._id : null
+                            trademark: {
+                                $in: arrayTrademarkIds
+                            }
+                        },
+                        {
+                            productDetails: {
+                                $in: arrayIdProductDetail
+                            }
                         }
                     ]
                 }, {
@@ -118,10 +137,19 @@ const productController = {
                             }
                         },
                         {
-                            category: categories ? categories.get('_id'): null,
+                            category: {
+                                $in: arrayCateIds
+                            }
                         },
                         {
-                            trademark: trademark ? trademark.get('_id'): null,
+                            trademark: {
+                                $in: arrayTrademarkIds
+                            }
+                        },
+{
+                            productDetails: {
+                                $in: arrayIdProductDetail
+                            }
                         }
                     ]
                 })
