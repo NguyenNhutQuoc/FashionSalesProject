@@ -136,15 +136,45 @@ const ProductDetailController = {
             if (fromDate && toDate) {
                 importBills = await Bills.find({
                     type: 'N',
-                    date: {
+                    createdAt: {
                         $gte: new Date(fromDate),
                         $lte: new Date(toDate)
                     }
                 })
                 exportBills = await Bills.find({
                     type: 'X',
-                    date: {
+                    createAt: {
                         $gte: new Date(fromDate),
+                        $lte: new Date(toDate)
+                    }
+                })
+            } else if (fromDate){
+                importBills = await Bills.find({
+                    type: 'N',
+                    createAt: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date(new Date().toString())
+                    }
+                })
+                exportBills = await Bills.find({
+                    type: 'X',
+                    createAt: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date(new Date().toString())
+                    }
+                })
+            } else if (toDate) {
+                importBills = await Bills.find({
+                    type: 'N',
+                    createAt: {
+                        $gte: new Date("2000-01-01"),
+                        $lte: new Date(toDate)
+                    }
+                })
+                exportBills = await Bills.find({
+                    type: 'X',
+                    createAt: {
+                        $gte: new Date("2000-01-01"),
                         $lte: new Date(toDate)
                     }
                 })
