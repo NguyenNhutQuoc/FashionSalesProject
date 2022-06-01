@@ -35,7 +35,7 @@ const ProductDetailController = {
             } else {
                 const productDetails = await ProductDetails.find({}).sort({
                     createdAt: -1
-                }).populate('images size color')
+                }).populate('images size color billDetails')
                 res.status(200).json({
                     data: productDetails
                 })

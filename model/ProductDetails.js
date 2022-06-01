@@ -37,8 +37,11 @@ const productDetailsSchema = new mongoose.Schema({
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'BillDetails',
-            autopopulate: true
         }]
+    },
+    quantitiesOfNorm: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true
