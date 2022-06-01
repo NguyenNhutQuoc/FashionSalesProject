@@ -157,8 +157,9 @@ const BillController = {
                         const coupon = await Coupons.findById(bill.coupon)
                         totalPrice -= coupon.discount
                     }
+                    totalPrice += bill.feeShip
+                    console.log(bill.feeShip)
                     const billObject = bill.toObject()
-                    totalPrice += bill.get("feeShip")
                     billObject.totalPrice = totalPrice
                     data.push(
                         billObject
@@ -185,6 +186,7 @@ const BillController = {
                         const coupon = await Coupons.findById(bill.coupon)
                         totalPrice -= coupon.discount
                     }
+                    totalPrice += bill.feeShip
                     const billObject = bill.toObject()
                     billObject.totalPrice = totalPrice
                     data.push(
