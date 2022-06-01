@@ -15,6 +15,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.18.0",
+    "fs": "^0.0.1-security",
+    "google-translate": "^3.0.0",
     "is-date-object": "^1.0.5",
     "is-number": "^7.0.0",
     "mongoose": "^6.3.1",
@@ -23,7 +25,8 @@
     "mongoose-slug-generator": "^1.0.4",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.16",
-    "slug": "^5.3.0"
+    "slug": "^5.3.0",
+    "translate": "^1.4.1"
   },
   "repository": {
     "type": "git",

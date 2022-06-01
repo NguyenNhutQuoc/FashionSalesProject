@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const productDetailsSchema = new mongoose.Schema({
+    SKU: {
+        type: String,
+        default: "",
+    },
     quantity: {
         type: Number,
         default: 0
@@ -24,25 +28,21 @@ const productDetailsSchema = new mongoose.Schema({
         ref: 'Colors',
         autopopulate: true
     },
-    'images': [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'ImagesSchema',
-            autopopulate: true
-        }
-        ],
+    'images': [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ImagesSchema',
+        autopopulate: true
+    }],
     billDetails: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'BillDetails',
             autopopulate: true
         }]
-        }
-    },
-    {
-        timestamps: true
     }
-)
+}, {
+    timestamps: true
+})
 productDetailsSchema.plugin(require('mongoose-autopopulate'));
 productDetailsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('ProductDetails', productDetailsSchema);

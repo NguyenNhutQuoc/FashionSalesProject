@@ -17,18 +17,17 @@ const billDetailsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductDetails',
         required: true,
-        autopopulate: true
 
     },
     bill: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Bills',
         required: true,
+        autopopulate: true
     }
-},
-    {
-        timestamps:true
-    })
+}, {
+    timestamps: true
+})
 billDetailsSchema.plugin(require('mongoose-autopopulate'))
 billDetailsSchema.plugin(require('mongoose-paginate-v2'))
 module.exports = mongoose.model('BillDetails', billDetailsSchema)
