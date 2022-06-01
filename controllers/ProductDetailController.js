@@ -20,7 +20,7 @@ const ProductDetailController = {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
                     populate: {
-                        path: 'images size color',
+                        path: 'images size color billDetails',
                     },
                     sort: {
                         createdAt: -1
