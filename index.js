@@ -19,18 +19,22 @@ const commentsRouter = require("./routes/comment");
 const productDetailsSchema = require("./routes/productDetail");
 const couponRouter = require("./routes/coupon");
 const trademarkRouter = require("./routes/trademark");
+const provinceRouter = require("./routes/province");
+const districtRouter = require("./routes/district");
+const orderRouter = require("./routes/commune");
+const searchRouter = require("./routes/localRoute");
 mongoose.connect(process.env.MONGDB_URL, (err) => {
-  if (err) {
-    console.log("Can't connect to database");
-  } else {
-    console.log("Connected to mongodb");
-  }
+    if (err) {
+        console.log("Can't connect to database");
+    } else {
+        console.log("Connected to mongodb");
+    }
 });
 console.log(process.env.MONGDB_URL, "mongodb");
 app.use(
-  bodyParser.json({
-    limit: "50mb",
-  })
+    bodyParser.json({
+        limit: "50mb",
+    })
 );
 app.use(cors());
 app.use(morgan("common"));
@@ -57,6 +61,14 @@ app.use("/api/coupons", couponRouter);
 
 app.use("/api/trademarks", trademarkRouter);
 
+app.use("/api/provinces", provinceRouter);
+
+app.use("/api/districts", districtRouter);
+
+app.use("/api/communes", orderRouter);
+
+app.use("/api/location", searchRouter);
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

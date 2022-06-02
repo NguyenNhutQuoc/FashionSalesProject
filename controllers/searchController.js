@@ -3,38 +3,30 @@ const {
     District,
     Commune
 } = require('../model/model');
-
+const subVn = require('sub-vn');
 const searchController = {
 
-    search: async (req, res) => {
+    search: async(req, res) => {
         const {
             province,
             district,
         } = req.query;
         if (province) {
-            const provinceData = await Province.findOne({
-                name: province
-            })
-            const districts = await District.find({
-                province: provinceData._id
-            })
+            if (district) {
+                const communes = subVn.getWardsByDistrictCode(district);
+                res.status(200).json({
+                    data: communes
+                })
+            } else {
+                const districts = subVn.getDistrictsByProvinceCode(province);
+                res.status(200).json({
+                    data: districts
+                })
+            }
+        } else {
+            const provinces = subVn.getProvinces();
             res.json({
-                data: districts
-            })
-        }
-        if (province && district) {
-            const provinceData = await Province.findOne({
-                name: province
-            })
-            const districtData = await District.findOne({
-                name: district,
-                province: provinceData._id
-            })
-            const communes = await Commune.find({
-                district: districtData._id
-            })
-            res.json({
-                data: communes
+                data: provinces
             })
         }
     }

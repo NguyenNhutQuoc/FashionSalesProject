@@ -1,11 +1,13 @@
 const {
-    Commune, District
+    Commune,
+    District
 } = require('../model/model');
 
+const subVn = require('sub-vn');
 const communeController = {
-    finAll: async (req, res) => {
+    findAll: async(req, res) => {
         try {
-            const communes = await Commune.find();
+            const communes = subVn.getWards()
             res.json(communes);
         } catch (error) {
             res.json({
@@ -14,14 +16,9 @@ const communeController = {
         }
     },
 
-    findAllByDistrict: async (req, res) => {
+    findAllByDistrict: async(req, res) => {
         try {
-            const district = await District.findOne({
-                name: req.query.district
-            })
-            const communes = await Commune.find({
-                district: district.get('_id')
-            });
+            const wards = subVn.getWardsByDistrictCode
             res.json(communes);
         } catch (error) {
             res.json({
@@ -29,5 +26,6 @@ const communeController = {
             });
         }
     },
-
 }
+
+module.exports = communeController
