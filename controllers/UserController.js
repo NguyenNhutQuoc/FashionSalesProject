@@ -4,7 +4,14 @@ const {
 const mongoose = require("mongoose");
 
 const userController = {
-    //****
+    findByPhoneNumber: async (req, res) => {
+        const user = await Users.findOne({
+            phone: req.params.phone
+        })
+        res.status(200).json(
+            user
+        )
+    },
     search: async (req, res) => {
         try {
             const {
