@@ -12,6 +12,14 @@ const userController = {
             user
         )
     },
+    findByUserId: async (req, res) => {
+        const user = await Users.findOne({
+            id: req.params.id
+        })
+        res.status(200).json(
+            user
+        )
+    },
     search: async (req, res) => {
         try {
             const {

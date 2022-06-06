@@ -13,4 +13,5 @@ router.delete('/:id', UserController.delete)
 router.get('/:id/comments', UserController.findAllCommentsByIdUser)
 router.get('/:id/bills', UserController.findAllBillsByIdUser)
 router.get('/phones/:phone', UserController.findByPhoneNumber)
+router.get('/user/:id', UserController.findByUserId)
 module.exports = router
