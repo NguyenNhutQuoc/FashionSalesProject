@@ -49,7 +49,6 @@ const usersSchema = new mongoose.Schema({
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Bills',
-            autopopulate: true
         }]
     },
     avatar: {
