@@ -38,6 +38,10 @@ const usersSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    password: {
+        type: String,
+        default: '',
+    },
     comments: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,

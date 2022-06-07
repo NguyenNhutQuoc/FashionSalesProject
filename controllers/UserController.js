@@ -260,6 +260,23 @@ const userController = {
             })
         }
     },
+    login: async(req, res) => {
+        try {
+            const { email, password } = req.body
+            const user = await Users.findOne({
+                email: email,
+                password: password,
+            })
+            res.status(200).json(
+                user
+            )
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
+    },
     create: async(req, res) => {
         try {
             const user = new Users(req.body)

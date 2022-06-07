@@ -15,4 +15,5 @@ router.get('/:id/bills', UserController.findAllBillsByIdUser)
 router.get('/phones/:phone', UserController.findByPhoneNumber)
 router.get('/user/:id', UserController.findByUserId)
 router.get('email/:email', UserController.findByEmail)
+router.post('/login', UserController.login)
 module.exports = router
