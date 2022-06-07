@@ -195,6 +195,15 @@ const userController = {
             res.status(500).json({ status: 500, errorMessage: err.message })
         }
     },
+    findByEmail: async (req, res) => {
+        try {
+            const user = await Users.findOne({
+                email: req.params.email
+            })
+        } catch (err) {
+            res.status(500).json({ status: 500, errorMessage: err.message })
+        }
+    },
     findBy: async(req, res) => {
         try {
             const user_name = await Users.find({
