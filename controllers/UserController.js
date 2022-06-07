@@ -200,6 +200,7 @@ const userController = {
             const user = await Users.findOne({
                 email: req.params.email
             })
+            res.status(200).json(user)
         } catch (err) {
             res.status(500).json({ status: 500, errorMessage: err.message })
         }
