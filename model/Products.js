@@ -35,6 +35,18 @@ const productsSchema = new mongoose.Schema({
         ref: 'Categories',
         required: true,
     },
+    discount: {
+        type: Number,
+        default: 0
+    },
+    startDate: {
+        type: Date,
+        default: ""
+    },
+    endDate: {
+        type: Date,
+        default: ""
+    },
     price: {
       type: Number,
       required: true

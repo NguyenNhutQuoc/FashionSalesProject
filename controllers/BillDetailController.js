@@ -98,10 +98,8 @@ const billDetailController = {
                         status: 2
                     })
                     const quantity = billDetail.get('quantity')
-                    console.log(quantity)
                     const product_ = await Products.findById(product.get('product'))
                     const price = product_.get('price')
-                    console.log(price)
                     const total = quantity * price
                     if (bill.get('type') === 'X') {
                         if (bill.get('coupon')) {

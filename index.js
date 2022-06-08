@@ -54,7 +54,7 @@ app.use("/api/colors", colorRouter);
 app.use("/api/sizes", sizeRouter);
 
 app.use("/api/comments", commentsRouter);
-//
+
 app.use("/api/product-details", productDetailsSchema);
 
 app.use("/api/coupons", couponRouter);

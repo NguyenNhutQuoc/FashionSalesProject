@@ -11,5 +11,6 @@ router.get('/slug/:slug', productController.findBySlug)
 router.get('/:slug/properties', productController.findAllProductDetailsBySlugProduct)
 router.get('/:slug/comments', productController.findAllCommentsBySlugProduct)
 router.get('/find', productController.search)
+router.get('/v1/count-down-products', productController.findAllProductCountDown)
 router.get('/:id', productController.findById)
 module.exports = router;

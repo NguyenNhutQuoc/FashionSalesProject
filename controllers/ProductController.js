@@ -163,6 +163,27 @@ const productController = {
             })
         }
     },
+
+    findAllProductCountDown: async (req, res) => {
+        try {
+            console.log(new Date().toString())
+        const productCountDown = await Products.find({
+            startDate: {
+                $lte: new Date(new Date().toString()),
+            },
+            endDate: {
+                $gte: new Date(new Date().toString()),
+            }
+        })
+        res.status(200).json({
+            data: productCountDown   
+        })
+        } catch(e) {
+            res.status(500).json({
+                errorMessage: e.message
+            })
+        }
+    },
     findAll: async(req, res) => {
         try {
             if (req.query.page || req.query.limit) {
@@ -458,6 +479,10 @@ const productController = {
             const category = await Categories.findById(req.body.category)
             const trademark = await Trademarks.findById(req.body.trademark)
             if (req.body.price && isNumber(req.body.price) && req.body.price > 0 && category && trademark) {
+                if (req.body.startDate && req.body.endDate) { 
+                    req.body.startDate = new Date(req.body.startDate + 1)
+                    req.body.endDate = new Date(req.body.endDate + 1)
+                }
                 const product = await Products.create(req.body);
                 await category.updateOne({
                     $push: {
@@ -487,6 +512,10 @@ const productController = {
         try {
             const product = await Products.findById(req.params.id);
             if (product) {
+                if (req.body.startDate && req.body.endDate) { 
+                    req.body.startDate = new Date(req.body.startDate + 1)
+                    req.body.endDate = new Date(req.body.endDate + 1)
+                }
                 if (req.body.category) {
                     const oldCategory = await Categories.findById(
                         product.get("category")
