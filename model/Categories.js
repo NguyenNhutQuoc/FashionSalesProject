@@ -21,7 +21,6 @@ const categoriesSchema = new mongoose.Schema({
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Products',
-            autopopulate: true
         }]
     }
 },
