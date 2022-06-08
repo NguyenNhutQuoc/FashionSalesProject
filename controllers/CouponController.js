@@ -90,13 +90,9 @@ const couponController = {
         try {
             const coupon = await Coupons.findById(req.params.id);
             if (coupon) {
-                res.status(200).json({
-                    data: coupon
-                })
+                res.status(200).json(coupon)
             } else {
-                res.status(200).json({
-                    data: {}
-                })
+                res.status(200).json(coupon)
             }
         } catch (err) {
             res.status(500).json({
