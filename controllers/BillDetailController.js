@@ -106,7 +106,7 @@ const billDetailController = {
                             const coupon = await Coupons.findById(bill.get('coupon'))
                             const percent = coupon.get('percent')
                             const discount = total * percent / 100
-                            const finalPrice = total - discount
+                            const finalPrice = total - discount 
                             await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
                                 $set: {
                                     price: finalPrice
