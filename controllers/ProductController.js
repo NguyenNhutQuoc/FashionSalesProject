@@ -5,7 +5,8 @@ const {
     Colors,
     Sizes,
     Images,
-    Trademarks
+    Trademarks,
+    Bills
 } = require("../model/model");
 
 const isNumber = require("is-number");
@@ -204,12 +205,23 @@ const productController = {
                 const { docs, ...others } = productsAll
                 docs.forEach(product => {
                     const comments = product.comments
+                    const productDetails = product.productDetails
                     let rating = 0
                     let fiveStar = 0
                     let fourStar = 0
                     let threeStar = 0
                     let twoStar = 0
                     let oneStar = 0
+                    let sold = 0
+                    for (const productDetail of productDetails) {
+                        const billDetails = productDetail.billDetails
+                        for (const billDetail of billDetails) {
+                            const bill = billDetail.bill
+                            if (bill.type === 'X') {
+                                sold += billDetail.quantity
+                            }
+                        }
+                    }
                     for (let index in comments) {
                         comments[index].star === 5 ? fiveStar += 1 :
                             comments[index].star === 4 ? fourStar += 1 :
@@ -218,6 +230,7 @@ const productController = {
                                         comments[index].star === 1 ? oneStar += 1 : null
                         rating += comments[index].star
                     }
+                    
                     rating /= comments.length
                     const productObject = product.toObject()
                     productObject.rating = rating > 5 ? 5 : rating
@@ -227,6 +240,7 @@ const productController = {
                     productObject.threeStar = threeStar
                     productObject.twoStar = twoStar
                     productObject.oneStar = oneStar
+                    productObject.sold = sold
                     data.push(productObject)
                 })
                 res.status(200).json({
@@ -238,7 +252,7 @@ const productController = {
                     createdAt: -1
                 })
                 let data = []
-                products.forEach(product => {
+                for (const product of products) {
                     const comments = product.comments
                     let rating = 0
                     let fiveStar = 0
@@ -246,6 +260,17 @@ const productController = {
                     let threeStar = 0
                     let twoStar = 0
                     let oneStar = 0
+                    var sold = 0
+                    const productDetails = product.productDetails
+                    for (const productDetail of productDetails) {
+                        const billDetails = productDetail.billDetails
+                        for (const billDetail of billDetails) {
+                            const bill = await Bills.findById(billDetail.bill)
+                            if (bill.type === 'X') {
+                                sold += billDetail.quantity
+                            }
+                        }
+                    }
                     for (let index in comments) {
                         comments[index].star === 5 ? fiveStar += 1 :
                             comments[index].star === 4 ? fourStar += 1 :
@@ -263,8 +288,9 @@ const productController = {
                     productObject.threeStar = threeStar
                     productObject.twoStar = twoStar
                     productObject.oneStar = oneStar
+                    productObject.sold = sold
                     data.push(productObject)
-                })
+                }
                 res.status(200).json({
                     data: data
                 })
@@ -290,6 +316,17 @@ const productController = {
                 let threeStar = 0
                 let twoStar = 0
                 let oneStar = 0
+                let sold = 0
+                const productDetails = product.productDetails
+                for (const productDetail of productDetails) {
+                    const billDetails = productDetail.billDetails
+                    for (const billDetail of billDetails) {
+                        const bill = await Bills.findById(billDetail.bill)
+                        if (bill.type === 'X') {
+                            sold += billDetail.quantity
+                        }
+                    }
+                }
                 for (let index in comments) {
                     comments[index].star === 5 ? fiveStar += 1 :
                         comments[index].star === 4 ? fourStar += 1 :
@@ -337,6 +374,17 @@ const productController = {
                 let threeStar = 0
                 let twoStar = 0
                 let oneStar = 0
+                let sold = 0
+                const productDetails = product.productDetails
+                for (const productDetail of productDetails) {
+                    const billDetails = productDetail.billDetails
+                    for (const billDetail of billDetails) {
+                        const bill = await Bills.findById(billDetail.bill)
+                        if (bill.type === 'X') {
+                            sold += billDetail.quantity
+                        }
+                    }
+                }
                 for (let index in comments) {
                     comments[index].star === 5 ? fiveStar += 1 :
                         comments[index].star === 4 ? fourStar += 1 :
