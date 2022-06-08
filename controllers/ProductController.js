@@ -166,16 +166,20 @@ const productController = {
 
     findAllProductCountDown: async (req, res) => {
         try {
-            if (new Date() > new Date("2020-04-01")) {
-                console.log("Đã hết hạn")
-            }
+            console.log(new Date())
         const productCountDown = await Products.find({
-            startDate: {
-                $lte: new Date(new Date().toString()),
-            },
-            endDate: {
-                $gte: new Date(new Date().toString()),
-            }
+            $and: [
+                {
+                    startDate: {
+                        $lte: new Date()
+                    }
+                },
+                {
+                    endDate: {
+                        $gte: new Date()
+                    }
+                }
+            ]
         })
         res.status(200).json({
             data: productCountDown   
@@ -481,10 +485,6 @@ const productController = {
             const category = await Categories.findById(req.body.category)
             const trademark = await Trademarks.findById(req.body.trademark)
             if (req.body.price && isNumber(req.body.price) && req.body.price > 0 && category && trademark) {
-                if (req.body.startDate && req.body.endDate) { 
-                    req.body.startDate = new Date(req.body.startDate + 1)
-                    req.body.endDate = new Date(req.body.endDate + 1)
-                }
                 const product = await Products.create(req.body);
                 await category.updateOne({
                     $push: {
