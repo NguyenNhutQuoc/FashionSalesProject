@@ -187,11 +187,7 @@ const categoryController = {
             console.log(category_slug)
             if (category_name || category_slug) {
                 res.status(200).json(category_name || category_slug)
-            } else
-                res.status(404).json({
-                    status: "404",
-                    errorMessage: "Not found"
-                })
+            }
         } catch (err) {
             res.status(500).json({
                 status: "500",
