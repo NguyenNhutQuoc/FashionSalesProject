@@ -99,7 +99,12 @@ const billDetailController = {
                     })
                     const quantity = billDetail.get('quantity')
                     const product_ = await Products.findById(product.get('product'))
-                    const price = product_.get('price')
+                    let price = product_.get('price')
+                    if (product_.get('startDate') >= new Date() && product_.get('endDate') <= new Date()) {
+                        const discount = product_.get('discount')
+                        price = price - (price * discount / 100)
+                    }
+                    
                     const total = quantity * price
                     if (bill.get('type') === 'X') {
                         if (bill.get('coupon')) {

@@ -166,7 +166,9 @@ const productController = {
 
     findAllProductCountDown: async (req, res) => {
         try {
-            console.log(new Date().toString())
+            if (new Date() > new Date("2020-04-01")) {
+                console.log("Đã hết hạn")
+            }
         const productCountDown = await Products.find({
             startDate: {
                 $lte: new Date(new Date().toString()),
