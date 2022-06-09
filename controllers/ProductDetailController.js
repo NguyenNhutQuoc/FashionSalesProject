@@ -133,6 +133,8 @@ const ProductDetailController = {
             const { fromDate, toDate } = req.query
             let exportBills;
             let importBills;
+            let totalRevenue = 0;
+            let totalProfit = 0;
             if (fromDate && toDate) {
                 importBills = await Bills.find({
                     type: 'N',
@@ -229,6 +231,8 @@ const ProductDetailController = {
                 } else {
                     loss = 0
                 }
+                totalRevenue += revenue
+                totalProfit += profit
                 data.push({
                     productDetail: productDetailPopulate,
                     importQuantity,
@@ -240,7 +244,9 @@ const ProductDetailController = {
                 })
             }
             res.status(200).json({
-                data: data
+                data: data,
+                totalRevenue: totalRevenue,
+                totalProfit: totalProfit
             })
 
         } catch (e) {
