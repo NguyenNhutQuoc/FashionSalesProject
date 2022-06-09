@@ -402,6 +402,7 @@ const productController = {
                 productObject.threeStar = threeStar
                 productObject.twoStar = twoStar
                 productObject.oneStar = oneStar
+                productObject.sold = sold
                 data = productObject
                 res.status(200).json(data)
             } else {
