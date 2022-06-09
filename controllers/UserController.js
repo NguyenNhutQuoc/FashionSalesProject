@@ -3,6 +3,8 @@ const {
 } = require('../model/model');
 const mongoose = require("mongoose");
 
+const bcrpyt = require('bcrpyt')
+
 const userController = {
     findByPhoneNumber: async (req, res) => {
         const user = await Users.findOne({
@@ -266,11 +268,23 @@ const userController = {
             const { email, password } = req.body
             const user = await Users.findOne({
                 email: email,
-                password: password,
             })
-            res.status(200).json(
-                user
-            )
+            if (!user) {
+                res.status(404).json({
+                    errorMessage: "User not found"
+                })
+            }else {
+                const validPassword = await bcrpyt.compare(password, user.password)
+                if (!validPassword) {
+                    res.status(404).json({
+                        errorMessage: "Wrong password"
+                    })
+                } else {
+                    res.status(200).json(
+                        user
+                    )
+                }
+        }
         } catch (err) {
             res.status(500).json({
                 status: 500,
@@ -280,6 +294,12 @@ const userController = {
     },
     create: async(req, res) => {
         try {
+                    
+            if (req.body.password) {
+                const salt = bcrpyt.getSalt(10)
+                const hased = await bcrpyt.hash(req.body.password, salt)
+                req.body.password = hased
+            }
             const user = new Users(req.body)
             const result = await user.save()
             res.status(201).json(result)
@@ -292,6 +312,11 @@ const userController = {
     },
     update: async(req, res) => {
         try {
+            if (req.body.password) {
+                const salt = bcrpyt.getSalt(10)
+                const hased = await bcrpyt.hash(req.body.password, salt)
+                req.body.password = hased
+            }
             const user = await Users.findById(req.params.id)
             if (!user) {
                 res.status(404).json({
