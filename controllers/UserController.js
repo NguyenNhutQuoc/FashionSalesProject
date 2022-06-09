@@ -3,7 +3,7 @@ const {
 } = require('../model/model');
 const mongoose = require("mongoose");
 
-const bcrpyt = require('bcrpyt')
+const bcrpyt = require('bcrypt')
 
 const userController = {
     findByPhoneNumber: async (req, res) => {
