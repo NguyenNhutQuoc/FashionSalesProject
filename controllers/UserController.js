@@ -292,7 +292,7 @@ const userController = {
         try {
                     
             if (req.body.password) {
-                const salt = bcrpyt.getSalt(10)
+                const salt = bcrpyt.genSalt(10)
                 const hased = await bcrpyt.hash(req.body.password, salt)
                 req.body.password = hased
             }
@@ -309,7 +309,7 @@ const userController = {
     update: async(req, res) => {
         try {
             if (req.body.password) {
-                const salt = bcrpyt.getSalt(10)
+                const salt = bcrpyt.genSalt(10)
                 const hased = await bcrpyt.hash(req.body.password, salt)
                 req.body.password = hased
             }
