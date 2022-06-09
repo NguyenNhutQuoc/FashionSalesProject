@@ -270,15 +270,11 @@ const userController = {
                 email: email,
             })
             if (!user) {
-                res.status(404).json({
-                    errorMessage: "User not found"
-                })
+                res.status(200).json(null)
             }else {
                 const validPassword = await bcrpyt.compare(password, user.password)
                 if (!validPassword) {
-                    res.status(404).json({
-                        errorMessage: "Wrong password"
-                    })
+                    res.status(200).json(null)
                 } else {
                     res.status(200).json(
                         user
