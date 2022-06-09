@@ -1,6 +1,7 @@
 const { Categories, Trademarks, BillDetails, Bills, Users, Colors, Sizes} = require("../model/model");
 
 const categoryController = {
+    //***
     searchAllPropertiesIntoCategory: async (req, res) => {
         let data = {}
         let material_options = []
@@ -142,6 +143,7 @@ const categoryController = {
                     ...others
                 })
             } else {
+                //**
                 const categories = await Categories.find({}).sort({
                     createdAt: -1
                 })

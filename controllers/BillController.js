@@ -309,7 +309,6 @@ const BillController = {
                     }
                     const billObject = bill.toObject()
                     billObject.totalPrice = totalPrice
-                    billObject.totalPrice += bill.feeShip
                     data.push(
                         billObject
                     )
@@ -373,7 +372,6 @@ const BillController = {
                 }
                 const billObject = bill.toObject()
                 billObject.totalPrice = totalPrice
-                billObject.totalPrice += bill.feeShip
                 res.status(200).json(billObject)
             } else {
                 res.status(404).json({

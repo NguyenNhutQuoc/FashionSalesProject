@@ -2,25 +2,18 @@ const {
     ProductDetails,
     Products,
     Sizes,
-    Colors,
-    BillDetails,
-    Bills,
-    Trademarks,
-    Categories
+    Colors, BillDetails, Bills
 } = require('../model/model');
 const ImagesSchema = require("../model/Images");
-const translate = require('translate')
 const ProductDetailController = {
     findAll: async(req, res) => {
         try {
-            const text = await translate("Áo thun nam", { from: 'vi', to: 'en' });
-            console.log(text);
             if (req.query.page || req.query.limit) {
                 const productDetails = await ProductDetails.paginate({}, {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
                     populate: {
-                        path: 'images size color billDetails',
+                        path: 'images size color',
                     },
                     sort: {
                         createdAt: -1
@@ -35,7 +28,7 @@ const ProductDetailController = {
             } else {
                 const productDetails = await ProductDetails.find({}).sort({
                     createdAt: -1
-                }).populate('images size color billDetails')
+                }).populate('images size color')
                 res.status(200).json({
                     data: productDetails
                 })
@@ -49,33 +42,33 @@ const ProductDetailController = {
     },
     findBy: async(req, res) => {
         try {
-            const { size_option, color_option } = req.query;
+            const {size_option,color_option} = req.query;
             const sizeTempt = await Sizes.findOne({
                 size: size_option
             });
-            const colorTempt = await Colors.findOne({
+            const colorTempt = await  Colors.findOne({
                 color: color_option
             });
-            if (!size_option || !color_option) {
-                const productDetail = (!color_option) ? await ProductDetails.findOne({
+            if(!size_option || !color_option){
+                const  productDetail = (!color_option) ? await  ProductDetails.findOne({
                     size: sizeTempt.get("_id"),
-                }) : await ProductDetails.findOne({
+                }): await ProductDetails.findOne({
                     color: colorTempt.get("_id")
                 })
                 res.status(200).json(productDetail)
-            } else {
-                const productDetail = (!size_option && color_option) ? await ProductDetails.find({
+            }else{
+                const productDetail = (!size_option && color_option) ? await  ProductDetails.find({
                     color: colorTempt.get("_id")
-                }) : (!color_option && size_option) ? await ProductDetails.find({
+                }): (!color_option && size_option) ? await ProductDetails.find({
                     size: sizeTempt.get("_id")
-                }) : await ProductDetails.find({
+                }): await ProductDetails.find({
                     color: colorTempt.get("_id"),
                     size: sizeTempt.get("_id"),
                 })
                 res.status(200).json(productDetail)
             }
 
-        } catch (e) {
+        }catch (e){
             res.status(500).json({
                 status: 500,
                 errorMessage: e.message
@@ -128,53 +121,23 @@ const ProductDetailController = {
         }
     },
 
-    calculateQuantityImportAndExport: async(req, res) => {
+    calculateQuantityImportAndExport: async (req, res) => {
         try {
-            const { fromDate, toDate } = req.query
+            const {fromDate, toDate} = req.query
             let exportBills;
             let importBills;
             if (fromDate && toDate) {
                 importBills = await Bills.find({
                     type: 'N',
-                    createdAt: {
+                    date: {
                         $gte: new Date(fromDate),
                         $lte: new Date(toDate)
                     }
                 })
                 exportBills = await Bills.find({
                     type: 'X',
-                    createAt: {
+                    date: {
                         $gte: new Date(fromDate),
-                        $lte: new Date(toDate)
-                    }
-                })
-            } else if (fromDate){
-                importBills = await Bills.find({
-                    type: 'N',
-                    createAt: {
-                        $gte: new Date(fromDate),
-                        $lte: new Date(new Date().toString())
-                    }
-                })
-                exportBills = await Bills.find({
-                    type: 'X',
-                    createAt: {
-                        $gte: new Date(fromDate),
-                        $lte: new Date(new Date().toString())
-                    }
-                })
-            } else if (toDate) {
-                importBills = await Bills.find({
-                    type: 'N',
-                    createAt: {
-                        $gte: new Date("2000-01-01"),
-                        $lte: new Date(toDate)
-                    }
-                })
-                exportBills = await Bills.find({
-                    type: 'X',
-                    createAt: {
-                        $gte: new Date("2000-01-01"),
                         $lte: new Date(toDate)
                     }
                 })
@@ -255,7 +218,6 @@ const ProductDetailController = {
             let i = 0
             let checkExist = 0
             let checkErr = 0
-            let dataset = []
             for (let element in req.body) {
                 i = element + 1
                 let {
@@ -323,32 +285,7 @@ const ProductDetailController = {
                                     color: color_id_.get('_id'),
                                     images: newImage.get('_id')
                                 })
-
-                                const trademark = await Trademarks.findById(product_id.get('trademark'))
-                                const category = await Categories.findById(product_id.get('category'))
-                                const color = color_id_.get('color')
-                                const size = check_size.get('size')
-                                const nameTrademark = trademark.get('name')
-                                const nameCategory = category.get('name')
-                                const colorTranslate = await translate(color, { from: 'vi', to: 'en' })
-                                const sizeTranslate = await translate(size, { from: 'vi', to: 'en' })
-
-                                const nameCategoryTranslate = await translate(nameCategory, { from: 'vi', to: 'en' })
-                                console.log(nameCategoryTranslate)
-                                console.log(colorTranslate)
-                                console.log(sizeTranslate)
-                                const arrayNameTrademark = nameTrademark.split(' ')
-                                const sTrademark = arrayNameTrademark.map(item => item.substring(0, 1) + '')
-                                const arrayNameCate = nameCategoryTranslate.split(' ')
-                                const sCategory = arrayNameCate.map(item => item.substring(0, 1) + '')
-                                const sColor = colorTranslate.substring(0, 2)
-
-                                const code = sTrademark.join('') + sCategory.join('') + sColor + sizeTranslate
-                                console.log(code)
-                                await ProductDetails.findByIdAndUpdate(productDetail._id, {
-                                    SKU: code
-                                })
-
+                                console.log(productDetail.get('_id'))
                                 await newImage.updateOne({
                                     'productDetail': productDetail.get('_id'),
                                 })
@@ -374,7 +311,6 @@ const ProductDetailController = {
                                         productDetails: productDetail.get('_id')
                                     }
                                 })
-                                dataset.push(productDetail)
                             }
                         }
                     } else {
@@ -398,7 +334,7 @@ const ProductDetailController = {
                 })
             } else if (!checkExist && !checkErr) {
                 res.status(201).json({
-                    data: dataset
+                    message: 'Create product detail success'
                 })
             }
         } catch (e) {
@@ -509,7 +445,8 @@ const ProductDetailController = {
                                         size: size_id_._id,
                                         color: color_id_._id
                                     })
-                                    if (productDetail) {} else {
+                                    if (productDetail) {
+                                    } else {
                                         const productDetail = await ProductDetails.create({
                                             product: product_id.get('_id'),
                                             size: size_id_.get('_id'),
