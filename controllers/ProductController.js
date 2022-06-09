@@ -402,6 +402,7 @@ const productController = {
                 productObject.threeStar = threeStar
                 productObject.twoStar = twoStar
                 productObject.oneStar = oneStar
+                productObject.sold = sold
                 data = productObject
                 res.status(200).json(data)
             } else {
@@ -560,10 +561,6 @@ const productController = {
         try {
             const product = await Products.findById(req.params.id);
             if (product) {
-                if (req.body.startDate && req.body.endDate) { 
-                    req.body.startDate = new Date(req.body.startDate + 1)
-                    req.body.endDate = new Date(req.body.endDate + 1)
-                }
                 if (req.body.category) {
                     const oldCategory = await Categories.findById(
                         product.get("category")
