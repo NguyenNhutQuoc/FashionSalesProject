@@ -1,4 +1,4 @@
-const { Categories, Trademarks, BillDetails, Bills, Users, Colors, Sizes} = require("../model/model");
+const { Categories, Trademarks, BillDetails, Bills, Users, Colors, Sizes, Products} = require("../model/model");
 
 const categoryController = {
     searchAllPropertiesIntoCategory: async (req, res) => {
@@ -250,8 +250,39 @@ const categoryController = {
     },
     findAllProductByCategoryId: async (req, res) => {
         try {
-            const category = await Categories.findById(req.params.id).populate("products")
-            res.status(200).json(category.products)
+            if (req.query.page || req.query.limit) {
+                const products = await Products.paginate({
+                    category: req.params.id
+                }, {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 10,
+                    sort: {
+                        createdAt: -1
+                    }
+                })
+                const {docs, ...others} = products
+                res.status(200).json(
+                    {
+                        data: docs,
+                        ...others
+                    }
+                )
+            }
+            else {
+
+                const category = await Categories.findById(req.params.id).populate("products")
+                if (category) {
+                    res.status(200).json(
+                        {
+                            data: category.get("products")
+                        }
+                    )
+                } else {
+                    res.status(200).json({
+                        data: []
+                    })
+                }
+            }
             
         } catch (err) {
             res.status(500).json({

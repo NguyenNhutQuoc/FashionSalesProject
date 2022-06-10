@@ -30,26 +30,43 @@ const userController = {
                 limit,
                 auth
             } = req.query;
-            const regex = new RegExp(q, 'i');
             if (page || limit) {
                 const users = await Users.paginate({
                     $or: [{
-                        name: regex
+                        name: {
+                            $regex: '.*' + q + '.*',
+                            $options: 'i'
+                        },
                     },
                         {
-                            email: regex
+                            email: {
+                                $regex: '.*' + q + '.*',
+                                $options: 'i'
+                            }
                         },
                         {
-                            phone: regex
+                            phone: {
+                                $regex: '.*' + q + '.*',
+                                $options: 'i'   
+                            }
                         },
                         {
-                            address: regex
+                            address: {
+                                $regex: '.*' + q + '.*',
+                                $options: 'i'
+                            }
                         },
                         {
-                            address: regex
+                            address: {
+                                $regex: '.*' + q + '.*',
+                                $options: 'i'
+                            }
                         },
                         {
-                            numberAccount: regex
+                            numberBankAccount: {
+                                $regex: '.*' + q + '.*',
+                                $options: 'i'
+                            }
                         },
                     ],
                     isAdmin: 0,
@@ -68,32 +85,64 @@ const userController = {
                     ...others
                 })
             } else {
-                const users = await Users.find({
-                    $or: [{
-                        name: regex
+                const usersByName = await Users.find({
+                    name: {
+                        $regex: '.*' + q + '.*',
+                        $options: 'i',
+                        
                     },
-                        {
-                            email: regex
-                        },
-                        {
-                            phone: regex
-                        },
-                        {
-                            address: regex
-                        },
-                        {
-                            address: regex
-                        },
-                        {
-                            numberAccount: regex
-                        },
-                    ],
                     isAdmin: 0,
                     isCustomer: auth === "customer" ? 1 : 0,
                     isProvider: auth === "provider" ? 1 : 0,
                 })
+                const usersByPhone = await Users.find({
+                    phone: {
+                        $regex: '.*' + q + '.*',
+                        $options: 'i'
+                    },
+                    isAdmin: 0,
+                    isCustomer: auth === "customer" ? 1 : 0,
+                    isProvider: auth === "provider" ? 1 : 0,
+                })
+                const usersByEmail = await Users.find({
+                    email: {
+                        $regex: '.*' + q + '.*',
+                        $options: 'i',
+                        
+                    },
+                    isAdmin: 0,
+                    isCustomer: auth === "customer" ? 1 : 0,
+                    isProvider: auth === "provider" ? 1 : 0,
+                })
+                const usersByAddress = await Users.find({
+                    address: {
+                        $regex: '.*' + q + '.*',
+                        $options: 'i',
+                        
+                    },
+                    isAdmin: 0,
+                    isCustomer: auth === "customer" ? 1 : 0,
+                    isProvider: auth === "provider" ? 1 : 0,
+                })
+                const usersBynumberBankAccount = await Users.find({
+                    
+                    numberBankAccount: {
+                        $regex: '.*' + q + '.*',
+                        $options: 'i',
+                    },
+                    isAdmin: 0,
+                    isCustomer: auth === "customer" ? 1 : 0,
+                    isProvider: auth === "provider" ? 1 : 0,
+                })
+                
                 res.status(200).json({
-                    data: users
+                    data: [
+                        ...usersByName,
+                        ...usersByPhone,
+                        ...usersByEmail,
+                        ...usersByAddress,
+                        ...usersBynumberBankAccount
+                    ]
                 })
             }
         } catch (e) {
