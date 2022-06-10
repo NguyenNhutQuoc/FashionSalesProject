@@ -248,5 +248,17 @@ const categoryController = {
             });
         }
     },
+    findAllProductByCategoryId: async (req, res) => {
+        try {
+            const category = await Categories.findById(req.params.id).populate("products")
+            res.status(200).json(category.products)
+            
+        } catch (err) {
+            res.status(500).json({
+                status: "500",
+                errorMessage: err.message || "Some error occurred while retrieving category."
+            })
+        }
+    }
 }
 module.exports = categoryController;
