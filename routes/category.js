@@ -1,8 +1,7 @@
 const routes = require('express').Router();
 
-const { Router } = require('express');
 const categoryRoutes = require('../controllers/CategoryController')
-routes.get(':id/products', categoryRoutes.findAllProductByCategoryId)
+routes.get('/:id/products', categoryRoutes.findAllProductByCategoryId)
 routes.get("/", categoryRoutes.findAll)
 routes.get("/search", categoryRoutes.findBy)
 routes.post("/", categoryRoutes.create)
