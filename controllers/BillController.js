@@ -33,17 +33,80 @@ const BillController = {
         try {
             const allBillExported = await Bills.find({
                 type: 'X',
+                status: 3,
             })
-            let totalRevenue = 0
+            const allBillImported = await Bills.find({
+                type: 'N',
+                status: 3,
+            })
+
+            const years = new Set()
             for (const bill of allBillExported) {
-                const billDetails = bill.billDetails
-                for (const billDetailId of billDetails) {
-                    const billDetail = await BillDetails.findById(billDetailId) 
-                    totalRevenue += billDetail.price * billDetail.quantity
+                years.add(bill.createdAt.getFullYear())
+            }
+            for (const bill of allBillImported) {
+                years.add(bill.createdAt.getFullYear())
+            }
+            let dataImport = []
+            let dataProfit = []
+            let dataExport = []
+            for (const year of years) {
+                const billExport = await Bills.find({
+                    type: 'X',
+                    status: 3,
+                    createdAt: {
+                        $gte: new Date(year, 0, 1),
+                        $lt: new Date(year + 1, 0, 1)
+                    }
+                })
+                const billImport = await Bills.find({
+                    type: 'N',
+                    status: 3,
+                    createdAt: {
+                        $gte: new Date(year, 0, 1),
+                        $lt: new Date(year + 1, 0, 1)
+                    }
+                })
+                let totalExport = 0
+                for (const bill of billExport) {
+                    totalExport += bill.feeShip
+                    const billDetails = bill.billDetails
+                    for (const billDetailId of billDetails) {
+                        const billDetail = await BillDetails.findById(billDetailId)
+                        totalExport += billDetail.price * billDetail.quantity
+                    }
                 }
+                let totalImport = 0
+                for (const bill of billImport) {
+                    const billDetails = bill.billDetails
+                    for (const billDetailId of billDetails) {
+                        const billDetail = await BillDetails.findById(billDetailId)
+                        totalImport += billDetail.price * billDetail.quantity
+                    }
+                }
+                dataExport.push(
+                    {
+                        year: year,
+                        total: totalExport
+                    }
+                )
+                dataImport.push(
+                    {
+                        year: year,
+                        total: totalImport
+                    }
+                )
+                dataProfit.push(
+                    {
+                        year: year,
+                        total: totalExport - totalImport
+                    }
+                )
             }
             res.status(200).json({
-                total: totalRevenue
+                dataTotalRevenueByYears: dataExport,
+                dataTotalCostOfGoodsSold: dataImport,
+                dataTotalProfit: dataProfit
             })
         } catch (err) {
             res.status(500).json({
