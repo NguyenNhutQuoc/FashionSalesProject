@@ -9,6 +9,48 @@ const isNumber = require('is-number')
 
 const BillController = {
 
+    revenueAndProfitStatistics: async (req, res) => {
+        try {
+            const allBillExported = await Bills.find({
+                type: 'X',
+            })
+            const allBillImported = await Bills.find({
+                type: 'N',
+            })
+            data = []
+            for (const bill of allBillExported) {
+                data.push(bill.createdAt.getHours())
+            }
+            res.status(200).json(data)
+        } catch (err) {
+            res.status(500).json({
+                message: err.message
+            })
+        }
+    },
+
+    calculateTotalRevenue: async (req, res) => {
+        try {
+            const allBillExported = await Bills.find({
+                type: 'X',
+            })
+            let totalRevenue = 0
+            for (const bill of allBillExported) {
+                const billDetails = bill.billDetails
+                for (const billDetailId of billDetails) {
+                    const billDetail = await BillDetails.findById(billDetailId) 
+                    totalRevenue += billDetail.price * billDetail.quantity
+                }
+            }
+            res.status(200).json({
+                total: totalRevenue
+            })
+        } catch (err) {
+            res.status(500).json({
+                message: err.message
+            })
+        }
+    },
     findByDate: async(req, res) => {
         try {
             let {
