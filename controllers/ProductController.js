@@ -665,6 +665,7 @@ const productController = {
                     const productDetails = await ProductDetails.find({
                         product: product.get("_id")
                     })
+                    //***
                     for (let productDetail of productDetails) {
                         const color = await Colors.findById(productDetail.get("color"))
                         const size = await Sizes.findById(productDetail.get("size"))

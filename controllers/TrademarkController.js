@@ -1,5 +1,5 @@
 const {
-    Trademarks
+    Trademarks, Products
 } = require('../model/model')
 
 const trademarkController = {
@@ -86,6 +86,22 @@ const trademarkController = {
                 data: trademark
             })
         } catch (e) {
+            res.status(500).json({
+                message: e.message
+            })
+        }
+    },
+    findProduct: async(req, res) => {
+
+        try {
+            const trademarkSearch = await Trademarks.findById(req.params.id)
+            if (trademarkSearch){
+                const trademarkProduct = await Products.find({trademark: trademarkSearch})
+                res.status(200).json(trademarkProduct);
+            }else{
+                res.status(404).json("Trademark not found")
+            }
+        }catch (e) {
             res.status(500).json({
                 message: e.message
             })
