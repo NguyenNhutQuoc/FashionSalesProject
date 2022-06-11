@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const billController = require('../controllers/BillController');
 
+router.get('/revenue-daily', billController.getRevenueDaily)
 router.get('/statistics', billController.calculateTotalRevenue);
 router.get('/find', billController.search);
 router.get('/find-from-to-date', billController.findByDate);

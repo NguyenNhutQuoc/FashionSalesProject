@@ -9,19 +9,41 @@ const isNumber = require('is-number')
 
 const BillController = {
 
-    revenueAndProfitStatistics: async (req, res) => {
+    getRevenueDaily: async (req, res) => {
         try {
+            startToday = new Date()
+            endToday = new Date()
+            startToday.setHours(0, 0, 0, 0)
+            endToday.setHours(23, 59, 59, 999)
             const allBillExported = await Bills.find({
                 type: 'X',
-            })
-            const allBillImported = await Bills.find({
-                type: 'N',
+                status: 3,
+                createdAt: {
+                    $gte: startToday,
+                    $lte: endToday 
+                }
             })
             data = []
-            for (const bill of allBillExported) {
-                data.push(bill.createdAt.getHours())
+            for (let hour = 0; hour <= 21; hour++) {
+                let total = 0
+                for (const bill of allBillExported) {
+                    if (bill.createdAt.getHours() == hour) {
+                        for (const billDetailId of bill.billDetails) {
+                            const billDetail = await BillDetails.findById(billDetailId)
+                            total += billDetail.price * billDetail.quantity
+                        }
+                    }
+                }
+                data.push({
+                    hour: hour,
+                    total: total
+                })
             }
-            res.status(200).json(data)
+            res.status(200).json(
+                {
+                    data: data
+                }
+            )
         } catch (err) {
             res.status(500).json({
                 message: err.message
