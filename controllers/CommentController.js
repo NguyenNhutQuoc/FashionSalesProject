@@ -3,7 +3,7 @@ const {
     Users,
     Bills,
     BillDetails,
-    CommentsSchema: Comments
+    Comments
 } = require('../model/model');
 
 const isNumber = require('is-number')

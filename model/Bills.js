@@ -8,6 +8,9 @@ const billsSchema = new mongoose.Schema({
         type: Number,
         default: 1
     },
+    statusDetails: {
+        type: [Object],
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',

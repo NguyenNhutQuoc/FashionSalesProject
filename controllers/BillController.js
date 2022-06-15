@@ -9,7 +9,35 @@ const isNumber = require('is-number')
 
 const BillController = {
 
+    findAllBillByIdUser: async(req, res) => {
+        try {
+            const { id } = req.params;
+            const bill = await Bills.find({
+                user: id
+            })
+            res.status(200).json(bill);
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    },
+    findBillByStatusAndUserId: async(req, res) => {
+        try {
+            const {user} = req.params;
+            const {status} = req.query;
+            const bill = await Bills.find({
+                user: user,
+                status: status,
+                type: 'X'
+            })
+            console.log("hello")
+            res.status(200).json(bill);
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    },
     getRevenueDaily: async (req, res) => {
+        let startToday;
+        let endToday;
         try {
             startToday = new Date()
             endToday = new Date()
@@ -20,14 +48,14 @@ const BillController = {
                 status: 3,
                 createdAt: {
                     $gte: startToday,
-                    $lte: endToday 
+                    $lte: endToday
                 }
             })
-            data = []
+            let data = []
             for (let hour = 0; hour <= 21; hour++) {
                 let total = 0
                 for (const bill of allBillExported) {
-                    if (bill.createdAt.getHours() == hour) {
+                    if (bill.createdAt.getHours() === hour) {
                         for (const billDetailId of bill.billDetails) {
                             const billDetail = await BillDetails.findById(billDetailId)
                             total += billDetail.price * billDetail.quantity
@@ -583,6 +611,7 @@ const BillController = {
                         bills: req.body._id
                     }
                 })
+
                 await coupon.updateOne({
                     $push: {
                         bills: req.body._id
@@ -590,6 +619,20 @@ const BillController = {
                 })
                 const bill = new Bills(req.body)
                 const result = await bill.save()
+                await result.updateOne({
+                    $set: {
+                        'type': 'X'
+                    }
+                })
+
+                await result.updateOne( {
+                    $push: {
+                        statusDetails: {
+                            date: result.get("createdAt"),
+                            status: result.get("status")
+                        }
+                    }
+                })
                 res.status(201).json(result)
             } else if (user && (user.get("isCustomer") === 1 || user.get("isProvider") === 1)) {
                 if (user.get("isCustomer") === 1) {
@@ -603,6 +646,14 @@ const BillController = {
                     await user.updateOne({
                         $push: {
                             bills: result.get("_id")
+                        }
+                    })
+                    await result.updateOne( {
+                        $push: {
+                            statusDetails: {
+                                date: result.get("createdAt"),
+                                status: result.get("status")
+                            }
                         }
                     })
                     res.status(201).json(result)
@@ -619,6 +670,7 @@ const BillController = {
                             bills: result.get("_id")
                         }
                     })
+
                     res.status(201).json(result)
                 }
             } else {
@@ -637,9 +689,8 @@ const BillController = {
     update: async(req, res) => {
         try {
             const bill = await Bills.findById(req.params.id)
-            console.log(req.body.user)
-            console.log(req.body.coupon)
             if (bill) {
+                const oldStatus = bill.status
                 if (req.body.coupon && req.body.user) {
                     const user = await Users.findById(req.body.user)
                     const coupon = await Coupons.findById(req.body.coupon)
@@ -695,6 +746,16 @@ const BillController = {
                                 type: "X"
                             }
                         })
+                        if (req.body.status && req.body.status !== oldStatus) {
+                            await bill.updateOne({
+                                $push: {
+                                    statusDetails: {
+                                        date: bill.get("updatedAt"),
+                                        status: req.body.status
+                                    }
+                                }
+                            })
+                        }
                         res.status(200).json({
                             status: 200,
                             message: "Bill updated successfully"
@@ -727,6 +788,16 @@ const BillController = {
                                     type: "X"
                                 }
                             })
+                            if (req.body.status && req.body.status !== oldStatus) {
+                                await bill.updateOne({
+                                    $push: {
+                                        statusDetails: {
+                                            date: bill.get("updatedAt"),
+                                            status: req.body.status
+                                        }
+                                    }
+                                })
+                            }
                             res.status(200).json({
                                 status: 200,
                                 message: "Bill updated successfully"
@@ -787,6 +858,16 @@ const BillController = {
                                     }
                                 })
                                 await bill.updateOne(req.body)
+                                if (req.body.status && req.body.status !== oldStatus) {
+                                    await bill.updateOne({
+                                        $push: {
+                                            statusDetails: {
+                                                date: bill.get("updatedAt"),
+                                                status: req.body.status
+                                            }
+                                        }
+                                    })
+                                }
                                 res.status(200).json({
                                     status: 200,
                                     message: "Bill updated successfully"
@@ -811,6 +892,16 @@ const BillController = {
                     }
                 } else {
                     await bill.updateOne(req.body)
+                    if (req.body.status && req.body.status !== oldStatus) {
+                        await bill.updateOne({
+                            $push: {
+                                statusDetails: {
+                                    date: bill.get("updatedAt"),
+                                    status: req.body.status
+                                }
+                            }
+                        })
+                    }
                     res.status(200).json({
                         status: 200,
                         message: "Update bill success"

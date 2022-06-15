@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const bcrpyt = require('bcrypt')
 
 const userController = {
+
     findByPhoneNumber: async (req, res) => {
         const user = await Users.findOne({
             phone: req.params.phone
