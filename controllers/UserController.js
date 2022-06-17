@@ -1,5 +1,9 @@
 const {
-    Users
+    Users,
+    Bills,
+    BillDetails,
+    Products,
+    ProductDetails
 } = require('../model/model');
 const mongoose = require("mongoose");
 
@@ -7,6 +11,63 @@ const bcrpyt = require('bcrypt')
 
 const userController = {
 
+    findAllProductByUser: async (req, res) => {
+        try {
+            const {
+                id
+            } = req.params;
+            const bills = await Bills.find({
+                user: id
+            })
+            let data = []
+            for (const bill of bills) {
+
+                const billDetails = bill.billDetails
+                for (const billDetailId of billDetails) {
+                    const billDetail = await BillDetails.findById(billDetailId)
+                    const productDetail = await ProductDetails.findById(billDetail.productDetail)
+                    const product = await Products.findById(productDetail.product)
+                    data.push(product)
+                }
+            }
+            res.status(200).json(data)
+        } catch (err) {
+            res.status(500).json({
+                message: err.message
+            })
+        }
+    },
+
+    findProductsNotCommentedByUser: async (req, res) => {
+        try {
+            const {
+                id
+            } = req.params;
+            const bills = await Bills.find({
+                user: id
+            })
+            let data = []
+            for (const bill of bills) {
+
+                const billDetails = bill.billDetails
+                for (const billDetailId of billDetails) {
+                    const billDetail = await BillDetails.findById(billDetailId)
+                    const productDetail = await ProductDetails.findById(billDetail.productDetail)
+                    const product = await Products.findById(productDetail.product)
+                    const comments = product.comments
+                    if (comments.length === 0) {
+                        data.push(product)
+                    }
+                }
+            }
+            res.status(200).json(data)
+        } catch (err) {
+            res.status(500).json({
+                message: err.message
+            })
+        }
+    }
+    ,
     findByPhoneNumber: async (req, res) => {
         const user = await Users.findOne({
             phone: req.params.phone

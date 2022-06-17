@@ -165,6 +165,9 @@ const productController = {
         }
     },
 
+    statisticQuantity: async (req, res) => {
+        
+    },
     findAllProductCountDown: async (req, res) => {
         try {
             console.log(new Date())

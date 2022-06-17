@@ -126,90 +126,70 @@ const ProductDetailController = {
             const {fromDate, toDate} = req.query
             let exportBills;
             let importBills;
+
             let totalRevenue = 0;
             let totalProfit = 0;
+            let quantityImport = 0;
+            let quantityExport = 0;
             if (fromDate && toDate) {
                 importBills = await Bills.find({
                     type: 'N',
-                    date: {
+                    createdAt: {
                         $gte: new Date(fromDate),
                         $lte: new Date(toDate)
                     }
                 })
                 exportBills = await Bills.find({
                     type: 'X',
-                    date: {
+                    createdAt: {
                         $gte: new Date(fromDate),
+                        $lte: new Date(toDate)
+                    }
+                })
+            } else if (fromDate){
+                importBills = await Bills.find({
+                    type: 'N',
+                    createdAt: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date()
+                    }
+                })
+                exportBills = await Bills.find({
+                    type: 'X',
+                    createdAt: {
+                        $gte: new Date(fromDate),
+                        $lte: new Date()
+                    }
+                })
+            } else if (toDate) {
+                importBills = await Bills.find({
+                    type: 'N',
+                    createdAt: {
+                        $gte: new Date('2000-01-01'),
+                        $lte: new Date(toDate)
+                    }
+                })
+                exportBills = await Bills.find({
+                    type: 'X',
+                    createdAt: {
+                        $gte:new Date(),
                         $lte: new Date(toDate)
                     }
                 })
             } else {
                 importBills = await Bills.find({
-                    type: 'N'
+                    type: 'N',
                 })
                 exportBills = await Bills.find({
                     type: 'X'
                 })
             }
-            const productDetails = await ProductDetails.find({})
-
-            const data = []
-
-            for (const item of productDetails) {
-                let importQuantity = 0
-                let exportQuantity = 0
-                let expense = 0
-                let revenue = 0
-                let profit = 0
-                let loss = 0
-                for (const bill of importBills) {
-                    const billDetail = await BillDetails.find({
-                        bill: bill._id,
-                        productDetail: item._id
-                    })
-                    if (billDetail.length > 0) {
-                        for (const itemBillDetail of billDetail) {
-                            importQuantity += itemBillDetail.quantity
-                            expense += itemBillDetail.price
-                        }
-                    }
-                }
-                for (const bill of exportBills) {
-                    const billDetail = await BillDetails.find({
-                        bill: bill._id,
-                        productDetail: item._id
-                    })
-                    if (billDetail.length > 0) {
-                        for (const itemBillDetail of billDetail) {
-                            exportQuantity += itemBillDetail.quantity
-                            revenue += itemBillDetail.price
-                        }
-                    }
-                }
-                profit = revenue - expense
-                const productDetailPopulate = await ProductDetails.findById(item._id)
-                if (profit < 0) {
-                    loss = profit * -1
-                    profit = 0
-                } else {
-                    loss = 0
-                }
-                totalRevenue += revenue
-                totalProfit += profit
-                data.push({
-                    productDetail: productDetailPopulate,
-                    importQuantity,
-                    exportQuantity,
-                    expense,
-                    revenue,
-                    profit,
-                    loss
-                })
-            }
+            
             res.status(200).json({
-                data: data,
-                totalRevenue: totalRevenue,
-                totalProfit: totalProfit
+                data: [
+                    importBills,
+                    exportBills
+                ]
             })
 
         } catch (e) {
