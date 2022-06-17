@@ -14,7 +14,7 @@ const BillController = {
             const { id } = req.params;
             const bill = await Bills.find({
                 user: id
-            })
+            }).populate('billDetails');
             res.status(200).json(bill);
         } catch (error) {
             res.status(500).json(error);
@@ -28,7 +28,7 @@ const BillController = {
                 user: user,
                 status: status,
                 type: 'X'
-            })
+            }).populate('user').populate('billDetails')
             console.log("hello")
             res.status(200).json(bill);
         } catch (error) {
