@@ -21,7 +21,6 @@ const billDetailController = {
                     }
                 })
                 const { docs, ...other } = billDetails
-
                 res.status(200).json({
                     data: docs,
                     ...other
@@ -29,7 +28,7 @@ const billDetailController = {
             } else {
                 const billDetails = await BillDetails.find().sort({
                     createdAt: -1
-                }).populate('bill productDetail').populate('coupon').populate('productDetail')
+                }).populate('bill productDetail')
                 res.status(200).json({
                     data: billDetails
                 })
@@ -104,23 +103,32 @@ const billDetailController = {
                         const discount = product_.get('discount')
                         price = price - (price * discount / 100)
                     }
-                    
                     const total = quantity * price
                     if (bill.get('type') === 'X') {
                         if (bill.get('coupon')) {
                             const coupon = await Coupons.findById(bill.get('coupon'))
                             const percent = coupon.get('percent')
                             const discount = total * percent / 100
-                            const finalPrice = total - discount 
+                            const finalPrice = total - discount
                             await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
                                 $set: {
                                     price: finalPrice
+                                }
+                            })
+                            await Bills.findByIdAndUpdate(bill.get('_id'), {
+                                $inc: {
+                                    totalPrice: finalPrice
                                 }
                             })
                         } else {
                             await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
                                 $set: {
                                     price: total
+                                }
+                            })
+                            await Bills.findByIdAndUpdate(bill.get('_id'), {
+                                $inc: {
+                                    totalPrice: total
                                 }
                             })
                         }
@@ -145,8 +153,8 @@ const billDetailController = {
                                     "quantity": -req.body.quantity
                                 }
                             })
-                            const prducded = await ProductDetails.findById(req.body.productDetail)
-                            const quantity = prducded.get('quantity')
+                            const product = await ProductDetails.findById(req.body.productDetail)
+                            const quantity = product.get('quantity')
                             if (quantity === 0) {
                                 await ProductDetails.findByIdAndUpdate(req.body.productDetail, {
                                     $set: {
@@ -158,6 +166,11 @@ const billDetailController = {
                     } else {
                         await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
                             price: total
+                        })
+                        await Bills.findByIdAndUpdate(bill.get('_id'), {
+                            $inc: {
+                                totalPrice: total
+                            }
                         })
                         await bill.updateOne({
                             $push: {

@@ -12,10 +12,24 @@ const BillController = {
     findAllBillByIdUser: async(req, res) => {
         try {
             const { id } = req.params;
-            const bill = await Bills.find({
-                user: id
-            }).populate('billDetails');
-            res.status(200).json(bill);
+            const { page, limit } = req.query;
+            if (page || limit) {
+                const bills = await Bills.find({
+                    user: id
+                }).populate('billDetails');
+                const {docs, ...others } = bills;
+                res.status(200).json({
+                    data: docs,
+                    ...others
+                })
+            } else {
+                const bills = await Bills.find({
+                    user: id
+                }).populate('billDetails');
+                res.status(200).json({
+                    data: bills,
+                })
+            }
         } catch (error) {
             res.status(500).json(error);
         }
@@ -56,10 +70,7 @@ const BillController = {
                 let total = 0
                 for (const bill of allBillExported) {
                     if (bill.createdAt.getHours() === hour) {
-                        for (const billDetailId of bill.billDetails) {
-                            const billDetail = await BillDetails.findById(billDetailId)
-                            total += billDetail.price * billDetail.quantity
-                        }
+                        total += bill.totalPrice
                     }
                 }
                 data.push({
@@ -120,19 +131,12 @@ const BillController = {
                 let totalExport = 0
                 for (const bill of billExport) {
                     totalExport += bill.feeShip
-                    const billDetails = bill.billDetails
-                    for (const billDetailId of billDetails) {
-                        const billDetail = await BillDetails.findById(billDetailId)
-                        totalExport += billDetail.price * billDetail.quantity
-                    }
+                    totalExport += bill.totalPrice
                 }
                 let totalImport = 0
                 for (const bill of billImport) {
-                    const billDetails = bill.billDetails
-                    for (const billDetailId of billDetails) {
-                        const billDetail = await BillDetails.findById(billDetailId)
-                        totalImport += billDetail.price * billDetail.quantity
-                    }
+                    totalImport += bill.feeShip
+                    totalImport += bill.totalPrice
                 }
                 dataExport.push(
                     {
@@ -298,59 +302,18 @@ const BillController = {
                     }
                 })
                 const { docs, ...others } = bills
-                let data = []
-                for (let index in docs) {
 
-                    const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
-                    const billDetails = bill.get("billDetails")
-                    let totalPrice = 0
-                    for (let i = 0; i < billDetails.length; i++) {
-                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
-                        totalPrice += billDetail.get("price")
-                    }
-                    if (bill.coupon) {
-                        const coupon = await Coupons.findById(bill.coupon)
-                        totalPrice -= coupon.discount
-                    }
-                    totalPrice += bill.feeShip
-                    console.log(bill.feeShip)
-                    const billObject = bill.toObject()
-                    billObject.totalPrice = totalPrice
-                    data.push(
-                        billObject
-                    )
-                }
                 res.status(200).json({
-                    data: data,
+                    data: docs,
                     ...others
                 })
             } else {
                 const bills = await Bills.find().sort({
                     createdAt: -1
                 }).populate('user').populate('billDetails')
-                let data = []
-                for (let index in bills) {
-                    const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')
-                    const billDetails = bill.get("billDetails")
-                    let totalPrice = 0
-                    for (let i = 0; i < billDetails.length; i++) {
-                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
-                        totalPrice += billDetail.get("price")
-                    }
-                    if (bill.coupon) {
-                        const coupon = await Coupons.findById(bill.coupon)
-                        totalPrice -= coupon.discount
-                    }
-                    totalPrice += bill.feeShip
-                    const billObject = bill.toObject()
-                    billObject.totalPrice = totalPrice
-                    data.push(
-                        billObject
-                    )
-                }
 
                 res.status(200).json({
-                    data: data,
+                    data: bills
 
                 })
             }
@@ -375,56 +338,18 @@ const BillController = {
                     }
                 })
                 const { docs, ...others } = bills
-                let data = []
-                for (let index in docs) {
 
-                    const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
-                    const billDetails = bill.get("billDetails")
-                    let totalPrice = 0
-                    for (let i = 0; i < billDetails.length; i++) {
-                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
-                        totalPrice += billDetail.get("price")
-                    }
-                    if (bill.coupon) {
-                        const coupon = await Coupons.findById(bill.coupon)
-                        totalPrice -= coupon.discount
-                    }
-                    const billObject = bill.toObject()
-                    billObject.totalPrice = totalPrice
-                    data.push(
-                        billObject
-                    )
-                }
                 res.status(200).json({
-                    data: data,
+                    data: docs,
                     ...others
                 })
             } else {
                 const bills = await Bills.find({
                     type: 'N'
                 }).populate('user').populate('billDetails')
-                let data = []
-                for (let index in bills) {
-                    const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')
-                    const billDetails = bill.get("billDetails")
-                    let totalPrice = 0
-                    for (let i = 0; i < billDetails.length; i++) {
-                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
-                        totalPrice += billDetail.get("price")
-                    }
-                    if (bill.coupon) {
-                        const coupon = await Coupons.findById(bill.coupon)
-                        totalPrice -= coupon.discount
-                    }
-                    const billObject = bill.toObject()
-                    billObject.totalPrice = totalPrice
-                    data.push(
-                        billObject
-                    )
-                }
 
                 res.status(200).json({
-                    data: data,
+                    data: bills,
 
                 })
             }
@@ -448,56 +373,18 @@ const BillController = {
                     }
                 })
                 const { docs, ...others } = bills
-                let data = []
-                for (let index in docs) {
 
-                    const bill = await Bills.findById(docs[index].get('_id')).populate('user').populate('billDetails')
-                    const billDetails = bill.get("billDetails")
-                    let totalPrice = 0
-                    for (let i = 0; i < billDetails.length; i++) {
-                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
-                        totalPrice += billDetail.get("price")
-                    }
-                    if (bill.coupon) {
-                        const coupon = await Coupons.findById(bill.coupon)
-                        totalPrice -= coupon.discount
-                    }
-                    const billObject = bill.toObject()
-                    billObject.totalPrice = totalPrice
-                    data.push(
-                        billObject
-                    )
-                }
                 res.status(200).json({
-                    data: data,
+                    data: docs,
                     ...others
                 })
             } else {
                 const bills = await Bills.find({
                     type: 'X'
                 }).populate('user').populate('billDetails')
-                let data = []
-                for (let index in bills) {
-                    const bill = await Bills.findById(bills[index].get('_id')).populate('user').populate('billDetails')
-                    const billDetails = bill.get("billDetails")
-                    let totalPrice = 0
-                    for (let i = 0; i < billDetails.length; i++) {
-                        const billDetail = await BillDetails.findById(billDetails[i].get('_id'))
-                        totalPrice += billDetail.get("price")
-                    }
-                    if (bill.coupon) {
-                        const coupon = await Coupons.findById(bill.coupon)
-                        totalPrice -= coupon.discount
-                    }
-                    const billObject = bill.toObject()
-                    billObject.totalPrice = totalPrice
-                    data.push(
-                        billObject
-                    )
-                }
 
                 res.status(200).json({
-                    data: data,
+                    data: bills,
 
                 })
             }
@@ -515,19 +402,7 @@ const BillController = {
             const bill = await Bills.findById(req.params.id).populate("billDetails").populate("user")
 
             if (bill) {
-                const billDetails = bill.get("billDetails")
-                let totalPrice = 0
-                for (let i = 0; i < billDetails.length; i++) {
-                    const billDetail = await BillDetails.findById(billDetails[i]._id)
-                    totalPrice += billDetail.get("price")
-                }
-                if (bill.coupon) {
-                    const coupon = await Coupons.findById(bill.coupon)
-                    totalPrice -= coupon.discount
-                }
-                const billObject = bill.toObject()
-                billObject.totalPrice = totalPrice
-                res.status(200).json(billObject)
+                res.status(200).json(bill)
             } else {
                 res.status(404).json({
                     status: 404,

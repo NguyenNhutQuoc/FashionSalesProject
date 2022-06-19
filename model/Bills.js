@@ -38,6 +38,10 @@ const billsSchema = new mongoose.Schema({
     feeShip: {
         type: Number,
         required: true
+    },
+    totalPrice: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true

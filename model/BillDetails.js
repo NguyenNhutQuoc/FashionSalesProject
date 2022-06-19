@@ -17,15 +17,13 @@ const billDetailsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductDetails',
         required: true,
-        autopopulate: true
-
     },
     bill: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Bills',
         required: true,
         autopopulate: true
-    }
+    },
 }, {
     timestamps: true
 })
