@@ -846,14 +846,12 @@ const BillController = {
             const bill = await Bills.findById(req.params.id)
             if (bill) {
                 const billDetails = bill.get("billDetails")
-                if (billDetails.length > 0) {
-                    res.status(200).json(billDetails)
-                } else {
-                    res.status(404).json({
-                        status: 404,
-                        errorMessage: "Not Found bill-details"
-                    })
+                data = []
+                for (const id of billDetails) {
+                    const billDetail = await BillDetails.findById(id)
+                    data.push(billDetail)
                 }
+                res.status(200).json(data)
             } else
                 res.status(404).json({
                     status: 404,

@@ -3,11 +3,13 @@ const {
     Bills,
     BillDetails,
     Products,
-    ProductDetails
+    ProductDetails,
+    Comments
 } = require('../model/model');
 const mongoose = require("mongoose");
 
-const bcrpyt = require('bcrypt')
+const bcrpyt = require('bcrypt');
+const { request } = require('express');
 
 const userController = {
 
@@ -55,7 +57,15 @@ const userController = {
                     const productDetail = await ProductDetails.findById(billDetail.productDetail)
                     const product = await Products.findById(productDetail.product)
                     const comments = product.comments
-                    if (comments.length === 0) {
+                    const checkComment = 0
+                    for (const commentId of comments) {
+                        const comment = await Comments.findById(commentId)
+                        if (comment.user === id) {
+                            checkComment = 1
+                            break
+                        }
+                    }
+                    if (!checkComment) {
                         data.push(product)
                     }
                 }
