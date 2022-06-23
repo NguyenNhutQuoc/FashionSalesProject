@@ -40,6 +40,13 @@ const productDetailsSchema = new mongoose.Schema({
         }],
         autopopulate: true
     },
+    comments: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Comments',
+        }],
+        autopopulate: true
+    },
     quantitiesOfNorm: {
         type: Number,
         default: 0

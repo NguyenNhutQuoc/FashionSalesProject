@@ -3,7 +3,8 @@ const {
     Users,
     Bills,
     BillDetails,
-    Comments
+    Comments,
+    ProductDetails
 } = require('../model/model');
 
 const isNumber = require('is-number')
@@ -11,7 +12,6 @@ const commentController = {
 
     findAll: async(req, res) => {
         try {
-            const {word} = req.query
             if (req.query.page || req.query.limit) {
                 const comments = await Comments.paginate({
 
@@ -76,7 +76,7 @@ const commentController = {
             const commentByUser = await Comments.find({
                 user: user ? user.get('_id') : null
             })
-            const product = await Products.findOne({
+            const product = await ProductDetails.findOne({
                 name: req.query.p
             })
             const commentByProduct = await Comments.find({
@@ -106,16 +106,16 @@ const commentController = {
         try {
             if (req.body.user && req.body.product && req.body.star && req.body.content && isNumber(req.body.star)) {
                 const user = await Users.findById(req.body.user)
-                const product = await Products.findById(req.body.product)
+                const product = await ProductDetails.findById(req.body.product)
                 if (user && product && req.body.star >= 0) {
                     const bill = await Bills.findOne({
                         user: user.get('_id'),
-                        status: 2
+                        status: 3
                     })
                     if (bill || user.get('isAdmin') === 1) {
                         const billDetail = await BillDetails.findOne({
                             bill: bill.get('_id'),
-                            product: product.get('_id')
+                            productDetail: product.get('_id')
                         })
                         if (billDetail) {
                             const comment = new Comments(req.body)
@@ -168,7 +168,7 @@ const commentController = {
             if (comment) {
                 if (req.body.user && req.body.product) {
                     const user = await Users.findById(req.body.user)
-                    const product = await Products.findById(req.body.product)
+                    const product = await ProductDetails.findById(req.body.product)
                     if (user && product) {
                         const bill = await Bills.findOne({
                             user: user.get('_id'),
@@ -176,11 +176,11 @@ const commentController = {
                         if (bill || user.get('isAdmin') === 1) {
                             const billDetail = await BillDetails.findOne({
                                 bill: bill.get('_id'),
-                                product: product.get('_id')
+                                productDetail: product.get('_id')
                             })
                             if (billDetail) {
                                 const oldUser = await Users.findById(comment.get('user'))
-                                const oldProduct = await Products.findById(comment.get('product'))
+                                const oldProduct = await ProductDetails.findById(comment.get('product'))
                                 if (req.body.star) {
                                     if (isNumber(req.body.star) && req.body.star >= 0) {
                                         await comment.updateOne(req.body)
@@ -240,7 +240,7 @@ const commentController = {
                         if (bill || user.get('isAdmin') === 1) {
                             const billDetail = await BillDetails.findOne({
                                 bill: bill.get('_id'),
-                                product: comment.get('product')
+                                productDetail: comment.get('product')
                             })
                             if (billDetail) {
                                 const oldUser = await Users.findById(comment.get('user'))
@@ -288,7 +288,7 @@ const commentController = {
                         })
                     }
                 } else if (req.body.product) {
-                    const product = await Products.findById(req.body.product)
+                    const product = await ProductDetails.findById(req.body.product)
                     if (product) {
                         const bill = await Bills.findOne({
                             user: comment.get('user'),
@@ -296,7 +296,7 @@ const commentController = {
                         if (bill) {
                             const billDetail = await BillDetails.findOne({
                                 bill: bill.get('_id'),
-                                product: product.get('_id')
+                                productDetail: product.get('_id')
                             })
                             if (billDetail) {
                                 const oldProduct = await Products.findById(comment.get('product'))
@@ -378,7 +378,7 @@ const commentController = {
             const comment = await Comments.findById(req.params.id)
             if (comment) {
                 const user = await Users.findById(comment.get('user'))
-                const product = await Products.findById(comment.get('product'))
+                const product = await ProductDetails.findById(comment.get('product'))
                 await comment.remove()
                 await user.updateOne({
                     $pull: {

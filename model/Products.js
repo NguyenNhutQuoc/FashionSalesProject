@@ -58,13 +58,6 @@ const productsSchema = new mongoose.Schema({
         }],
         autopopulate: true
     },
-    comments: {
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comments',
-        }],
-        autopopulate: true
-    },
     trademark: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Trademarks',

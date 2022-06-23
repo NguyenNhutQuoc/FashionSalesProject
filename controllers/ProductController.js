@@ -207,7 +207,6 @@ const productController = {
                 let data = []
                 const { docs, ...others } = productsAll
                 docs.forEach(product => {
-                    const comments = product.comments
                     const productDetails = product.productDetails
                     let rating = 0
                     let fiveStar = 0
@@ -256,7 +255,6 @@ const productController = {
                 })
                 let data = []
                 for (const product of products) {
-                    const comments = product.comments
                     let rating = 0
                     let fiveStar = 0
                     let fourStar = 0
@@ -264,6 +262,7 @@ const productController = {
                     let twoStar = 0
                     let oneStar = 0
                     var sold = 0
+                    let totalComments = 0
                     const productDetails = product.productDetails
                     for (const productDetail of productDetails) {
                         const billDetails = productDetail.billDetails
@@ -273,19 +272,21 @@ const productController = {
                                 sold += billDetail.quantity
                             }
                         }
+                        const comments = productDetail.comments
+                        totalComments += comments.length
+                        for (let index in comments) {
+                            comments[index].star === 5 ? fiveStar += 1 :
+                                comments[index].star === 4 ? fourStar += 1 :
+                                    comments[index].star === 3 ? threeStar += 1 :
+                                        comments[index].star === 2 ? twoStar += 1 :
+                                            comments[index].star === 1 ? oneStar += 1 : null
+                            rating += comments[index].star
+                        }
                     }
-                    for (let index in comments) {
-                        comments[index].star === 5 ? fiveStar += 1 :
-                            comments[index].star === 4 ? fourStar += 1 :
-                                comments[index].star === 3 ? threeStar += 1 :
-                                    comments[index].star === 2 ? twoStar += 1 :
-                                        comments[index].star === 1 ? oneStar += 1 : null
-                        rating += comments[index].star
-                    }
-                    rating /= comments.length
+                    rating /= totalComments
                     const productObject = product.toObject()
                     productObject.rating = rating > 5 ? 5 : rating
-                    productObject.numberOfComments = comments.length
+                    productObject.numberOfComments = totalComments
                     productObject.fiveStar = fiveStar
                     productObject.fourStar = fourStar
                     productObject.threeStar = threeStar
