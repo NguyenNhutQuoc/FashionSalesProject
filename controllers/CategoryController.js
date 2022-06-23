@@ -129,7 +129,7 @@ const categoryController = {
     findBySlug: async  (req, res) => {
         try {
             const slug = req.params.slug
-            const category = await Categories.findOne({slug: slug})
+            const category = await Categories.findOne({slug: slug}).populate("products")
             res.status(200).json(category)
         } catch (e) {
             res.status(500).json(
