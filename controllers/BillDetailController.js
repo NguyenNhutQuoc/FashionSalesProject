@@ -94,7 +94,6 @@ const billDetailController = {
                         bill: req.body.bill,
                         productDetail: req.body.productDetail,
                         quantity: req.body.quantity,
-                        status: 2
                     })
                     const quantity = billDetail.get('quantity')
                     const product_ = await Products.findById(product.get('product'))
@@ -107,9 +106,7 @@ const billDetailController = {
                     if (bill.get('type') === 'X') {
                         if (bill.get('coupon')) {
                             const coupon = await Coupons.findById(bill.get('coupon'))
-                            const percent = coupon.get('percent')
-                            const discount = total * percent / 100
-                            const finalPrice = total - discount
+                            const finalPrice = total - coupon.get('discount')
                             await BillDetails.findByIdAndUpdate(billDetail.get('_id'), {
                                 $set: {
                                     price: finalPrice
@@ -213,270 +210,406 @@ const billDetailController = {
     },
     update: async(req, res) => {
         try {
-            const billDetail = await BillDetails.findById(req.params.id)
-            if (billDetail) {
-                const bill = await Bills.findById(req.body.bill)
-                const product = await ProductDetails.findById(req.body.productDetail)
-                if (bill && product) {
-                    const oldBill = await Bills.findById(billDetail.get('bill'))
-                    const oldProduct = await ProductDetails.findById(billDetail.get('productDetail'))
-                    await oldBill.updateOne({
-                        $pull: {
-                            billDetails: billDetail.get('_id')
-                        }
-                    })
+            const bill = await Bills.findById(req.params.id)
+            const billDetails = req.body
+            if (bill) {
+                const oldBillDetails = bill.get("billDetails")
+                console.log(oldBillDetails)
+                for (const detailID of oldBillDetails) {
+                    const detail = await BillDetails.findById(detailID)
+                    const productDetail = await ProductDetails.findById(detail.productDetail)
+                    if (bill.type === "X") {
+                        await productDetail.updateOne({
+                            $inc: {
+                                quantity: detail.quantity
+                            },
+                            $pull: {
+                                billDetails: detail.get("_id")
+                            }
+                        })
+                    } else {
+                        await   productDetail.updateOne({
+                            $inc: {
+                                quantity: -detail.quantity
+                            },
+                            $pull: {
+                                billDetails: detail.get("_id")
+                            }
+                        })
+                    }
                     await bill.updateOne({
-                        $push: {
-                            billDetails: billDetail.get('_id')
-                        }
-                    })
-                    if (oldBill.get('type') === 'N') {
-                        await oldProduct.updateOne({
-                            $pull: {
-                                billDetails: billDetail.get('_id')
-                            },
-                            $inc: {
-                                "quantity": -billDetail.get('quantity')
-                            }
-                        })
-                    }
-                    if (oldBill.get('type') === 'X') {
-                        await oldProduct.updateOne({
-                            $pull: {
-                                billDetails: billDetail.get('_id')
-                            },
-                            $inc: {
-                                "quantity": billDetail.get('quantity')
-                            }
-                        })
-                    }
-                    if (bill.get('type') === 'N') {
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": req.body.quantity
-                                },
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                }
-                            })
-                        } else {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": billDetail.get('quantity')
-                                },
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                }
-                            })
-                        }
-                    }
-                    if (bill.get('type') === 'X') {
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": -req.body.quantity
-                                },
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                }
-                            })
-                        } else {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": -billDetail.get('quantity')
-                                },
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                }
-                            })
-                        }
-                    }
-                    await billDetail.updateOne(req.body)
-                    res.status(200).json(
-                        "Update success"
-                    )
-                } else if (product) {
-                    const oldProduct = await ProductDetails.findById(billDetail.get('productDetail'))
-                    const oldBill = await Bills.findById(billDetail.get('bill'))
-                    if (oldBill.get('type') === 'N') {
-                        await oldProduct.updateOne({
-                            $pull: {
-                                billDetails: billDetail.get('_id')
-                            },
-                            $inc: {
-                                "quantity": -billDetail.get('quantity')
-                            }
-                        })
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": req.body.quantity
-                                },
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                }
-                            })
-                        } else {
-                            await product.updateOne({
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                },
-                                $inc: {
-                                    "quantity": billDetail.get('quantity')
-                                }
-                            })
-                        }
-                    } else if (oldBill.get('type') === 'X') {
-                        await oldProduct.updateOne({
-                            $pull: {
-                                billDetails: billDetail.get('_id')
-                            },
-                            $inc: {
-                                "quantity": billDetail.get('quantity')
-                            }
-                        })
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": -req.body.quantity
-                                },
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                }
-                            })
-                        } else {
-                            await product.updateOne({
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                },
-                                $inc: {
-                                    "quantity": -billDetail.get('quantity')
-                                }
-                            })
-                        }
-                    }
-
-                    await billDetail.updateOne(req.body)
-                    res.status(200).json(
-                        "Update success"
-                    )
-                } else if (bill) {
-                    const oldBill = await Bills.findById(billDetail.get('bill'))
-                    const product = await ProductDetails.findById(billDetail.get('productDetail'))
-                    await oldBill.updateOne({
                         $pull: {
-                            billDetails: billDetail.get('_id')
+                            billDetails: detail.get("_id")
                         }
                     })
-                    await bill.updateOne({
-                        $push: {
-                            billDetails: billDetail.get('_id')
-                        }
-                    })
-                    if (oldBill.get('type') === 'N') {
-                        await product.updateOne({
-                            $pull: {
-                                billDetails: billDetail.get('_id')
-                            },
-                            $inc: {
-                                "quantity": -billDetail.get('quantity')
-                            }
-                        })
-                    } else if (oldBill.get('type') === 'X') {
-                        console.log("Hello")
-                        console.log(product.get('quantity'))
-                        await product.updateOne({
-                            $pull: {
-                                billDetails: billDetail.get('_id')
-                            },
-                            $inc: {
-                                quantity: billDetail.get('quantity')
-                            }
-                        })
-                        console.log(product.get('quantity'))
-                    }
-                    if (bill.get('type') === 'N') {
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                },
-                                $inc: {
-                                    quantity: req.body.quantity
-                                }
-                            })
-                        } else {
-                            await product.updateOne({
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                },
-                                $inc: {
-                                    quantity: billDetail.get('quantity')
-                                }
-                            })
-                            console.log(product.get('quantity'))
-                        }
-                    } else if (bill.get('type') === 'X') {
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                },
-                                $inc: {
-                                    quantity: -req.body.quantity
-                                }
-                            })
-                        } else {
-                            await product.updateOne({
-                                $push: {
-                                    billDetails: billDetail.get('_id')
-                                },
-                                $inc: {
-                                    quantity: -billDetail.get('quantity')
-                                }
-                            })
-                        }
-                    }
-                    await billDetail.updateOne(req.body)
-                    res.status(200).json(
-                        "Update success"
-                    )
-                } else {
-                    const product = await ProductDetails.findOne({
-                        _id: billDetail.get('productDetail')
-                    })
-                    const bill = await Bills.findOne({
-                        _id: billDetail.get('bill')
-                    })
-                    if (bill.get('type') === 'N') {
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": (req.body.quantity - billDetail.get('quantity'))
-                                }
-                            })
-                        }
-                    } else if (bill.get('type') === 'X') {
-                        if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
-                            await product.updateOne({
-                                $inc: {
-                                    "quantity": -(req.body.quantity - billDetail.get('quantity'))
-                                }
-                            })
-                        }
-                    }
-                    await billDetail.updateOne(req.body)
-                    res.status(200).json(
-                        "Update success"
-                    )
+                    await detail.remove()
                 }
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    errorMessage: 'BillDetail not found'
-                })
+                let checkError = 0
+                let sttBillDetail = 0
+                let arrayBillDetailInvalid = []
+                for (item of billDetails) {
+                    sttBillDetail++
+                    const productDetail = await ProductDetails.findById(item.productDetail)
+                    const product = await Products.findById(productDetail.product)
+                    let quantity = item.quantity
+                    if (bill.type === "X") {
+                        if (quantity > productDetail.quantity) {
+                            checkError=1
+                            arrayBillDetailInvalid.push(sttBillDetail)
+                        }
+                        else {
+                            const newBillDetail = await BillDetails.create(item)
+                            await bill.updateOne({
+                                $push: {
+                                    billDetails: newBillDetail.get('_id')
+                                }
+                            })
+                            await ProductDetails.findByIdAndUpdate(newBillDetail.get('productDetail'), {
+                                $push: {
+                                    billDetails: newBillDetail.get('_id')
+                                },
+                                $inc: {
+                                    quantity: -quantity
+                                }
+                            })
+                            const product = await Products.findById(productDetail.get('product'))
+                            let total = newBillDetail.get('quantity') * product.get('price')
+                            if (bill.coupon) {
+                                const coupon = await Coupons.findById(bill.coupon)
+                                if (coupon.minimumAmount <= total)
+                                    total -= coupon.discount
+                            }
+                            if (product.get('startDate') >= new Date() && product.get('endDate') <= new Date()) {
+                                total -= total * (product.get("discount") / 100 )
+                            }
+                            total += bill.get('feeShip')
+                            await newBillDetail.updateOne({
+                                $set: {
+                                    price: total
+                                }
+                            })
+                            await bill.updateOne({
+                                $inc: {
+                                    totalPrice: total
+                                }
+                            })
+                            const quantityElseOfProductDetail = productDetail.get('quantity')
+                            if (quantityElseOfProductDetail === 0) {
+                                await productDetail.updateOne({
+                                    $set: {
+                                        status: 0
+                                    }
+                                })
+                            }
+                        }
+                        if (checkError === 1) {
+                            res.status(400).json({
+                                errorMessage: 'Not enough quantity at bill detail at '+arrayBillDetailInvalid
+                            })
+                        } else {
+                            res.status(200).json(
+                                {message: "Update successfully"}
+                            )
+                        }
+                    } else {
+                        const newBillDetail = await BillDetails.create(item)
+                        await bill.updateOne({
+                            $push: {
+                                billDetails: newBillDetail.get('_id')
+                            }
+                        })
+                        await ProductDetails.findByIdAndUpdate(newBillDetail.get('productDetail'), {
+                            $push: {
+                                billDetails: newBillDetail.get('_id')
+                            },
+                            $inc: {
+                                quantity: quantity
+                            },
+                            $set: {
+                                status:1
+                            }
+                        })
+                        const product = await Products.findById(productDetail.get('product'))
+                        let total = newBillDetail.get('quantity') * product.get('price')
+                        await newBillDetail.updateOne({
+                            $set: {
+                                price: total
+                            }
+                        })
+                        await bill.updateOne({
+                            $inc: {
+                                totalPrice: total
+                            }
+                        })
+                        res.status(200).json({
+                            message: "Successful update"
+                        })
+                    }
+                }
             }
+            // const billDetail = await BillDetails.findById(req.params.id)
+            // if (billDetail) {
+            //     const bill = await Bills.findById(req.body.bill)
+            //     const product = await ProductDetails.findById(req.body.productDetail)
+            //     if (bill && product) {
+            //         const oldBill = await Bills.findById(billDetail.get('bill'))
+            //         const oldProduct = await ProductDetails.findById(billDetail.get('productDetail'))
+            //         await oldBill.updateOne({
+            //             $pull: {
+            //                 billDetails: billDetail.get('_id')
+            //             }
+            //         })
+            //         await bill.updateOne({
+            //             $push: {
+            //                 billDetails: billDetail.get('_id')
+            //             }
+            //         })
+            //         if (oldBill.get('type') === 'N') {
+            //             await oldProduct.updateOne({
+            //                 $pull: {
+            //                     billDetails: billDetail.get('_id')
+            //                 },
+            //                 $inc: {
+            //                     "quantity": -billDetail.get('quantity')
+            //                 }
+            //             })
+            //         }
+            //         if (oldBill.get('type') === 'X') {
+            //             await oldProduct.updateOne({
+            //                 $pull: {
+            //                     billDetails: billDetail.get('_id')
+            //                 },
+            //                 $inc: {
+            //                     "quantity": billDetail.get('quantity')
+            //                 }
+            //             })
+            //         }
+            //         if (bill.get('type') === 'N') {
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": req.body.quantity
+            //                     },
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     }
+            //                 })
+            //             } else {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": billDetail.get('quantity')
+            //                     },
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     }
+            //                 })
+            //             }
+            //         }
+            //         if (bill.get('type') === 'X') {
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": -req.body.quantity
+            //                     },
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     }
+            //                 })
+            //             } else {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": -billDetail.get('quantity')
+            //                     },
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     }
+            //                 })
+            //             }
+            //         }
+            //         await billDetail.updateOne(req.body)
+            //         res.status(200).json(
+            //             "Update success"
+            //         )
+            //     } else if (product) {
+            //         const oldProduct = await ProductDetails.findById(billDetail.get('productDetail'))
+            //         const oldBill = await Bills.findById(billDetail.get('bill'))
+            //         if (oldBill.get('type') === 'N') {
+            //             await oldProduct.updateOne({
+            //                 $pull: {
+            //                     billDetails: billDetail.get('_id')
+            //                 },
+            //                 $inc: {
+            //                     "quantity": -billDetail.get('quantity')
+            //                 }
+            //             })
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": req.body.quantity
+            //                     },
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     }
+            //                 })
+            //             } else {
+            //                 await product.updateOne({
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     },
+            //                     $inc: {
+            //                         "quantity": billDetail.get('quantity')
+            //                     }
+            //                 })
+            //             }
+            //         } else if (oldBill.get('type') === 'X') {
+            //             await oldProduct.updateOne({
+            //                 $pull: {
+            //                     billDetails: billDetail.get('_id')
+            //                 },
+            //                 $inc: {
+            //                     "quantity": billDetail.get('quantity')
+            //                 }
+            //             })
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": -req.body.quantity
+            //                     },
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     }
+            //                 })
+            //             } else {
+            //                 await product.updateOne({
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     },
+            //                     $inc: {
+            //                         "quantity": -billDetail.get('quantity')
+            //                     }
+            //                 })
+            //             }
+            //         }
+            //         await billDetail.updateOne(req.body)
+            //         res.status(200).json(
+            //             "Update success"
+            //         )
+            //     } else if (bill) {
+            //         const oldBill = await Bills.findById(billDetail.get('bill'))
+            //         const product = await ProductDetails.findById(billDetail.get('productDetail'))
+            //         await oldBill.updateOne({
+            //             $pull: {
+            //                 billDetails: billDetail.get('_id')
+            //             }
+            //         })
+            //         await bill.updateOne({
+            //             $push: {
+            //                 billDetails: billDetail.get('_id')
+            //             }
+            //         })
+            //         if (oldBill.get('type') === 'N') {
+            //             await product.updateOne({
+            //                 $pull: {
+            //                     billDetails: billDetail.get('_id')
+            //                 },
+            //                 $inc: {
+            //                     "quantity": -billDetail.get('quantity')
+            //                 }
+            //             })
+            //         } else if (oldBill.get('type') === 'X') {
+            //             console.log("Hello")
+            //             console.log(product.get('quantity'))
+            //             await product.updateOne({
+            //                 $pull: {
+            //                     billDetails: billDetail.get('_id')
+            //                 },
+            //                 $inc: {
+            //                     quantity: billDetail.get('quantity')
+            //                 }
+            //             })
+            //             console.log(product.get('quantity'))
+            //         }
+            //         if (bill.get('type') === 'N') {
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     },
+            //                     $inc: {
+            //                         quantity: req.body.quantity
+            //                     }
+            //                 })
+            //             } else {
+            //                 await product.updateOne({
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     },
+            //                     $inc: {
+            //                         quantity: billDetail.get('quantity')
+            //                     }
+            //                 })
+            //                 console.log(product.get('quantity'))
+            //             }
+            //         } else if (bill.get('type') === 'X') {
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     },
+            //                     $inc: {
+            //                         quantity: -req.body.quantity
+            //                     }
+            //                 })
+            //             } else {
+            //                 await product.updateOne({
+            //                     $push: {
+            //                         billDetails: billDetail.get('_id')
+            //                     },
+            //                     $inc: {
+            //                         quantity: -billDetail.get('quantity')
+            //                     }
+            //                 })
+            //             }
+            //         }
+            //         await billDetail.updateOne(req.body)
+            //         res.status(200).json(
+            //             "Update success"
+            //         )
+            //     } else {
+            //         const product = await ProductDetails.findOne({
+            //             _id: billDetail.get('productDetail')
+            //         })
+            //         const bill = await Bills.findOne({
+            //             _id: billDetail.get('bill')
+            //         })
+            //         if (bill.get('type') === 'N') {
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": (req.body.quantity - billDetail.get('quantity'))
+            //                     }
+            //                 })
+            //             }
+            //         } else if (bill.get('type') === 'X') {
+            //             if (req.body.quantity && isNumber(req.body.quantity) && req.body.quantity > 0) {
+            //                 await product.updateOne({
+            //                     $inc: {
+            //                         "quantity": -(req.body.quantity - billDetail.get('quantity'))
+            //                     }
+            //                 })
+            //             }
+            //         }
+            //         await billDetail.updateOne(req.body)
+            //         res.status(200).json(
+            //             "Update success"
+            //         )
+            //     }
+            // } else {
+            //     res.status(404).json({
+            //         status: 404,
+            //         errorMessage: 'BillDetail not found'
+            //     })
+            // }
         } catch (err) {
             res.status(500).json({
                 status: 500,
