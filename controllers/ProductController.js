@@ -337,7 +337,8 @@ const productController = {
                     }
                     const comments = productDetail.comments
                     for (const comment of comments) {
-                        totalComments.push(comment)
+                        const commentItem = await Comments.findById(comment._id).populate('user')
+                        totalComments.push(commentItem)
                         comment.star === 5 ? fiveStar += 1 :
                             comment.star === 4 ? fourStar += 1 :
                                 comment.star === 3 ? threeStar += 1 :
@@ -401,7 +402,8 @@ const productController = {
                     }
                     const comments = productDetail.comments
                     for (const comment of comments) {
-                        totalComments.push(comment)
+                        const commentItem = await Comments.findById(comment._id).populate('user')
+                        totalComments.push(commentItem)
                         comment.star === 5 ? fiveStar += 1 :
                             comment.star === 4 ? fourStar += 1 :
                                 comment.star === 3 ? threeStar += 1 :
