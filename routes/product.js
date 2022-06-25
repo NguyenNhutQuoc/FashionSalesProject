@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 const productController = require('../controllers/ProductController');
 router.get("/", productController.findAll)
+router.get("/category/:slug", productController.findBySlugCategory)
 router.get("/:id/find",productController.findBySizeColor)
 router.get("/search", productController.findBy)
 router.post("/", productController.create)

@@ -24,6 +24,20 @@ const commentsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductDetails',
         required: true,
+    },
+    parent: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comments',
+        default: ""
+    },
+    childs: {
+        type:[
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Comments',
+            }
+        ],
+        autopopulate: true
     }
 }, {
     timestamps: true

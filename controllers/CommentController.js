@@ -120,6 +120,14 @@ const commentController = {
                         if (billDetail) {
                             const comment = new Comments(req.body)
                             const result = await comment.save()
+                            if (result.parent) {
+                                const commentParent = await Comments.findById(result.parent)
+                                await commentParent.update({
+                                    $push: {
+                                        childs: result.get('_id')
+                                    }
+                                })
+                            }
                             await user.updateOne({
                                 $push: {
                                     comments: result.get('_id')

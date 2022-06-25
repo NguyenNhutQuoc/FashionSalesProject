@@ -12,6 +12,128 @@ const {
 
 const isNumber = require("is-number");
 const productController = {
+
+    findBySlugCategory: async  (req, res) => {
+        const slug = req.params.slug
+        const {page, limit } = req.query
+        const category = await Categories.findOne({
+            slug: slug
+        })
+
+        if (page || limit) {
+            const products = await ProductDetails.paginate({
+                category: category.get('_id'),
+            }, {
+                limit: limit | 1,
+                page: page | 1,
+                sort: {
+                    createdAt: -1
+                }
+            })
+            let data = []
+            const { docs, ...others } = products
+            docs.forEach(product => {
+                const productDetails = product.productDetails
+                let rating = 0
+                let fiveStar = 0
+                let fourStar = 0
+                let threeStar = 0
+                let twoStar = 0
+                let oneStar = 0
+                let sold = 0
+                let totalComments = 0
+                for (const productDetail of productDetails) {
+                    const billDetails = productDetail.billDetails
+                    for (const billDetail of billDetails) {
+                        const bill = billDetail.bill
+                        if (bill.type === 'X') {
+                            sold += billDetail.quantity
+                        }
+                    }
+                    const comments = productDetail.comments
+                    totalComments += comments.length
+                    for (let index in comments) {
+                        comments[index].star === 5 ? fiveStar += 1 :
+                            comments[index].star === 4 ? fourStar += 1 :
+                                comments[index].star === 3 ? threeStar += 1 :
+                                    comments[index].star === 2 ? twoStar += 1 :
+                                        comments[index].star === 1 ? oneStar += 1 : null
+                        rating += comments[index].star
+                    }
+                }
+
+                rating /= totalComments
+                const productObject = product.toObject()
+                productObject.rating = rating > 5 ? 5 : rating
+                productObject.numberOfComments = totalComments
+                productObject.fiveStar = fiveStar
+                productObject.fourStar = fourStar
+                productObject.threeStar = threeStar
+                productObject.twoStar = twoStar
+                productObject.oneStar = oneStar
+                productObject.sold = sold
+                data.push(productObject)
+            })
+            res.status(200).json({
+                data: data,
+                ...others
+            })
+        } else {
+            const products = await Products.find({
+                category: category.get('_id')
+            })
+
+            let data = []
+            products.forEach(product => {
+                const productDetails = product.productDetails
+                let rating = 0
+                let fiveStar = 0
+                let fourStar = 0
+                let threeStar = 0
+                let twoStar = 0
+                let oneStar = 0
+                let sold = 0
+                let totalComments = 0
+                for (const productDetail of productDetails) {
+                    const billDetails = productDetail.billDetails
+                    for (const billDetail of billDetails) {
+                        const bill = billDetail.bill
+                        if (bill.type === 'X') {
+                            sold += billDetail.quantity
+                        }
+                    }
+                    const comments = productDetail.comments
+                    totalComments += comments.length
+                    for (let index in comments) {
+                        comments[index].star === 5 ? fiveStar += 1 :
+                            comments[index].star === 4 ? fourStar += 1 :
+                                comments[index].star === 3 ? threeStar += 1 :
+                                    comments[index].star === 2 ? twoStar += 1 :
+                                        comments[index].star === 1 ? oneStar += 1 : null
+                        rating += comments[index].star
+                    }
+                }
+
+                rating /= totalComments
+                const productObject = product.toObject()
+                productObject.rating = rating > 5 ? 5 : rating
+                productObject.numberOfComments = totalComments
+                productObject.fiveStar = fiveStar
+                productObject.fourStar = fourStar
+                productObject.threeStar = threeStar
+                productObject.twoStar = twoStar
+                productObject.oneStar = oneStar
+                productObject.sold = sold
+                data.push(productObject)
+            })
+
+            res.status(200).json({
+                data: data
+            })
+
+        }
+
+    },
     search: async (req, res) => {
         try {
             const {
@@ -27,6 +149,7 @@ const productController = {
                     }
                 }
             )
+            console.log(categories)
             const arrayCateIds = categories.length > 0 ? categories.map(item => item._id) : []
             const trademark = await Trademarks.find({
                 name: {
@@ -100,9 +223,52 @@ const productController = {
                         createdAt: -1
                     }
                 })
-                const {docs, ...others} = products
+                let data = []
+                const { docs, ...others } = products
+                docs.forEach(product => {
+                    const productDetails = product.productDetails
+                    let rating = 0
+                    let fiveStar = 0
+                    let fourStar = 0
+                    let threeStar = 0
+                    let twoStar = 0
+                    let oneStar = 0
+                    let sold = 0
+                    let totalComments = 0
+                    for (const productDetail of productDetails) {
+                        const billDetails = productDetail.billDetails
+                        for (const billDetail of billDetails) {
+                            const bill = billDetail.bill
+                            if (bill.type === 'X') {
+                                sold += billDetail.quantity
+                            }
+                        }
+                        const comments = productDetail.comments
+                        totalComments += comments.length
+                        for (let index in comments) {
+                            comments[index].star === 5 ? fiveStar += 1 :
+                                comments[index].star === 4 ? fourStar += 1 :
+                                    comments[index].star === 3 ? threeStar += 1 :
+                                        comments[index].star === 2 ? twoStar += 1 :
+                                            comments[index].star === 1 ? oneStar += 1 : null
+                            rating += comments[index].star
+                        }
+                    }
+
+                    rating /= totalComments
+                    const productObject = product.toObject()
+                    productObject.rating = rating > 5 ? 5 : rating
+                    productObject.numberOfComments = totalComments
+                    productObject.fiveStar = fiveStar
+                    productObject.fourStar = fourStar
+                    productObject.threeStar = threeStar
+                    productObject.twoStar = twoStar
+                    productObject.oneStar = oneStar
+                    productObject.sold = sold
+                    data.push(productObject)
+                })
                 res.status(200).json({
-                    data: docs,
+                    data: data,
                     ...others
                 })
             } else {
@@ -155,8 +321,52 @@ const productController = {
                         }
                     ]
                 })
+                let data = []
+                products.forEach(product => {
+                    const productDetails = product.productDetails
+                    let rating = 0
+                    let fiveStar = 0
+                    let fourStar = 0
+                    let threeStar = 0
+                    let twoStar = 0
+                    let oneStar = 0
+                    let sold = 0
+                    let totalComments = 0
+                    for (const productDetail of productDetails) {
+                        const billDetails = productDetail.billDetails
+                        for (const billDetail of billDetails) {
+                            const bill = billDetail.bill
+                            if (bill.type === 'X') {
+                                sold += billDetail.quantity
+                            }
+                        }
+                        const comments = productDetail.comments
+                        totalComments += comments.length
+                        for (let index in comments) {
+                            comments[index].star === 5 ? fiveStar += 1 :
+                                comments[index].star === 4 ? fourStar += 1 :
+                                    comments[index].star === 3 ? threeStar += 1 :
+                                        comments[index].star === 2 ? twoStar += 1 :
+                                            comments[index].star === 1 ? oneStar += 1 : null
+                            rating += comments[index].star
+                        }
+                    }
+
+                    rating /= totalComments
+                    const productObject = product.toObject()
+                    productObject.rating = rating > 5 ? 5 : rating
+                    productObject.numberOfComments = totalComments
+                    productObject.fiveStar = fiveStar
+                    productObject.fourStar = fourStar
+                    productObject.threeStar = threeStar
+                    productObject.twoStar = twoStar
+                    productObject.oneStar = oneStar
+                    productObject.sold = sold
+                    data.push(productObject)
+                })
+
                 res.status(200).json({
-                    data: products
+                    data: data
                 })
             }
         } catch (e) {
