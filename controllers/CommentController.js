@@ -104,7 +104,7 @@ const commentController = {
     },
     create: async(req, res) => {
         try {
-            if (req.body.user && req.body.product && req.body.star && req.body.content && isNumber(req.body.star)) {
+            if (req.body.user && req.body.product && req.body.content) {
                 const user = await Users.findById(req.body.user)
                 const product = await ProductDetails.findById(req.body.product)
                 if (user && product && req.body.star >= 0) {
