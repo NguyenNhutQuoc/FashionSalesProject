@@ -384,7 +384,9 @@ const commentController = {
     delete: async(req, res) => {
         try {
             const comment = await Comments.findById(req.params.id)
-            if (comment) {
+            const user = await Users.findById(req.params.user)
+            const checkAdmin = user.get("isAdmin") === 1;
+            if (comment && checkAdmin) {
                 const user = await Users.findById(comment.get('user'))
                 const product = await ProductDetails.findById(comment.get('product'))
                 await comment.remove()
@@ -398,10 +400,13 @@ const commentController = {
                         comments: comment.get('_id')
                     }
                 })
+                res.status(200).json({
+                    message: 'Deleted successfully'
+                })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    errorMessage: 'Not found any comment'
+                res.status(401).json({
+                    status: 401,
+                    errorMessage: 'Authentication failed'
                 })
             }
         } catch (err) {
