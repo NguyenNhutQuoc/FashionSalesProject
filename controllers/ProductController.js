@@ -1004,7 +1004,6 @@ const productController = {
             const offset = (page - 1) * limit;
             return arr.slice(offset, offset + limit);
         }
-
         function sort(arr, key, order) {
             return arr.sort((a, b) => {
                 if (order === 'asc') {
@@ -1022,12 +1021,16 @@ const productController = {
                 images,
                 page,
                 limit
-            } = req.query
+            } = req.query;
             const product = await Products.findById(idProduct)
+            console.log(product)
             let comments = []
             if (product) {
                 const productDetails = product.productDetails
-                comments.push(...productDetails.comments)
+                for (let productDetail of productDetails) {
+                    const commentsOfProductDetail = productDetail.comments
+                    comments.push(...commentsOfProductDetail)
+                }
             }
             let checkSelected = []
             if (sort === "newest") {
@@ -1069,19 +1072,6 @@ const productController = {
                         })
                     }
                     else {
-                        // const comments = await Comments.find({
-                        //     product: product.get('_id'),
-                        //     images: {
-                        //         $exists: true,
-                        //         $ne: []
-                        //     },
-                        //     star: {
-                        //         $in: arrayStarNumber
-                        //     }
-                        // }).sort({
-                        //     star: -1,
-                        //     createdAt: -1
-                        // })
                         comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
                         comments = sort(comments, 'createdAt', "desc")
                         comments = sort(comments, 'star', 'desc')
@@ -1285,7 +1275,20 @@ const productController = {
                     }
                 }
             } else {
-
+                if (page || limit) {
+                    comments = paginate(comments, page | 1, limit | 10)
+                    res.status(200).json({
+                        "data": comments,
+                        "totalItems": comments.length,
+                        "totalPages": Math.ceil(comments.length / limit),
+                        "limit": limit,
+                        "page": page
+                    })
+                } else {
+                    res.status(200).json({
+                        data: comments
+                    })
+                }
             }
         } catch (err) {
             res.status(500).json({
