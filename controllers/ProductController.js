@@ -1000,6 +1000,20 @@ const productController = {
         }
     },
     findCommentsById: async (req, res) => {
+        function paginate(arr, page, limit) {
+            const offset = (page - 1) * limit;
+            return arr.slice(offset, offset + limit);
+        }
+
+        function sort(arr, key, order) {
+            return arr.sort((a, b) => {
+                if (order === 'asc') {
+                    return a[key] - b[key];
+                } else {
+                    return b[key] - a[key];
+                }
+            });
+        }
         try {
             const idProduct = req.params.id
             const {
@@ -1010,15 +1024,20 @@ const productController = {
                 limit
             } = req.query
             const product = await Products.findById(idProduct)
+            let comments = []
+            if (product) {
+                const productDetails = product.productDetails
+                comments.push(...productDetails.comments)
+            }
             let checkSelected = []
             if (sort === "newest") {
                 checkSelected.push("newest")
             }
-            if (star !== undefined) {
+            if (star) {
                 let arrayStar = star.split("")
                 checkSelected.push(arrayStar)
             }
-            if (images !== undefined) {
+            if (images) {
                 checkSelected.push("images")
             }
             if (checkSelected.length > 0) {
@@ -1037,42 +1056,41 @@ const productController = {
                 if (checkNewest && checkHaveImages && arrayStar.length > 0) {
                     const arrayStarNumber = arrayStar.map(element => parseInt(element))
                     if (page || limit) {
-                        const comments = await Comments.paginate({
-                            product: product.get('_id'),
-                            images: {
-                                $exists: true,
-                                $ne: []
-                            },
-                            star: {
-                                $in: arrayStarNumber
-                            }
-                        }, {
-                            limit: limit | 10,
-                            page: page | 1,
-                            sort: {
-                                star:-1,
-                                createdAt: -1
-                            }
-                        })
-                        const {docs, ...others} = comments
+                        comments = comments.filter(comment => comment.images.length > 0)
+                        comments = paginate(comments, page |1, limit | 10)
+                        comments = sort(comments, 'createdAt', "desc")
+                        comments = sort(comments, 'star', 'desc')
                         res.status(200).json({
-                            data: docs,
-                            ...others
+                            "data": comments,
+                            "page": page | 1,
+                            "limit": limit | 10,
+                            "totalPages": Math.ceil(comments.length / limit | 10),
+                            "totalItems": comments.length,
                         })
                     }
                     else {
-                        const comments = await Comments.find({
-                            product: product.get('_id'),
-                            images: {
-                                $exists: true,
-                                $ne: []
-                            },
-                            star: {
-                                $in: arrayStarNumber
-                            }
-                        }).sort({
-                            star: -1,
-                            createdAt: -1
+                        // const comments = await Comments.find({
+                        //     product: product.get('_id'),
+                        //     images: {
+                        //         $exists: true,
+                        //         $ne: []
+                        //     },
+                        //     star: {
+                        //         $in: arrayStarNumber
+                        //     }
+                        // }).sort({
+                        //     star: -1,
+                        //     createdAt: -1
+                        // })
+                        comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
+                        comments = sort(comments, 'createdAt', "desc")
+                        comments = sort(comments, 'star', 'desc')
+                        res.status(200).json({
+                            "data": comments,
+                            "page": page | 1,
+                            "limit": limit | 10,
+                            "totalPages": Math.ceil(comments.length / limit | 10),
+                            "totalItems": comments.length,
                         })
                         res.status(200).json(comments)
                     }
@@ -1267,23 +1285,7 @@ const productController = {
                     }
                 }
             } else {
-                if (page || limit) {
-                    const comments = await Comments.paginate({}, {
-                        limit: limit | 10,
-                        page: page | 1,
-                    })
-                    const {docs, ...others} = comments
-                    res.status(200).json({
-                        data: docs,
-                        ...others
-                    })
-                }
-                 else {
-                    const comments = await Comments.find({
-                        product: product.get("_id"),
-                    })
-                    res.status(200).json(comments)
-                }
+
             }
         } catch (err) {
             res.status(500).json({

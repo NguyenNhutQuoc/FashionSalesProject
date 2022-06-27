@@ -107,7 +107,7 @@ const commentController = {
             if (req.body.user && req.body.product && req.body.content) {
                 const user = await Users.findById(req.body.user)
                 const product = await ProductDetails.findById(req.body.product)
-                if (user && product && req.body.star >= 0) {
+                if (user && product) {
                     const bill = await Bills.findOne({
                         user: user.get('_id'),
                         status: 3
