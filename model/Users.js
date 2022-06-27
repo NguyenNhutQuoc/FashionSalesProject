@@ -46,7 +46,6 @@ const usersSchema = new mongoose.Schema({
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Comments',
-            autopopulate: true
         }]
     },
     bills: {

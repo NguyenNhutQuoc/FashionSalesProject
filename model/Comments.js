@@ -19,6 +19,7 @@ const commentsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
         required: true,
+        autopopulate: true
     },
     product: {
         type: mongoose.Schema.Types.ObjectId,

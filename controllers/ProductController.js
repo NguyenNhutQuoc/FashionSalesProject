@@ -1277,16 +1277,26 @@ const productController = {
             } else {
                 if (page || limit) {
                     comments = paginate(comments, page | 1, limit | 10)
+                    let data=[]
+                    for (let item of comments) {
+                        const comment = await Comments.findById(item._id).populate('product')
+                        data.push(comment)
+                    }
                     res.status(200).json({
-                        "data": comments,
+                        "data": data,
                         "totalItems": comments.length,
                         "totalPages": Math.ceil(comments.length / limit),
                         "limit": limit,
                         "page": page
                     })
                 } else {
+                    let data=[]
+                    for (let item of comments) {
+                        const comment = await Comments.findById(item._id).populate('product')
+                        data.push(comment)
+                    }
                     res.status(200).json({
-                        data: comments
+                        data: data
                     })
                 }
             }
