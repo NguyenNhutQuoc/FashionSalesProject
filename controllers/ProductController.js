@@ -11,7 +11,7 @@ const {
 } = require("../model/model");
 
 const isNumber = require("is-number");
-const {chown} = require("fs");
+
 const productController = {
 
     findBySlugCategory: async  (req, res) => {
@@ -52,8 +52,11 @@ const productController = {
                         }
                     }
                     const comments = productDetail.comments
-                    totalComments += comments.length
+
                     for (let index in comments) {
+                        if (comments[index].star > 0) {
+                            totalComments++
+                        }
                         comments[index].star === 5 ? fiveStar += 1 :
                             comments[index].star === 4 ? fourStar += 1 :
                                 comments[index].star === 3 ? threeStar += 1 :
@@ -104,8 +107,10 @@ const productController = {
                         }
                     }
                     const comments = productDetail.comments
-                    totalComments += comments.length
+
                     for (let index in comments) {
+                        if (comments[index].star > 0)
+                            totalComments += 1
                         comments[index].star === 5 ? fiveStar += 1 :
                             comments[index].star === 4 ? fourStar += 1 :
                                 comments[index].star === 3 ? threeStar += 1 :
@@ -245,8 +250,10 @@ const productController = {
                             }
                         }
                         const comments = productDetail.comments
-                        totalComments += comments.length
+
                         for (let index in comments) {
+                            if (comments[index].star > 0)
+                                totalComments += 1
                             comments[index].star === 5 ? fiveStar += 1 :
                                 comments[index].star === 4 ? fourStar += 1 :
                                     comments[index].star === 3 ? threeStar += 1 :
@@ -342,9 +349,11 @@ const productController = {
                             }
                         }
                         const comments = productDetail.comments
-                        totalComments += comments.length
                         for (let index in comments) {
-                            comments[index].star === 5 ? fiveStar += 1 :
+                            if (comments[index].star > 0) {
+                                totalComments += 1
+                            }
+                             comments[index].star === 5 ? fiveStar += 1 :
                                 comments[index].star === 4 ? fourStar += 1 :
                                     comments[index].star === 3 ? threeStar += 1 :
                                         comments[index].star === 2 ? twoStar += 1 :
@@ -437,8 +446,9 @@ const productController = {
                             }
                         }
                         const comments = productDetail.comments
-                        totalComments += comments.length
                         for (let index in comments) {
+                            if (comments[index].star > 0)
+                                totalComments += 1
                             comments[index].star === 5 ? fiveStar += 1 :
                                 comments[index].star === 4 ? fourStar += 1 :
                                     comments[index].star === 3 ? threeStar += 1 :
@@ -476,7 +486,7 @@ const productController = {
                     let threeStar = 0
                     let twoStar = 0
                     let oneStar = 0
-                    var sold = 0
+                    let sold = 0
                     let totalComments = 0
                     const productDetails = product.productDetails
                     for (const productDetail of productDetails) {
@@ -488,8 +498,9 @@ const productController = {
                             }
                         }
                         const comments = productDetail.comments
-                        totalComments += comments.length
                         for (let index in comments) {
+                            if (comments[index].star > 0)
+                                totalComments += 1
                             comments[index].star === 5 ? fiveStar += 1 :
                                 comments[index].star === 4 ? fourStar += 1 :
                                     comments[index].star === 3 ? threeStar += 1 :
@@ -549,7 +560,10 @@ const productController = {
                     const comments = productDetail.comments
                     for (const comment of comments) {
                         const commentItem = await Comments.findById(comment._id).populate('user')
-                        totalComments.push(commentItem)
+                        if (commentItem.star > 0) {
+                            totalCommentLength += 1
+                            totalComments.push(commentItem)
+                        }
                         comment.star === 5 ? fiveStar += 1 :
                             comment.star === 4 ? fourStar += 1 :
                                 comment.star === 3 ? threeStar += 1 :
@@ -557,7 +571,6 @@ const productController = {
                                         comment.star === 1 ? oneStar += 1 : null
                         rating += comment.star
                     }
-                    totalCommentLength += comments.length
                 }
                 rating /= totalCommentLength
                 let productObject = product.toObject()
@@ -593,7 +606,7 @@ const productController = {
             }).populate('category').populate('productDetails')
             let totalComments = []
             if (product) {
-                let data = []
+                let data
                 let rating = 0
                 let fiveStar = 0
                 let fourStar = 0
@@ -614,7 +627,10 @@ const productController = {
                     const comments = productDetail.comments
                     for (const comment of comments) {
                         const commentItem = await Comments.findById(comment._id).populate('user')
-                        totalComments.push(commentItem)
+                        if (commentItem.star > 0) {
+                            totalCommentLength += 1
+                            totalComments.push(commentItem)
+                        }
                         comment.star === 5 ? fiveStar += 1 :
                             comment.star === 4 ? fourStar += 1 :
                                 comment.star === 3 ? threeStar += 1 :
@@ -622,7 +638,7 @@ const productController = {
                                         comment.star === 1 ? oneStar += 1 : null
                         rating += comment.star
                     }
-                    totalCommentLength += comments.length
+
                 }
                 rating /= totalCommentLength
                 let productObject = product.toObject()
@@ -1066,7 +1082,9 @@ const productController = {
                         comments = sorted(comments, 'star', 'desc')
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             "data": data,
@@ -1082,7 +1100,9 @@ const productController = {
                         comments = sorted(comments, 'star', 'desc')
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             "data": data,
@@ -1101,7 +1121,9 @@ const productController = {
                         comments = sorted(comments, 'createdAt', "desc")
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             data: data,
@@ -1116,7 +1138,9 @@ const productController = {
                         comments = sorted(comments, 'star', 'desc')
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             "data": data
@@ -1129,7 +1153,9 @@ const productController = {
                         comments = sorted(comments, 'createdAt', "desc")
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             data: data,
@@ -1143,7 +1169,9 @@ const productController = {
                         comments = sorted(comments, 'createdAt', "desc")
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             "data": data
@@ -1157,7 +1185,9 @@ const productController = {
                         comments = sorted(comments, 'star', 'desc')
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             data: data,
@@ -1172,7 +1202,9 @@ const productController = {
                         comments = sorted(comments, 'star', 'desc')
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
-                            data.push(comment)
+                            if (comment.star > 0) {
+                                data.push(comment)
+                            }
                         }
                         res.status(200).json({
                             "data": data
@@ -1185,7 +1217,9 @@ const productController = {
                             comments = paginate(comments, page |1, limit | 10)
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
-                                data.push(comment)
+                                if (comment.star > 0) {
+                                    data.push(comment)
+                                }
                             }
                             res.status(200).json({
                                 data: data,
@@ -1198,7 +1232,9 @@ const productController = {
                             comments = comments.filter(comment => comment.images.length > 0)
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
-                                data.push(comment)
+                                if (comment.star > 0) {
+                                    data.push(comment)
+                                }
                             }
                             res.status(200).json({
                                 "data": data
@@ -1210,7 +1246,9 @@ const productController = {
                             comments = paginate(comments, page |1, limit | 10)
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
-                                data.push(comment)
+                                if (comment.star > 0) {
+                                    data.push(comment)
+                                }
                             }
                             res.status(200).json({
                                 data: data,
@@ -1223,7 +1261,9 @@ const productController = {
                             comments = sorted(comments, 'createdAt', "desc")
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
-                                data.push(comment)
+                                if (comment.star > 0) {
+                                    data.push(comment)
+                                }
                             }
                             res.status(200).json({
                                 "data": data
@@ -1237,7 +1277,9 @@ const productController = {
                             comments = sorted(comments, 'star', 'desc')
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
-                                data.push(comment)
+                                if (comment.star > 0) {
+                                    data.push(comment)
+                                }
                             }
                             res.status(200).json({
                                 data: data,
@@ -1251,7 +1293,9 @@ const productController = {
                             comments = sorted(comments, 'star', 'desc')
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
-                                data.push(comment)
+                                if (comment.star > 0) {
+                                    data.push(comment)
+                                }
                             }
                             res.status(200).json({
                                 "data": data
@@ -1264,7 +1308,9 @@ const productController = {
                     comments = paginate(comments, page | 1, limit | 10)
                     for (let item of comments) {
                         const comment = await Comments.findById(item._id).populate('product')
-                        data.push(comment)
+                        if (comment.star > 0) {
+                            data.push(comment)
+                        }
                     }
                     res.status(200).json({
                         "data": data,
@@ -1276,7 +1322,9 @@ const productController = {
                 } else {
                     for (let item of comments) {
                         const comment = await Comments.findById(item._id).populate('product')
-                        data.push(comment)
+                        if (comment.star > 0) {
+                            data.push(comment)
+                        }
                     }
                     res.status(200).json({
                         data: data
