@@ -124,7 +124,7 @@ const commentController = {
                                 const commentParent = await Comments.findById(result.parent)
                                 await commentParent.update({
                                     $push: {
-                                        childs: result.get('_id')
+                                        children: result.get('_id')
                                     }
                                 })
                             }

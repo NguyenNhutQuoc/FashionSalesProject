@@ -31,7 +31,7 @@ const commentsSchema = new mongoose.Schema({
         ref: 'Comments',
         default: ""
     },
-    childs: {
+    children: {
         type:[
             {
                 type: mongoose.Schema.Types.ObjectId,
