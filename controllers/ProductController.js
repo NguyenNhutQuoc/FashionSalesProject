@@ -1004,7 +1004,7 @@ const productController = {
             const offset = (page - 1) * limit;
             return arr.slice(offset, offset + limit);
         }
-        function sort(arr, key, order) {
+        function sorted(arr, key, order) {
             return arr.sort((a, b) => {
                 if (order === 'asc') {
                     return a[key] - b[key];
@@ -1024,6 +1024,7 @@ const productController = {
             } = req.query;
             const product = await Products.findById(idProduct)
             console.log(product)
+            let data = []
             let comments = []
             if (product) {
                 const productDetails = product.productDetails
@@ -1061,10 +1062,14 @@ const productController = {
                     if (page || limit) {
                         comments = comments.filter(comment => comment.images.length > 0)
                         comments = paginate(comments, page |1, limit | 10)
-                        comments = sort(comments, 'createdAt', "desc")
-                        comments = sort(comments, 'star', 'desc')
+                        comments = sorted(comments, 'createdAt', "desc")
+                        comments = sorted(comments, 'star', 'desc')
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
                         res.status(200).json({
-                            "data": comments,
+                            "data": data,
                             "page": page | 1,
                             "limit": limit | 10,
                             "totalPages": Math.ceil(comments.length / limit | 10),
@@ -1073,10 +1078,14 @@ const productController = {
                     }
                     else {
                         comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
-                        comments = sort(comments, 'createdAt', "desc")
-                        comments = sort(comments, 'star', 'desc')
+                        comments = sorted(comments, 'createdAt', "desc")
+                        comments = sorted(comments, 'star', 'desc')
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
                         res.status(200).json({
-                            "data": comments,
+                            "data": data,
                             "page": page | 1,
                             "limit": limit | 10,
                             "totalPages": Math.ceil(comments.length / limit | 10),
@@ -1087,197 +1096,172 @@ const productController = {
                 } else if (checkNewest && arrayStar.length > 0 ) {
                     const arrayStarNumber = arrayStar.map(element => parseInt(element))
                     if (page || limit) {
-                        const comments = await Comments.paginate({
-                            product: product.get('_id'),
-                            star: {
-                                $in: arrayStarNumber
-                            }
-                        }, {
-                            limit: limit | 10,
-                            page: page | 1,
-                            sort: {
-                                star:-1,
-                                createdAt: -1
-                            }
-                        })
-                        const {docs, ...others} = comments
+                        comments = comments.filter(comment => comment.star in arrayStarNumber)
+                        comments = paginate(comments, page |1, limit | 10)
+                        comments = sorted(comments, 'createdAt', "desc")
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
                         res.status(200).json({
-                            data: docs,
-                            ...others
+                            data: data,
+                            page: page | 1,
+                            limit: limit | 10,
+                            totalPages: Math.ceil(comments.length / limit | 10),
+                            totalItems: comments.length,
                         })
                     } else {
-                        const comments = await Comments.find({
-                            product: product.get("_id"),
-                            star: {
-                                $in: arrayStarNumber
-                            }
-                        }).sort({
-                            star: -1,
-                            createdAt: -1
+                        comments = comments.filter(comment => comment.star in arrayStarNumber)
+                        comments = sorted(comments, 'createdAt', "desc")
+                        comments = sorted(comments, 'star', 'desc')
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
+                        res.status(200).json({
+                            "data": data
                         })
-                        res.status(200).json(comments)
                     }
                 } else if (checkNewest && checkHaveImages) {
                     if (page || limit) {
-                        const comments = await Comments.paginate({
-                            product: product.get('_id'),
-                            images: {
-                                $exists: true,
-                                $ne: []
-                            }
-                        }, {
-                            limit: limit | 10,
-                            page: page | 1,
-                            sort: {
-                                createdAt: -1
-                            }
-                        })
-                        const {docs, ...others} = comments
+                        comments = comments.filter(comment => comment.images.length > 0)
+                        comments = paginate(comments, page |1, limit | 10)
+                        comments = sorted(comments, 'createdAt', "desc")
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
                         res.status(200).json({
-                            data: docs,
-                            ...others
+                            data: data,
+                            page: page | 1,
+                            limit: limit | 10,
+                            totalPages: Math.ceil(comments.length / limit | 10),
+                            totalItems: comments.length,
                         })
                     } else {
-                        const comments = await Comments.find({
-                            product: product.get("_id"),
-                            images: {
-                                $exists: true,
-                                $ne: []
-                            }
-                        }).sort({
-                            star: -1,
-                            createdAt: -1
+                        comments = comments.filter(comment => comment.images.length > 0)
+                        comments = sorted(comments, 'createdAt', "desc")
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
+                        res.status(200).json({
+                            "data": data
                         })
-                        res.status(200).json(comments)
                     }
                 } else if (checkHaveImages && arrayStar.length > 0) {
                     const arrayStarNumber = arrayStar.map(element => parseInt(element))
                     if (page || limit) {
-                        const comments = await Comments.paginate({
-                            product: product.get('_id'),
-                            star: {
-                                $in: arrayStarNumber
-                            },
-                            images: {
-                                $exists: true,
-                                $ne: []
-                            }
-                        }, {
-                            limit: limit | 10,
-                            page: page | 1,
-                            sort: {
-                                star:-1,
-                            }
-                        })
-                        const {docs, ...others} = comments
+                        comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
+                        comments = paginate(comments, page |1, limit | 10)
+                        comments = sorted(comments, 'star', 'desc')
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
                         res.status(200).json({
-                            data: docs,
-                            ...others
+                            data: data,
+                            page: page | 1,
+                            limit: limit | 10,
+                            totalPages: Math.ceil(comments.length / limit | 10),
+                            totalItems: comments.length,
                         })
                     }
                     else {
-                        const comments = await Comments.find({
-                            product: product.get("_id"),
-                            star: {
-                                $in: arrayStarNumber
-                            },
-                            images: {
-                                $exists: true,
-                                $ne: []
-                            }
-                        }).sort({
-                            star: -1,
+                        comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
+                        comments = sorted(comments, 'star', 'desc')
+                        for (let item of comments) {
+                            const comment = await Comments.findById(item._id).populate('product')
+                            data.push(comment)
+                        }
+                        res.status(200).json({
+                            "data": data
                         })
-                        res.status(200).json(comments)
                     }
                 } else {
                     if (checkHaveImages) {
                         if (page || limit) {
-                            const comments = await Comments.paginate({
-                                product: product.get('_id'),
-                                images: {
-                                    $exists: true,
-                                    $ne: []
-                                }
-                            }, {
-                                limit: limit | 10,
-                                page: page | 1,
-                            })
-                            const {docs, ...others} = comments
-                            res.status(200).json({
-                                data: docs,
-                                ...others
-                            })
-                        }
-                        const comments = await Comments.find({
-                            product: product.get("_id"),
-                            images: {
-                                $exists: true,
-                                $ne: []
+                            comments = comments.filter(comment => comment.images.length > 0)
+                            comments = paginate(comments, page |1, limit | 10)
+                            for (let item of comments) {
+                                const comment = await Comments.findById(item._id).populate('product')
+                                data.push(comment)
                             }
-                        })
-                        res.status(200).json(comments)
-                    } else if (checkNewest) {
-                        if (page || limit) {
-                            const comments = await Comments.paginate({
-                                product: product.get('_id'),
-                            }, {
-                                limit: limit | 10,
-                                page: page | 1,
-                                sort: {
-                                    createdAt: -1
-                                }
-                            })
-                            const {docs, ...others} = comments
                             res.status(200).json({
-                                data: docs,
-                                ...others
+                                data: data,
+                                page: page | 1,
+                                limit: limit | 10,
+                                totalPages: Math.ceil(comments.length / limit | 10),
+                                totalItems: comments.length,
                             })
                         } else {
-                            const comments = await Comments.find({
-                                product: product.get("_id")
-                            }).sort({
-                                createdAt: -1
+                            comments = comments.filter(comment => comment.images.length > 0)
+                            for (let item of comments) {
+                                const comment = await Comments.findById(item._id).populate('product')
+                                data.push(comment)
+                            }
+                            res.status(200).json({
+                                "data": data
                             })
-                            res.status(200).json(comments)
+                        }
+                    } else if (checkNewest) {
+                        if (page || limit) {
+                            comments = sorted(comments, 'createdAt', "desc")
+                            comments = paginate(comments, page |1, limit | 10)
+                            for (let item of comments) {
+                                const comment = await Comments.findById(item._id).populate('product')
+                                data.push(comment)
+                            }
+                            res.status(200).json({
+                                data: data,
+                                page: page | 1,
+                                limit: limit | 10,
+                                totalPages: Math.ceil(comments.length / limit | 10),
+                                totalItems: comments.length,
+                            })
+                        } else {
+                            comments = sorted(comments, 'createdAt', "desc")
+                            for (let item of comments) {
+                                const comment = await Comments.findById(item._id).populate('product')
+                                data.push(comment)
+                            }
+                            res.status(200).json({
+                                "data": data
+                            })
                         }
                     } else {
                         const arrayStarNumber = arrayStar.map(element => parseInt(element))
                         if (page || limit) {
-                            const comments = await Comments.paginate({
-                                product: product.get('_id'),
-                                star: {
-                                    $in: arrayStarNumber
-                                }
-                            }, {
-                                limit: limit | 10,
-                                page: page | 1,
-                                sort: {
-                                    star: -1,
-                                }
-                            })
-                            const {docs, ...others} = comments
+                            comments = comments.filter(comment => comment.star in arrayStarNumber)
+                            comments = paginate(comments, page |1, limit | 10)
+                            comments = sorted(comments, 'star', 'desc')
+                            for (let item of comments) {
+                                const comment = await Comments.findById(item._id).populate('product')
+                                data.push(comment)
+                            }
                             res.status(200).json({
-                                data: docs,
-                                ...others
+                                data: data,
+                                page: page | 1,
+                                limit: limit | 10,
+                                totalPages: Math.ceil(comments.length / limit | 10),
+                                totalItems: comments.length,
                             })
                         } else {
-                            const comments = await Comments.find({
-                                product: product.get("_id"),
-                                star: {
-                                    $in: arrayStarNumber
-                                }
-                            }).sort({
-                                star: -1,
+                            comments = comments.filter(comment => comment.star in arrayStarNumber)
+                            comments = sorted(comments, 'star', 'desc')
+                            for (let item of comments) {
+                                const comment = await Comments.findById(item._id).populate('product')
+                                data.push(comment)
+                            }
+                            res.status(200).json({
+                                "data": data
                             })
-                            res.status(200).json(comments)
                         }
                     }
                 }
             } else {
                 if (page || limit) {
                     comments = paginate(comments, page | 1, limit | 10)
-                    let data=[]
                     for (let item of comments) {
                         const comment = await Comments.findById(item._id).populate('product')
                         data.push(comment)
@@ -1290,7 +1274,6 @@ const productController = {
                         "page": page
                     })
                 } else {
-                    let data=[]
                     for (let item of comments) {
                         const comment = await Comments.findById(item._id).populate('product')
                         data.push(comment)
