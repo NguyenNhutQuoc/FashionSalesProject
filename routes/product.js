@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
 const productController = require('../controllers/ProductController');
-router.get('/:id/comments', productController.findCommentsById)
+router.get('/:product/:user/comments', productController.findCommentsById)
 router.get("/", productController.findAll)
 router.get("/category/:slug", productController.findBySlugCategory)
 router.get("/:id/find",productController.findBySizeColor)

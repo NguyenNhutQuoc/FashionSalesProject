@@ -7,7 +7,7 @@ const {
     Images,
     Trademarks,
     Bills,
-    Comments
+    Comments, Actions
 } = require("../model/model");
 
 const isNumber = require("is-number");
@@ -1030,7 +1030,8 @@ const productController = {
             });
         }
         try {
-            const idProduct = req.params.id
+            const idProduct = req.params.product
+            const user = req.params.user
             const {
                 sort,
                 star,
@@ -1094,8 +1095,17 @@ const productController = {
                         for (let item of dataTemple) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
                                 const commentObject = comment.toObject()
-                                commentObject.liked = comment.actions.length
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1124,7 +1134,16 @@ const productController = {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
                                 const commentObject = comment.toObject()
-                                commentObject.liked = comment.actions.length
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1155,6 +1174,16 @@ const productController = {
                             if (comment.star > 0) {
                                 const commentObject = comment.toObject()
                                 commentObject.liked = comment.actions.length
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1182,7 +1211,16 @@ const productController = {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
                                 const commentObject = comment.toObject()
-                                commentObject.liked = comment.actions.length
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1199,7 +1237,16 @@ const productController = {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
                                 const commentObject = comment.toObject()
-                                commentObject.liked = comment.actions.length
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1217,7 +1264,16 @@ const productController = {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
                                 const commentObject = comment.toObject()
-                                commentObject.liked = comment.actions.length
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1235,7 +1291,16 @@ const productController = {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
                                 const commentObject = comment.toObject()
-                                commentObject.liked = comment.actions.length
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1254,7 +1319,16 @@ const productController = {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
                                 const commentObject = comment.toObject()
-                                commentObject.liked = comment.actions.length
+                                const action = await Actions.findOne({
+                                    user: user,
+                                    comment: comment._id,
+                                })
+                                if (action) {
+                                    commentObject.liked = 1
+                                } else {
+                                    commentObject.liked = 0
+                                }
+                                commentObject.numberOfLikes = comment.actions.length
                                 data.push(commentObject)
                             }
                         }
@@ -1271,7 +1345,16 @@ const productController = {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
                                     const commentObject = comment.toObject()
-                                    commentObject.liked = comment.actions.length
+                                    const action = await Actions.findOne({
+                                        user: user,
+                                        comment: comment._id,
+                                    })
+                                    if (action) {
+                                        commentObject.liked = 1
+                                    } else {
+                                        commentObject.liked = 0
+                                    }
+                                    commentObject.numberOfLikes = comment.actions.length
                                     data.push(commentObject)
                                 }
                             }
@@ -1288,7 +1371,16 @@ const productController = {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
                                     const commentObject = comment.toObject()
-                                    commentObject.liked = comment.actions.length
+                                    const action = await Actions.findOne({
+                                        user: user,
+                                        comment: comment._id,
+                                    })
+                                    if (action) {
+                                        commentObject.liked = 1
+                                    } else {
+                                        commentObject.liked = 0
+                                    }
+                                    commentObject.numberOfLikes = comment.actions.length
                                     data.push(commentObject)
                                 }
                             }
@@ -1304,7 +1396,16 @@ const productController = {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
                                     const commentObject = comment.toObject()
-                                    commentObject.liked = comment.actions.length
+                                    const action = await Actions.findOne({
+                                        user: user,
+                                        comment: comment._id,
+                                    })
+                                    if (action) {
+                                        commentObject.liked = 1
+                                    } else {
+                                        commentObject.liked = 0
+                                    }
+                                    commentObject.numberOfLikes = comment.actions.length
                                     data.push(commentObject)
                                 }
                             }
@@ -1321,7 +1422,16 @@ const productController = {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
                                     const commentObject = comment.toObject()
-                                    commentObject.liked = comment.actions.length
+                                    const action = await Actions.findOne({
+                                        user: user,
+                                        comment: comment._id,
+                                    })
+                                    if (action) {
+                                        commentObject.liked = 1
+                                    } else {
+                                        commentObject.liked = 0
+                                    }
+                                    commentObject.numberOfLikes = comment.actions.length
                                     data.push(commentObject)
                                 }
                             }
@@ -1341,7 +1451,16 @@ const productController = {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
                                     const commentObject = comment.toObject()
-                                    commentObject.liked = comment.actions.length
+                                    const action = await Actions.findOne({
+                                        user: user,
+                                        comment: comment._id,
+                                    })
+                                    if (action) {
+                                        commentObject.liked = 1
+                                    } else {
+                                        commentObject.liked = 0
+                                    }
+                                    commentObject.numberOfLikes = comment.actions.length
                                     data.push(commentObject)
                                 }
                             }
@@ -1360,7 +1479,16 @@ const productController = {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
                                     const commentObject = comment.toObject()
-                                    commentObject.liked = comment.actions.length
+                                    const action = await Actions.findOne({
+                                        user: user,
+                                        comment: comment._id,
+                                    })
+                                    if (action) {
+                                        commentObject.liked = 1
+                                    } else {
+                                        commentObject.liked = 0
+                                    }
+                                    commentObject.numberOfLikes = comment.actions.length
                                     data.push(commentObject)
                                 }
                             }
@@ -1378,7 +1506,16 @@ const productController = {
                         const comment = await Comments.findById(item._id).populate('product')
                         if (comment.star > 0) {
                             const commentObject = comment.toObject()
-                            commentObject.liked = comment.actions.length
+                            const action = await Actions.findOne({
+                                user: user,
+                                comment: comment._id,
+                            })
+                            if (action) {
+                                commentObject.liked = 1
+                            } else {
+                                commentObject.liked = 0
+                            }
+                            commentObject.numberOfLikes = comment.actions.length
                             data.push(commentObject)
                         }
                     }
@@ -1395,7 +1532,16 @@ const productController = {
                         const comment = await Comments.findById(item._id).populate('product')
                         if (comment.star > 0) {
                             const commentObject = comment.toObject()
-                            commentObject.liked = comment.actions.length
+                            const action = await Actions.findOne({
+                                user: user,
+                                comment: comment._id,
+                            })
+                            if (action) {
+                                commentObject.liked = 1
+                            } else {
+                                commentObject.liked = 0
+                            }
+                            commentObject.numberOfLikes = comment.actions.length
                             data.push(commentObject)
                         }
                     }
