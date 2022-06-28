@@ -120,7 +120,7 @@ const commentController = {
                         if (billDetail) {
                             const comment = new Comments(req.body)
                             const result = await comment.save()
-                            if (result.parent) {
+                            if (req.body.parent) {
                                 const commentParent = await Comments.findById(result.parent)
                                 await commentParent.update({
                                     $push: {
@@ -384,12 +384,20 @@ const commentController = {
     delete: async(req, res) => {
         try {
             const comment = await Comments.findById(req.params.id)
-            const user = await Users.findById(req.params.user)
-            const checkAdmin = user.get("isAdmin") === 1;
+            const userAdmin = await Users.findById(req.params.user)
+            const checkAdmin = userAdmin.get("isAdmin") === 1;
             if (comment && checkAdmin) {
                 const user = await Users.findById(comment.get('user'))
+                console.log(user.get('name'))
                 const product = await ProductDetails.findById(comment.get('product'))
-                await comment.remove()
+                if (comment.children.length > 0) {
+                    const children = comment.children
+                    for (const child of children) {
+                        await Comments.deleteOne({
+                            _id: child.get('_id')
+                        })
+                    }
+                }
                 await user.updateOne({
                     $pull: {
                         comments: comment.get('_id')
@@ -400,6 +408,7 @@ const commentController = {
                         comments: comment.get('_id')
                     }
                 })
+                await comment.remove()
                 res.status(200).json({
                     message: 'Deleted successfully'
                 })

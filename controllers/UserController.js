@@ -50,23 +50,20 @@ const userController = {
             })
             let data = []
             for (const bill of bills) {
-
                 const billDetails = bill.billDetails
                 for (const billDetailId of billDetails) {
                     const billDetail = await BillDetails.findById(billDetailId)
                     const productDetail = await ProductDetails.findById(billDetail.productDetail)
-                    const product = await Products.findById(productDetail.product)
-                    const comments = product.comments
-                    const checkComment = 0
-                    for (const commentId of comments) {
-                        const comment = await Comments.findById(commentId)
-                        if (comment.user === id) {
-                            checkComment = 1
-                            break
-                        }
+                    let checkComment = 0
+                    const comments = await Comments.find({
+                        user: id,
+                        productDetail: productDetail._id
+                    })
+                    if (comments.length > 0) {
+                        checkComment = 1
                     }
-                    if (!checkComment) {
-                        data.push(product)
+                    if (checkComment === 0) {
+                        data.push(productDetail)
                     }
                 }
             }
