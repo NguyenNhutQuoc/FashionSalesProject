@@ -2,6 +2,7 @@ const router = require('express').Router();
 const userController = require('../controllers/UserController');
 
 router.get('/find-products/:id/products', userController.findAllProductByUser)
+router.get('/find-comments-liked/:user/:product/comments', userController.findAllCommentWasLikedByUser)
 router.get('/find-products-not-comment/:id/products', userController.findProductsNotCommentedByUser);
 router.get('/email/:email', userController.findByEmail)
 router.get('/', userController.findAll)

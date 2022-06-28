@@ -11,23 +11,31 @@ const ActionController = {
                 user,
                 comment
             } = req.body
-            const action = await Actions.create({
+            const action = await Actions.find({
                 user: user,
                 comment: comment
             })
+            if (action.length === 0) {
+                const newAction = await Actions.create({
+                    user: user,
+                    comment: comment
+                })
 
-            await Users.findByIdAndUpdate(user, {
-                $push: {
-                    actions: action._id
-                }
-            })
+                await Users.findByIdAndUpdate(user, {
+                    $push: {
+                        actions: newAction._id
+                    }
+                })
 
-            await Comments.findByIdAndUpdate(comment, {
-                $push: {
-                    actions: action._id
-                }
-            })
-            res.status(200).json(action)
+                await Comments.findByIdAndUpdate(comment, {
+                    $push: {
+                        actions: newAction._id
+                    }
+                })
+                res.status(200).json(newAction)
+            } else {
+                res.status(200).json(null)
+            }
         } catch (err) {
             res.status(500).json(err)
         }

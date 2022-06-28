@@ -23,6 +23,7 @@ const provinceRouter = require("./routes/province");
 const districtRouter = require("./routes/district");
 const orderRouter = require("./routes/commune");
 const searchRouter = require("./routes/localRoute");
+const actionRouter = require = require("./routes/action")
 mongoose.connect(process.env.MONGDB_URL, (err) => {
     if (err) {
         console.log("Can't connect to database");
@@ -69,6 +70,8 @@ app.use("/api/districts", districtRouter);
 app.use("/api/communes", orderRouter);
 
 app.use("/api/location", searchRouter);
+
+app.use("/api/actions", actionRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

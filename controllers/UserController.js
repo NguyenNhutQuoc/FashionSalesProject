@@ -4,7 +4,7 @@ const {
     BillDetails,
     Products,
     ProductDetails,
-    Comments
+    Comments, Actions
 } = require('../model/model');
 const mongoose = require("mongoose");
 
@@ -523,7 +523,31 @@ const userController = {
 
     findAllCommentWasLikedByUser: async (req, res) => {
         try {
-
+            const user = await Users.findById(req.params.user)
+            const product = await Products.findById(req.params.product)
+            console.log(product)
+            console.log(user)
+            if (product && user) {
+                let dataComments = []
+                let dataLiked = []
+                const productDetails = product.productDetails
+                for (const productDetail of productDetails) {
+                    const comments = productDetail.comments
+                    dataComments.push(...comments)
+                }
+                for (const comment of dataComments) {
+                    const action = await  Actions.findOne({
+                        user: user.get('_id'),
+                        comment: comment._id
+                    })
+                    if (action) {
+                        dataLiked.push(comment)
+                    }
+                }
+                res.status(200).json(dataLiked)
+            } else {
+                res.status(200).json(null)
+            }
         } catch (err) {
             res.status(500).json({
                 status: 500,

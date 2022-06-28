@@ -7,5 +7,4 @@ router.get('/search', commentController.findBy)
 router.post('/', commentController.create)
 router.put('/:id', commentController.update)
 router.delete('/:id/:user', commentController.delete)
-//router.get('/:id', commentController.findByIdAndUpdate)
 module.exports = router
