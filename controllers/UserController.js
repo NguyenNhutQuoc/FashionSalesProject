@@ -519,6 +519,17 @@ const userController = {
                 errorMessage: err.message
             })
         }
+    },
+
+    findAllCommentWasLikedByUser: async (req, res) => {
+        try {
+
+        } catch (err) {
+            res.status(500).json({
+                status: 500,
+                errorMessage: err.message
+            })
+        }
     }
 }
 

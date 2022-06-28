@@ -16,6 +16,7 @@ const Trademarks = require('./Trademarks')
 const Province = require('./ProvinceTable')
 const District = require('./District')
 const Commune = require('./Commune')
+const Actions = require('./Actions')
 module.exports = {
     Categories,
     Products,
@@ -31,5 +32,6 @@ module.exports = {
     Trademarks,
     Province,
     District,
-    Commune
+    Commune,
+    Actions
 }

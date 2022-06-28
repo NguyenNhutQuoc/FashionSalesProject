@@ -39,6 +39,14 @@ const commentsSchema = new mongoose.Schema({
             }
         ],
         autopopulate: true
+    },
+    actions: {
+        type:[
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Actions',
+            }
+        ]
     }
 }, {
     timestamps: true

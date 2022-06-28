@@ -1094,7 +1094,9 @@ const productController = {
                         for (let item of dataTemple) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json({
@@ -1121,7 +1123,9 @@ const productController = {
                         for (let item of dataTemple) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json(
@@ -1149,7 +1153,9 @@ const productController = {
                         for (let item of dataTemple) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json({
@@ -1175,7 +1181,9 @@ const productController = {
                         for (let item of dataTemple) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json({
@@ -1190,7 +1198,9 @@ const productController = {
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json({
@@ -1206,7 +1216,9 @@ const productController = {
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json({
@@ -1222,7 +1234,9 @@ const productController = {
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json({
@@ -1239,7 +1253,9 @@ const productController = {
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
                             if (comment.star > 0) {
-                                data.push(comment)
+                                const commentObject = comment.toObject()
+                                commentObject.liked = comment.actions.length
+                                data.push(commentObject)
                             }
                         }
                         res.status(200).json({
@@ -1254,7 +1270,9 @@ const productController = {
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
-                                    data.push(comment)
+                                    const commentObject = comment.toObject()
+                                    commentObject.liked = comment.actions.length
+                                    data.push(commentObject)
                                 }
                             }
                             res.status(200).json({
@@ -1269,7 +1287,9 @@ const productController = {
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
-                                    data.push(comment)
+                                    const commentObject = comment.toObject()
+                                    commentObject.liked = comment.actions.length
+                                    data.push(commentObject)
                                 }
                             }
                             res.status(200).json({
@@ -1283,7 +1303,9 @@ const productController = {
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
-                                    data.push(comment)
+                                    const commentObject = comment.toObject()
+                                    commentObject.liked = comment.actions.length
+                                    data.push(commentObject)
                                 }
                             }
                             res.status(200).json({
@@ -1298,7 +1320,9 @@ const productController = {
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
-                                    data.push(comment)
+                                    const commentObject = comment.toObject()
+                                    commentObject.liked = comment.actions.length
+                                    data.push(commentObject)
                                 }
                             }
                             res.status(200).json({
@@ -1316,7 +1340,9 @@ const productController = {
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
-                                    data.push(comment)
+                                    const commentObject = comment.toObject()
+                                    commentObject.liked = comment.actions.length
+                                    data.push(commentObject)
                                 }
                             }
                             res.status(200).json({
@@ -1333,7 +1359,9 @@ const productController = {
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
                                 if (comment.star > 0) {
-                                    data.push(comment)
+                                    const commentObject = comment.toObject()
+                                    commentObject.liked = comment.actions.length
+                                    data.push(commentObject)
                                 }
                             }
                             res.status(200).json({
@@ -1349,7 +1377,9 @@ const productController = {
                     for (let item of comments) {
                         const comment = await Comments.findById(item._id).populate('product')
                         if (comment.star > 0) {
-                            data.push(comment)
+                            const commentObject = comment.toObject()
+                            commentObject.liked = comment.actions.length
+                            data.push(commentObject)
                         }
                     }
                     res.status(200).json({
@@ -1364,7 +1394,9 @@ const productController = {
                     for (let item of comments) {
                         const comment = await Comments.findById(item._id).populate('product')
                         if (comment.star > 0) {
-                            data.push(comment)
+                            const commentObject = comment.toObject()
+                            commentObject.liked = comment.actions.length
+                            data.push(commentObject)
                         }
                     }
                     res.status(200).json({

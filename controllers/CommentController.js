@@ -108,48 +108,73 @@ const commentController = {
                 const user = await Users.findById(req.body.user)
                 const product = await ProductDetails.findById(req.body.product)
                 if (user && product) {
-                    const bill = await Bills.findOne({
-                        user: user.get('_id'),
-                        status: 3
-                    })
-                    if (bill || user.get('isAdmin') === 1) {
-                        const billDetail = await BillDetails.findOne({
-                            bill: bill.get('_id'),
-                            productDetail: product.get('_id')
+                    if (user.isCustomer === 1) {
+                        const bill = await Bills.findOne({
+                            user: user.get('_id'),
+                            status: 3
                         })
-                        if (billDetail) {
-                            const comment = new Comments(req.body)
-                            const result = await comment.save()
-                            if (req.body.parent) {
-                                const commentParent = await Comments.findById(result.parent)
-                                await commentParent.update({
+                        console.log(bill)
+                        if (bill) {
+                            const billDetail = await BillDetails.findOne({
+                                bill: bill.get('_id'),
+                                productDetail: product.get('_id')
+                            })
+                            if (billDetail) {
+                                const comment = new Comments(req.body)
+                                const result = await comment.save()
+                                if (req.body.parent) {
+                                    const commentParent = await Comments.findById(result.parent)
+                                    await commentParent.update({
+                                        $push: {
+                                            children: result.get('_id')
+                                        }
+                                    })
+                                }
+                                await user.updateOne({
                                     $push: {
-                                        children: result.get('_id')
+                                        comments: result.get('_id')
                                     }
                                 })
+                                await product.updateOne({
+                                    $push: {
+                                        comments: result.get('_id')
+                                    }
+                                })
+                                res.status(201).json(comment)
+                            } else {
+                                res.status(400).json({
+                                    status: 400,
+                                    errorMessage: 'This user has not bought this product yet.'
+                                })
                             }
-                            await user.updateOne({
-                                $push: {
-                                    comments: result.get('_id')
-                                }
-                            })
-                            await product.updateOne({
-                                $push: {
-                                    comments: result.get('_id')
-                                }
-                            })
-                            res.status(201).json(comment)
                         } else {
                             res.status(400).json({
                                 status: 400,
-                                errorMessage: 'This user has not bought this product yet.'
+                                errorMessage: 'User has not bought any product'
                             })
                         }
                     } else {
-                        res.status(400).json({
-                            status: 400,
-                            errorMessage: 'User has not bought any product'
+                        const comment = new Comments(req.body)
+                        const result = await comment.save()
+                        if (req.body.parent) {
+                            const commentParent = await Comments.findById(result.parent)
+                            await commentParent.update({
+                                $push: {
+                                    children: result.get('_id')
+                                }
+                            })
+                        }
+                        await user.updateOne({
+                            $push: {
+                                comments: result.get('_id')
+                            }
                         })
+                        await product.updateOne({
+                            $push: {
+                                comments: result.get('_id')
+                            }
+                        })
+                        res.status(201).json(comment)
                     }
                 } else {
                     res.status(404).json({

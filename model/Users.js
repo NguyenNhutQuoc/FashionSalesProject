@@ -57,6 +57,14 @@ const usersSchema = new mongoose.Schema({
     avatar: {
         type: String,
         default: ""
+    },
+    actions: {
+        type: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Actions',
+            }
+        ]
     }
 },
     {
