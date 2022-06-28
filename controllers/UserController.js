@@ -193,7 +193,7 @@ const userController = {
                     isCustomer: auth === "customer" ? 1 : 0,
                     isProvider: auth === "provider" ? 1 : 0,
                 })
-                const usersBynumberBankAccount = await Users.find({
+                const usersByNumberBankAccount = await Users.find({
                     
                     numberBankAccount: {
                         $regex: '.*' + q + '.*',
@@ -210,7 +210,7 @@ const userController = {
                         ...usersByPhone,
                         ...usersByEmail,
                         ...usersByAddress,
-                        ...usersBynumberBankAccount
+                        ...usersByNumberBankAccount
                     ]
                 })
             }

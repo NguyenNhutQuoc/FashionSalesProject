@@ -1065,7 +1065,7 @@ const productController = {
             if (checkSelected.length > 0) {
                 let arrayStar = []
                 if (checkSelected.includes("1") || checkSelected.includes("2") || checkSelected.includes("3") || checkSelected.includes("4") || checkSelected.includes("5")) {
-                    arrayStar = checkSelected.filter(element => element in ["1", "2", "3", "4", "5"])
+                    arrayStar = checkSelected.filter(element => ['1', '2', '3', '4', '5'].includes(element))
                 }
                 let checkNewest= false
                 if (checkSelected.includes("newest")) {
@@ -1076,9 +1076,9 @@ const productController = {
                     checkHaveImages = true
                 }
                 if (checkNewest && checkHaveImages && arrayStar.length > 0) {
-                    const arrayStarNumber = arrayStar.filter(element => element in ["1", "2", "3", "4", "5"]).map(element => parseInt(element))
+                    const arrayStarNumber = arrayStar.map(element => parseInt(element))
                     if (page || limit) {
-                        comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
+                        comments = comments.filter(comment => comment.images.length > 0 && arrayStarNumber.includes(comment.star))
                         comments = paginate(comments, page | 1, limit | 10)
                         let dataTemple = []
                         for (let item of arrayStarNumber) {
@@ -1106,7 +1106,7 @@ const productController = {
                         })
                     }
                     else {
-                        comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
+                        comments = comments.filter(comment => comment.images.length > 0 && arrayStarNumber.includes(comment.star))
                         let dataTemple = []
                         for (let item of arrayStarNumber) {
                             let dataTemp = []
@@ -1124,19 +1124,16 @@ const productController = {
                                 data.push(comment)
                             }
                         }
-                        res.status(200).json({
-                            "data": data,
-                            "page": page | 1,
-                            "limit": limit | 10,
-                            "totalPages": Math.ceil(comments.length / limit | 10),
-                            "totalItems": comments.length,
-                        })
-                        res.status(200).json(comments)
+                        res.status(200).json(
+                            {
+                                data
+                            }
+                        )
                     }
                 } else if (checkNewest && arrayStar.length > 0 ) {
-                    const arrayStarNumber = arrayStar.filter(element => element in ["1", "2", "3", "4", "5"]).map(element => parseInt(element))
+                    const arrayStarNumber = arrayStar.map(element => parseInt(element))
                     if (page || limit) {
-                        comments = comments.filter(comment => comment.star in arrayStarNumber)
+                        comments = comments.filter(comment => arrayStarNumber.includes(comment.star))
                         comments = paginate(comments, page | 1, limit | 10)
                         let dataTemple = []
                         for (let item of arrayStarNumber) {
@@ -1163,7 +1160,7 @@ const productController = {
                             totalItems: comments.length,
                         })
                     } else {
-                        comments = comments.filter(comment => comment.star in arrayStarNumber)
+                        comments = comments.filter(comment => arrayStarNumber.includes(comment.star))
                         let dataTemple = []
                         for (let item of arrayStarNumber) {
                             let dataTemp = []
@@ -1217,9 +1214,9 @@ const productController = {
                         })
                     }
                 } else if (checkHaveImages && arrayStar.length > 0) {
-                    const arrayStarNumber = arrayStar.filter(element => element in ["1", "2", "3", "4", "5"]).map(element => parseInt(element))
+                    const arrayStarNumber = arrayStar.map(element => parseInt(element))
                     if (page || limit) {
-                        comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
+                        comments = comments.filter(comment => comment.images.length > 0 && arrayStarNumber.includes(comment.star))
                         comments = paginate(comments, page |1, limit | 10)
                         comments = sorted(comments, 'star', 'desc')
                         for (let item of comments) {
@@ -1237,7 +1234,7 @@ const productController = {
                         })
                     }
                     else {
-                        comments = comments.filter(comment => comment.images.length > 0 && comment.star in arrayStarNumber)
+                        comments = comments.filter(comment => comment.images.length > 0 && arrayStarNumber.includes(comment.star))
                         comments = sorted(comments, 'star', 'desc')
                         for (let item of comments) {
                             const comment = await Comments.findById(item._id).populate('product')
@@ -1309,11 +1306,11 @@ const productController = {
                             })
                         }
                     } else {
-                        const arrayStarNumber = arrayStar.filter(element => element in ["1", "2", "3", "4", "5"]).map(element => parseInt(element))
+                        const arrayStarNumber = arrayStar.map(element => parseInt(element))
                         console.log("3" in ['1', '2', '3', '4', '5'])
                         console.log(arrayStarNumber)
                         if (page || limit) {
-                            comments = comments.filter(comment => comment.star in arrayStarNumber)
+                            comments = comments.filter(comment => arrayStarNumber.indexOf(comment.star))
                             comments = paginate(comments, page |1, limit | 10)
                             comments = sorted(comments, 'star', 'desc')
                             for (let item of comments) {
@@ -1330,7 +1327,8 @@ const productController = {
                                 totalItems: comments.length,
                             })
                         } else {
-                            comments = comments.filter(comment => comment.star in arrayStarNumber)
+                            console.log("Array is: "+arrayStarNumber)
+                            comments = comments.filter(comment => arrayStarNumber.includes(comment.star))
                             comments = sorted(comments, 'star', 'desc')
                             for (let item of comments) {
                                 const comment = await Comments.findById(item._id).populate('product')
