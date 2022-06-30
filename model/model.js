@@ -17,6 +17,8 @@ const Province = require('./ProvinceTable')
 const District = require('./District')
 const Commune = require('./Commune')
 const Actions = require('./Actions')
+const Conversations = require('./Conversation')
+const Message = require('./Message')
 module.exports = {
     Categories,
     Products,
@@ -33,5 +35,7 @@ module.exports = {
     Province,
     District,
     Commune,
-    Actions
+    Actions,
+    Conversations,
+    Message
 }
