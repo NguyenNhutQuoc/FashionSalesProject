@@ -22,7 +22,9 @@ const ConversationController = {
     getConversationOfUser: async (req, res) => {
         try {
             const conversation = await Conversations.find({
-                members: { $in: [req.params.userId] },
+                $in: {
+                    members: req.params.userId
+                }
             }).populate('members');
             res.status(200).json(conversation);
         } catch (err) {
