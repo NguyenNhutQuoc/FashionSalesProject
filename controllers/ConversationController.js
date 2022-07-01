@@ -23,7 +23,7 @@ const ConversationController = {
         try {
             const conversation = await Conversations.find({
                 members: { $in: [req.params.userId] },
-            });
+            }).populate('members');
             res.status(200).json(conversation);
         } catch (err) {
             res.status(500).json(err);
@@ -37,7 +37,7 @@ const ConversationController = {
                 $all: {
                     members: [req.params.firstUserId, req.params.secondUserId]
                 }
-            });
+            }).populate('members');
             res.status(200).json(conversation)
         } catch (err) {
             res.status(500).json(err);
