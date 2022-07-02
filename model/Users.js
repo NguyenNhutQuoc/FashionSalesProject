@@ -65,6 +65,10 @@ const usersSchema = new mongoose.Schema({
                 ref: 'Actions',
             }
         ]
+    },
+    status: {
+        type: Number,
+        default: 0,
     }
 },
     {
