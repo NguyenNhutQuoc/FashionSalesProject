@@ -13,7 +13,7 @@ const ProductDetailController = {
                     page: req.query.page || 1,
                     limit: req.query.limit || 10,
                     populate: {
-                        path: 'images size color',
+                        path: 'images size color ',
                     },
                     sort: {
                         createdAt: -1
@@ -194,34 +194,10 @@ const ProductDetailController = {
                     status: 3
                 })
             }
-            let dataImport = []
-            let dataExport = []
-            for (const importBill of importBills) {
-                for (const billDetail of importBill.billDetails) {
-                    if (billDetail) {
-                        const productDetail = await ProductDetails.findById(billDetail.productDetail)
-                        if (productDetail) {
-                            const product = await Products.findById(productDetail.product)
-                            dataImport.push(product)
-                        }
-                    }
-                }
-            }
-            for (const exportBill of exportBills) {
-                for (const billDetail of exportBill.billDetails) {
-                    if (billDetail) {
-                        const productDetail = await ProductDetails.findById(billDetail.productDetail)
-                        if (productDetail) {
-                            const product = await Products.findById(productDetail.product)
-                            dataExport.push(product)
-                        }
-                    }
-                }
-            }
             res.status(200).json({
                 data: {
-                    import: dataImport,
-                    export: dataExport
+                    importBills,
+                    exportBills
                 }
             })
         } catch (e) {

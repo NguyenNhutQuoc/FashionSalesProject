@@ -492,7 +492,7 @@ const productController = {
                     for (const productDetail of productDetails) {
                         const billDetails = productDetail.billDetails
                         for (const billDetail of billDetails) {
-                            const bill = await Bills.findById(billDetail.bill)
+                            const bill = billDetail.bill
                             if (bill.type === 'X') {
                                 sold += billDetail.quantity
                             }
