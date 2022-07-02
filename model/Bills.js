@@ -25,7 +25,8 @@ const billsSchema = new mongoose.Schema({
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'BillDetails',
-        }]
+        }],
+        autopopulate: true
     },
     type: {
         type: String,

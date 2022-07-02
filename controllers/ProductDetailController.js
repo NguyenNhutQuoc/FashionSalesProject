@@ -2,7 +2,7 @@ const {
     ProductDetails,
     Products,
     Sizes,
-    Colors, BillDetails, Bills
+    Colors, Bills
 } = require('../model/model');
 const ImagesSchema = require("../model/Images");
 const ProductDetailController = {
@@ -123,14 +123,11 @@ const ProductDetailController = {
 
     calculateQuantityImportAndExport: async (req, res) => {
         try {
-            const {fromDate, toDate} = req.query
-            let exportBills;
+            const {
+                fromDate, toDate
+            } = req.query
             let importBills;
-
-            let totalRevenue = 0;
-            let totalProfit = 0;
-            let quantityImport = 0;
-            let quantityExport = 0;
+            let exportBills;
             if (fromDate && toDate) {
                 importBills = await Bills.find({
                     type: 'N',
@@ -139,14 +136,16 @@ const ProductDetailController = {
                         $lte: new Date(toDate)
                     }
                 })
+
                 exportBills = await Bills.find({
                     type: 'X',
                     createdAt: {
                         $gte: new Date(fromDate),
                         $lte: new Date(toDate)
-                    }
+                    },
+                    status: 3
                 })
-            } else if (fromDate){
+            } else if (fromDate) {
                 importBills = await Bills.find({
                     type: 'N',
                     createdAt: {
@@ -159,7 +158,8 @@ const ProductDetailController = {
                     createdAt: {
                         $gte: new Date(fromDate),
                         $lte: new Date()
-                    }
+                    },
+                    status: 3
                 })
             } else if (toDate) {
                 importBills = await Bills.find({
@@ -172,26 +172,58 @@ const ProductDetailController = {
                 exportBills = await Bills.find({
                     type: 'X',
                     createdAt: {
-                        $gte:new Date(),
+                        $gte: new Date('2000-01-01'),
                         $lte: new Date(toDate)
-                    }
+                    },
+                    status: 3
                 })
             } else {
                 importBills = await Bills.find({
                     type: 'N',
+                    createdAt: {
+                        $gte: new Date('2000-01-01'),
+                        $lte: new Date()
+                    }
                 })
                 exportBills = await Bills.find({
-                    type: 'X'
+                    type: 'X',
+                    createdAt: {
+                        $gte: new Date('2000-01-01'),
+                        $lte: new Date()
+                    },
+                    status: 3
                 })
             }
-            
+            let dataImport = []
+            let dataExport = []
+            for (const importBill of importBills) {
+                for (const billDetail of importBill.billDetails) {
+                    if (billDetail) {
+                        const productDetail = await ProductDetails.findById(billDetail.productDetail)
+                        if (productDetail) {
+                            const product = await Products.findById(productDetail.product)
+                            dataImport.push(product)
+                        }
+                    }
+                }
+            }
+            for (const exportBill of exportBills) {
+                for (const billDetail of exportBill.billDetails) {
+                    if (billDetail) {
+                        const productDetail = await ProductDetails.findById(billDetail.productDetail)
+                        if (productDetail) {
+                            const product = await Products.findById(productDetail.product)
+                            dataExport.push(product)
+                        }
+                    }
+                }
+            }
             res.status(200).json({
-                data: [
-                    importBills,
-                    exportBills
-                ]
+                data: {
+                    import: dataImport,
+                    export: dataExport
+                }
             })
-
         } catch (e) {
             res.status(500).json({
                 status: 500,
