@@ -895,68 +895,62 @@ const productController = {
             console.log(Categories)
             const product = await Products.findById(req.params.id);
             if (product) {
-                if (product.get("comments").length > 0) {
+                const category = await Categories.findById(product.get("category"))
+                await category.updateOne({
+                    $pull: {
+                        products: product.get("_id"),
+                    },
+                });
+                const trademark = await Trademarks.findById(product.get("trademark"))
+                await trademark.updateOne({
+                    $pull: {
+                        products: product.get("_id"),
+                    },
+                });
+                const productDetails = await ProductDetails.find({
+                    product: product.get("_id")
+                })
+                //***
+                for (let productDetail of productDetails) {
+                    const color = await Colors.findById(productDetail.get("color"))
+                    const size = await Sizes.findById(productDetail.get("size"))
+                    const images = await Images.findById(productDetail.get("images")[0])
+                    const billDetails = productDetail.get("billDetails")
+                    const comments = productDetail.get("comments")
+                    if (billDetails.length === 0 && comments.length === 0) {
+                        if (color) {
+                            await color.updateOne({
+                                $pull: {
+                                    productDetails: productDetail.get("_id"),
+                                },
+                            });
+                        }
+                        if (size) {
+                            await size.updateOne({
+                                $pull: {
+                                    productDetails: productDetail.get("_id"),
+                                },
+                            });
+                        }
+                        if (images) {
+                            await images.remove()
+                        }
+                        await productDetail.remove()
+                    } else {
+                        checkDelete = 1
+                    }
+                }
+                if (checkDelete === 0) {
+                    await product.remove()
+                    res.status(200).json({
+                        status: 200,
+                        message: "Delete success",
+                    });
+                } else {
                     res.status(400).json({
                         status: 400,
                         errorMessage: "You can't delete it",
                     });
-                } else {
-                    const category = await Categories.findById(product.get("category"))
-                    await category.updateOne({
-                        $pull: {
-                            products: product.get("_id"),
-                        },
-                    });
-                    const trademark = await Trademarks.findById(product.get("trademark"))
-                    await trademark.updateOne({
-                        $pull: {
-                            products: product.get("_id"),
-                        },
-                    });
-                    const productDetails = await ProductDetails.find({
-                        product: product.get("_id")
-                    })
-                    //***
-                    for (let productDetail of productDetails) {
-                        const color = await Colors.findById(productDetail.get("color"))
-                        const size = await Sizes.findById(productDetail.get("size"))
-                        const images = await Images.findById(productDetail.get("images")[0])
-                        const billDetails = productDetail.get("billDetails")
-                        if (billDetails.length === 0) {
-                            if (color) {
-                                await color.updateOne({
-                                    $pull: {
-                                        productDetails: productDetail.get("_id"),
-                                    },
-                                });
-                            }
-                            if (size) {
-                                await size.updateOne({
-                                    $pull: {
-                                        productDetails: productDetail.get("_id"),
-                                    },
-                                });
-                            }
-                            if (images) {
-                                await images.remove()
-                            }
-                            await productDetail.remove()
-                        } else {
-                            checkDelete = 1
-                        }
-                    }
-                    if (checkDelete === 0) {
-                        await product.remove()
-                        res.status(200).json({
-                            status: 200,
-                            message: "Delete success",
-                        });
-                    } else {
-                        res.status(400).json({
-                            status: 400,
-                            errorMessage: "You can't delete it",
-                        });
-                    }
                 }
             }
         } catch (e) {

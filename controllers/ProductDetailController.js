@@ -194,10 +194,10 @@ const ProductDetailController = {
                     status: 3
                 })
             }
+
             res.status(200).json({
                 data: {
-                    importBills,
-                    exportBills
+
                 }
             })
         } catch (e) {
