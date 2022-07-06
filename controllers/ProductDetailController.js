@@ -248,7 +248,6 @@ const ProductDetailController = {
 
                         const newImage = await ImagesSchema.create({
                             image: imageCheck,
-                            productDetails: []
                         })
                         for (const index in imagesSub) {
                             await newImage.updateOne({
@@ -347,42 +346,65 @@ const ProductDetailController = {
                 })
                 if (productDetails.length > 0) {
                     for (const index in productDetails) {
-                        await Colors.updateOne({
-                            _id: productDetails[index].color
-                        }, {
-                            $pull: {
-                                productDetails: productDetails[index]._id
-                            }
-                        })
-
-                        await Sizes.updateOne({
-                            _id: productDetails[index].size
-                        }, {
-                            $pull: {
-                                productDetails: productDetails[index]._id
-                            }
-                        })
-                        console.log(productDetails[index].get('images')[0].get('_id'))
-                        if (productDetails[index].get('images')[0].get('_id')) {
-                            await ProductDetails.updateOne({
-                                _id: productDetails[index]._id
-                            }, {
+                        if (productDetails[index].billDetails.length === 0 && productDetails[index].comments.length === 0) {
+                            // await Colors.findByIdAndUpdate({
+                            //     _id: productDetails[index].color
+                            // }, {
+                            //     $pull: {
+                            //         productDetails: productDetails[index]._id
+                            //     }
+                            // })
+                            await Colors.findByIdAndUpdate(productDetails[index].color, {
                                 $pull: {
-                                    images: productDetails[index].images[0].get('_id')
+                                    productDetails: productDetails[index]._id
                                 }
                             })
-                            await ImagesSchema.findByIdAndDelete(productDetails[index].get('images')[0].get('_id'))
-                        }
 
-                        await productDetails[index].remove()
+
+                            // await Sizes.updateOne({
+                            //     _id: productDetails[index].size
+                            // }, {
+                            //     $pull: {
+                            //         productDetails: productDetails[index]._id
+                            //     }
+                            // })
+                            await Sizes.findByIdAndUpdate(productDetails[index].size, {
+                                $pull: {
+                                    productDetails: productDetails[index]._id
+                                }
+                            })
+
+                            console.log(productDetails[index].get('images')[0].get('_id'))
+                            if (productDetails[index].get('images')[0].get('_id')) {
+                                // await ProductDetails.updateOne({
+                                //     _id: productDetails[index]._id
+                                // }, {
+                                //     $pull: {
+                                //         images: productDetails[index].images[0].get('_id')
+                                //     }
+                                // })
+                                await ProductDetails.findByIdAndUpdate(productDetails[index]._id, {
+                                    $pull: {
+                                        images: productDetails[index].images[0].get('_id')
+                                    }
+                                })
+                                await ImagesSchema.findByIdAndDelete(productDetails[index].get('images')[0].get('_id'))
+                            }
+                            await product.updateOne({
+                                $pull: {
+                                    productDetails: productDetails[index]._id
+                                }
+                            })
+                            await productDetails[index].remove()
+                        }
                     }
 
-                    await product.updateOne({
-                        $set: {
-                            productDetails: []
-                        }
-                    })
-
+                    // await product.updateOne({
+                    //     $set: {
+                    //         productDetails: []
+                    //     }
+                    // })
+                    //
                     for (let element in req.body) {
                         let {
                             product,
@@ -418,7 +440,6 @@ const ProductDetailController = {
                                 const imagesSub = images.slice(1)
                                 const newImage = await ImagesSchema.create({
                                     image: images[0],
-                                    productDetails: []
                                 })
                                 for (const index in imagesSub) {
                                     await newImage.updateOne({
@@ -486,6 +507,7 @@ const ProductDetailController = {
                                 errorMessage: 'Missing data at ' + (element + 1) + ' row'
                             })
                             break
+                            return
                         }
                     }
                 }
@@ -516,9 +538,6 @@ const ProductDetailController = {
                 const product = await Products.findById(productDetail.get('product'))
                 const color = await Colors.findById(productDetail.get('color'))
                 const size = await Sizes.findById(productDetail.get('size'))
-                console.log(product)
-                console.log(color)
-                console.log(size)
                 await product.updateOne({
                     $pull: {
                         productDetails: productDetail.get('_id')
