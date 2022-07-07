@@ -89,7 +89,7 @@ const billDetailController = {
                 const bill = await Bills.findById(req.body.bill)
                 const product = await ProductDetails.findById(req.body.productDetail)
                 if (bill && product && req.body.quantity > 0) {
-                    console.log("Hello")
+
                     const billDetail = await BillDetails.create({
                         bill: req.body.bill,
                         productDetail: req.body.productDetail,
@@ -104,6 +104,7 @@ const billDetailController = {
                     }
                     const total = quantity * price
                     if (bill.get('type') === 'X') {
+                        console.log("Hello")
                         if (bill.get('coupon')) {
                             const coupon = await Coupons.findById(bill.get('coupon'))
                             const finalPrice = total - coupon.get('discount')
@@ -135,6 +136,7 @@ const billDetailController = {
                                 errorMessage: 'Quantity is not enough'
                             })
                         } else {
+                            console.log('Updated billDetails')
                             await bill.updateOne({
                                 $push: {
                                     billDetails: billDetail.get('_id')
@@ -150,7 +152,6 @@ const billDetailController = {
                                     "quantity": -req.body.quantity
                                 }
                             })
-                            const product = await ProductDetails.findById(req.body.productDetail)
                             const quantity = product.get('quantity')
                             if (quantity === 0) {
                                 await ProductDetails.findByIdAndUpdate(req.body.productDetail, {
@@ -196,6 +197,7 @@ const billDetailController = {
                     })
                 }
             } else {
+                console.log("Please enter a valid bill or product")
                 res.status(400).json({
                     status: 400,
                     errorMessage: 'Invalid data'
