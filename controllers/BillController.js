@@ -18,10 +18,8 @@ const BillController = {
             }).populate('billDetails').sort({
                 createdAt: -1
             });
-            const {docs, ...others } = bills;
             res.status(200).json({
-                data: docs,
-                ...others
+                data: bills
             })
         } catch (error) {
             res.status(500).json(error);
