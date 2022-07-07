@@ -85,6 +85,7 @@ const billDetailController = {
     },
     create: async(req, res) => {
         try {
+            let check = 0
             if (req.body.bill && req.body.productDetail && req.body.quantity && isNumber(req.body.quantity)) {
                 const bill = await Bills.findById(req.body.bill)
                 const product = await ProductDetails.findById(req.body.productDetail)
@@ -131,6 +132,8 @@ const billDetailController = {
                             })
                         }
                         if ((product.get('quantity') < req.body.quantity) && isNumber(product.get('quantity')) && isNumber(req.body.quantity)) {
+                            console.log(product.get('quantity') + '')
+                            check =  1
                             res.status(404).json({
                                 status: 404,
                                 errorMessage: 'Quantity is not enough'
@@ -189,7 +192,10 @@ const billDetailController = {
                             }
                         })
                     }
-                    res.status(201).json(billDetail)
+                    console.log('Product')
+                    if (!check) {
+                        res.status(201).json(billDetail)
+                    }
                 } else {
                     res.status(400).json({
                         status: 400,
