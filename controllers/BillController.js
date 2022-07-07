@@ -12,24 +12,17 @@ const BillController = {
     findAllBillByIdUser: async(req, res) => {
         try {
             const { id } = req.params;
-            const { page, limit } = req.query;
-            if (page || limit) {
-                const bills = await Bills.find({
-                    user: id
-                }).populate('billDetails');
-                const {docs, ...others } = bills;
-                res.status(200).json({
-                    data: docs,
-                    ...others
-                })
-            } else {
-                const bills = await Bills.find({
-                    user: id
-                }).populate('billDetails');
-                res.status(200).json({
-                    data: bills,
-                })
-            }
+
+            const bills = await Bills.find({
+                user: id
+            }).populate('billDetails').sort({
+                createdAt: -1
+            });
+            const {docs, ...others } = bills;
+            res.status(200).json({
+                data: docs,
+                ...others
+            })
         } catch (error) {
             res.status(500).json(error);
         }
